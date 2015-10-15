@@ -190,6 +190,13 @@ bool TutorialApplication::mousePressed(
 			Ogre::LogManager::getSingletonPtr()->logMessage("Moveable object found: "+mCurObject->getName());
 			//Ogre::LogManager::getSingletonPtr()->logMessage("Position: "+Ogre::StringConverter::toString(intersect));
 			Ogre::Vector3 entityPos = mCurObject->getPosition();
+			
+			// If the user pressed the MMB center the camera on this SceneNode
+			if(id == OIS::MB_Middle)
+			{
+				mSceneMgr->getSceneNode("CAMERA_ROTATION")->setPosition(entityPos);
+			}
+
 			// detatch from scene node
 			// ParticleUniverse::ParticleSystem* pSys0 = pManager->createParticleSystem("pSys0", "mp_torch", mSceneMgr);
 			// mCurObject->detachObject(pSys0);
