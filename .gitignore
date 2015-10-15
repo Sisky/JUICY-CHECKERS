@@ -1,0 +1,9 @@
+*.opensdf
+*.sdf
+*.sln
+*.suo
+*.vcxproj
+*.filters
+*.user
+JuicyCheckers/Debug/
+JuicyCheckers/ipch/
