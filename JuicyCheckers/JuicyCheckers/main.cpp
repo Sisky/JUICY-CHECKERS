@@ -16,19 +16,8 @@ http://www.ogre3d.org/wiki/
 */
 
 #include "stdafx.h"
-
 #include "main.h"
-#include <OgreConfigFile.h>
-#include <OgreSceneManager.h>
-#include "OgreRenderWindow.h"
-#include <OgreCamera.h>
-#include "OgreViewport.h"
-#include <OgreEntity.h>
-#include <OgreWindowEventUtilities.h>
-#include <OgreMeshManager.h>
-#include <OgreStringConverter.h>
 
-#include "ParticleUniverseSystemManager.h"
 
 //---------------------------------------------------------------------------
 TutorialApplication::TutorialApplication()
@@ -51,7 +40,7 @@ TutorialApplication::~TutorialApplication()
 {
 
 	mSceneMgr->destroyQuery(mRayScnQuery);
-
+	
 	//Remove ourself as a Window listener
 	Ogre::WindowEventUtilities::removeWindowEventListener(mWindow, this);
 	windowClosed(mWindow);
@@ -60,7 +49,8 @@ TutorialApplication::~TutorialApplication()
 }
 
 //Adjust mouse clipping area
-void TutorialApplication::windowResized(Ogre::RenderWindow* rw)
+void 
+TutorialApplication::windowResized(Ogre::RenderWindow* rw)
 {
 	unsigned int width, height, depth;
 	int left, top;
@@ -72,7 +62,8 @@ void TutorialApplication::windowResized(Ogre::RenderWindow* rw)
 }
 
 //Unattach OIS before window shutdown (very important under Linux)
-void TutorialApplication::windowClosed(Ogre::RenderWindow* rw)
+void 
+TutorialApplication::windowClosed(Ogre::RenderWindow* rw)
 {
 	//Only close for window that created OIS (the main window in these demos)
 	if(rw == mWindow)
@@ -88,7 +79,8 @@ void TutorialApplication::windowClosed(Ogre::RenderWindow* rw)
 	}
 }
 
-bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
+bool 
+TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 {
 	if(mWindow->isClosed())
 		return false;
@@ -107,17 +99,21 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 
 // Input Processing Methods
-bool TutorialApplication::keyPressed(const OIS::KeyEvent& ke) 
+bool 
+TutorialApplication::keyPressed(const OIS::KeyEvent& ke) 
 { 
 	return true; 
 }
 
-bool TutorialApplication::keyReleased(const OIS::KeyEvent& ke) 
+
+bool 
+TutorialApplication::keyReleased(const OIS::KeyEvent& ke) 
 { 
 	return true; 
 }
 
-bool TutorialApplication::mouseMoved(const OIS::MouseEvent& me) 
+bool 
+TutorialApplication::mouseMoved(const OIS::MouseEvent& me) 
 { 
 	Ogre::SceneNode* positionNode = mSceneMgr->getSceneNode("CAMERA_POSITION");
 	Ogre::Vector3 pos = positionNode->getPosition();
@@ -145,8 +141,8 @@ bool TutorialApplication::mouseMoved(const OIS::MouseEvent& me)
 	return true; 
 }
 
-bool TutorialApplication::mousePressed(
-	const OIS::MouseEvent& me, OIS::MouseButtonID id) 
+bool 
+TutorialApplication::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id) 
 { 
 	Ogre::Vector2 mousePos = 
 		Ogre::Vector2(static_cast<Ogre::Real>(me.state.X.abs),static_cast<Ogre::Real>(me.state.Y.abs));
@@ -197,15 +193,7 @@ bool TutorialApplication::mousePressed(
 				mSceneMgr->getSceneNode("CAMERA_ROTATION")->setPosition(entityPos);
 			}
 
-			// detatch from scene node
-			// ParticleUniverse::ParticleSystem* pSys0 = pManager->createParticleSystem("pSys0", "mp_torch", mSceneMgr);
-			// mCurObject->detachObject(pSys0);
 
-			//mCurObject->createChildSceneNode("pSys0")->attachObject(pSys0);
-			//re_mCurObject = mCurObject;
-			//// mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pSys0); // stuff
-			//pSys0->getTechnique(0)->position = entityPos;
-			//pSys0->start();
 			
 
 			break;
@@ -222,14 +210,14 @@ bool TutorialApplication::mousePressed(
 	return true; 
 }
 
-bool TutorialApplication::mouseReleased(
-	const OIS::MouseEvent& me, OIS::MouseButtonID id) 
+bool 
+TutorialApplication::mouseReleased(const OIS::MouseEvent& me, OIS::MouseButtonID id) 
 { 
 	return true; 
 }
 
 void 
-	TutorialApplication::createScene()
+TutorialApplication::createScene()
 {
 	mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC);
 
@@ -345,7 +333,7 @@ void
 }
 
 void 
-	TutorialApplication::initInput()
+TutorialApplication::initInput()
 {
 	Ogre::LogManager::getSingletonPtr()->logMessage("*** Initializing OIS ***");
 	OIS::ParamList pl;
@@ -366,22 +354,23 @@ void
 	mMouse = static_cast<OIS::Mouse*>(mInputManager->createInputObject( OIS::OISMouse, true ));
 
 	mMouse->setEventCallback(this);
-mKeyboard->setEventCallback(this);
+	mKeyboard->setEventCallback(this);
 
 	//Set initial mouse clipping size
 	windowResized(mWindow);
 }
 
 // Initialise the Ogre3D rendering system
-bool TutorialApplication::go()
+bool 
+TutorialApplication::go()
 {
-#ifdef _DEBUG
-	mResourcesCfg = "resources_d.cfg";
-	mPluginsCfg = "plugins_d.cfg";
-#else
-	mResourcesCfg = "resources.cfg";
-	mPluginsCfg = "plugins.cfg";
-#endif
+	#ifdef _DEBUG
+		mResourcesCfg = "resources_d.cfg";
+		mPluginsCfg = "plugins_d.cfg";
+	#else
+		mResourcesCfg = "resources.cfg";
+		mPluginsCfg = "plugins.cfg";
+	#endif
 
 	mRoot = new Ogre::Root(mPluginsCfg);
 
@@ -435,7 +424,8 @@ bool TutorialApplication::go()
 }
 
 void
-TutorialApplication::initParticleSystems() {
+TutorialApplication::initParticleSystems() 
+{
 	// get the particle manager singleton pointer
 	ParticleUniverse::ParticleSystemManager* pManager = ParticleUniverse::ParticleSystemManager::getSingletonPtr();
 
