@@ -14,6 +14,8 @@
 #include <OgreMeshManager.h>
 #include <OgreOverlay.h>
 
+// particle universe
+#include <ParticleUniverseSystemManager.h>
  
 // any other header can be included, as usual
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
@@ -21,5 +23,3 @@
 #include "windows.h"
 #endif
 
-// particle universe
-#include "ParticleUniverseSystemManager.h"
