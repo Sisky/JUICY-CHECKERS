@@ -15,18 +15,8 @@ http://www.ogre3d.org/wiki/
 -----------------------------------------------------------------------------
 */
 
+#include "stdafx.h"
 #include "main.h"
-#include <OgreConfigFile.h>
-#include <OgreSceneManager.h>
-#include "OgreRenderWindow.h"
-#include <OgreCamera.h>
-#include "OgreViewport.h"
-#include <OgreEntity.h>
-#include <OgreWindowEventUtilities.h>
-#include <OgreMeshManager.h>
-#include <OgreStringConverter.h>
-
-
 
 
 //---------------------------------------------------------------------------
@@ -41,7 +31,8 @@ TutorialApplication::TutorialApplication()
 	maxDegree(180.0f),
 	minDegree(-180.0f),
 	mMovableFound(false),
-	mRayScnQuery(0)
+	mRayScnQuery(0),
+	re_mCurObject(0)
 {
 }
 
@@ -49,7 +40,7 @@ TutorialApplication::~TutorialApplication()
 {
 
 	mSceneMgr->destroyQuery(mRayScnQuery);
-
+	
 	//Remove ourself as a Window listener
 	Ogre::WindowEventUtilities::removeWindowEventListener(mWindow, this);
 	windowClosed(mWindow);
@@ -58,7 +49,8 @@ TutorialApplication::~TutorialApplication()
 }
 
 //Adjust mouse clipping area
-void TutorialApplication::windowResized(Ogre::RenderWindow* rw)
+void 
+TutorialApplication::windowResized(Ogre::RenderWindow* rw)
 {
 	unsigned int width, height, depth;
 	int left, top;
@@ -70,7 +62,8 @@ void TutorialApplication::windowResized(Ogre::RenderWindow* rw)
 }
 
 //Unattach OIS before window shutdown (very important under Linux)
-void TutorialApplication::windowClosed(Ogre::RenderWindow* rw)
+void 
+TutorialApplication::windowClosed(Ogre::RenderWindow* rw)
 {
 	//Only close for window that created OIS (the main window in these demos)
 	if(rw == mWindow)
@@ -86,7 +79,8 @@ void TutorialApplication::windowClosed(Ogre::RenderWindow* rw)
 	}
 }
 
-bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
+bool 
+TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 {
 	if(mWindow->isClosed())
 		return false;
@@ -105,56 +99,50 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 
 // Input Processing Methods
-bool TutorialApplication::keyPressed(const OIS::KeyEvent& ke) 
+bool 
+TutorialApplication::keyPressed(const OIS::KeyEvent& ke) 
 { 
 	return true; 
 }
 
-bool TutorialApplication::keyReleased(const OIS::KeyEvent& ke) 
+
+bool 
+TutorialApplication::keyReleased(const OIS::KeyEvent& ke) 
 { 
 	return true; 
 }
 
-bool TutorialApplication::mouseMoved(const OIS::MouseEvent& me) 
+bool 
+TutorialApplication::mouseMoved(const OIS::MouseEvent& me) 
 { 
+	Ogre::SceneNode* positionNode = mSceneMgr->getSceneNode("CAMERA_POSITION");
+	Ogre::Vector3 pos = positionNode->getPosition();
+
+	Ogre::Vector3 origin = Ogre::Vector3(0,0,0);
+	Ogre::Vector3 scale = origin - pos;
+	scale.normalise();
+
+	int relativeZ = me.state.Z.rel;
+	positionNode->setPosition(pos+(scale*relativeZ));
+
 	// Move the camera around an origin point if the user is holding the right mouse button
 	if(me.state.buttonDown(OIS::MB_Right))
 	{
 		int relativeX = me.state.X.rel;
 		int relativeY = me.state.Y.rel;
-
-
-		int relativeZ = me.state.Z.rel;
-
-		Ogre::SceneNode* positionNode = mSceneMgr->getSceneNode("CAMERA_POSITION");
-
-
-		Ogre::Vector3 pos = positionNode->getPosition();
-
-		Ogre::Vector3 origin = Ogre::Vector3(0,0,0);
-		Ogre::Vector3 scale = origin - pos;
-		scale.normalise();
 		
-		
-		//if(pos.z > 50.0f)
-		//{
-			positionNode->setPosition(pos+(scale*relativeZ));
-		//}
-
-		//currentDegree += ;
-
 		if(currentDegree > maxDegree){ currentDegree = maxDegree; }
 		if(currentDegree < minDegree){ currentDegree = minDegree; }
 
 		Ogre::SceneNode* rotationNode = mSceneMgr->getSceneNode("CAMERA_ROTATION");
-		rotationNode->rotate(Ogre::Quaternion(Ogre::Degree(relativeX*0.1f), Ogre::Vector3(0,1,0)) , Ogre::Node::TransformSpace::TS_WORLD);
+		rotationNode->rotate(Ogre::Quaternion(Ogre::Degree(relativeX*0.1f), Ogre::Vector3(0,-1,0)) , Ogre::Node::TransformSpace::TS_WORLD);
 		rotationNode->rotate(Ogre::Quaternion(Ogre::Degree(relativeY*0.1f), Ogre::Vector3(1,0,0)) , Ogre::Node::TransformSpace::TS_LOCAL);
 	}
 	return true; 
 }
 
-bool TutorialApplication::mousePressed(
-	const OIS::MouseEvent& me, OIS::MouseButtonID id) 
+bool 
+TutorialApplication::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id) 
 { 
 	Ogre::Vector2 mousePos = 
 		Ogre::Vector2(static_cast<Ogre::Real>(me.state.X.abs),static_cast<Ogre::Real>(me.state.Y.abs));
@@ -170,10 +158,16 @@ bool TutorialApplication::mousePressed(
 	Ogre::RaySceneQueryResult& result = mRayScnQuery->execute();
 	Ogre::RaySceneQueryResult::iterator it = result.begin();
 
-	Ogre::SceneNode* mCurObject;
+	Ogre::SceneNode*  mCurObject;
 
 	mMovableFound = false;
 
+	//// remove existing effect if selected
+	//if(re_mCurObject != nullptr) {
+	//	if(re_mCurObject->getAttachedObject("pSys0")) {
+	//		re_mCurObject ->detachObject("pSys0");
+	//	}
+	//}
 
 	for ( ; it != result.end(); it++)
 	{
@@ -188,15 +182,20 @@ bool TutorialApplication::mousePressed(
 		{
 			//Ogre::Vector3 intersect = it->worldFragment->singleIntersection;
 			mCurObject = it->movable->getParentSceneNode();
+			
 			Ogre::LogManager::getSingletonPtr()->logMessage("Moveable object found: "+mCurObject->getName());
 			//Ogre::LogManager::getSingletonPtr()->logMessage("Position: "+Ogre::StringConverter::toString(intersect));
-
-			if(id == OIS::MB_Left)
-			{
-				mSceneMgr->getSceneNode("CAMERA_ROTATION")->setPosition(mCurObject->getPosition());
-			}
-		
+			Ogre::Vector3 entityPos = mCurObject->getPosition();
 			
+			// If the user pressed the MMB center the camera on this SceneNode
+			if(id == OIS::MB_Middle)
+			{
+				mSceneMgr->getSceneNode("CAMERA_ROTATION")->setPosition(entityPos);
+			}
+
+
+			
+
 			break;
 		}
 	}
@@ -211,14 +210,14 @@ bool TutorialApplication::mousePressed(
 	return true; 
 }
 
-bool TutorialApplication::mouseReleased(
-	const OIS::MouseEvent& me, OIS::MouseButtonID id) 
+bool 
+TutorialApplication::mouseReleased(const OIS::MouseEvent& me, OIS::MouseButtonID id) 
 { 
 	return true; 
 }
 
 void 
-	TutorialApplication::createScene()
+TutorialApplication::createScene()
 {
 	mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC);
 
@@ -228,7 +227,7 @@ void
 	// We want to create a scene node that we can rotate the camera around at the origin
 	Ogre::SceneNode* cameraParent = mSceneMgr->getRootSceneNode()->createChildSceneNode("CAMERA_ROTATION");;
 	Ogre::SceneNode* cameraChild = cameraParent->createChildSceneNode("CAMERA_POSITION");
-	mSceneMgr->setSkyDome(true, "Examples/CloudySky", 5, 8);
+
 	cameraChild->attachObject(mCamera);
 	cameraChild->translate(10, 300,-500);
 
@@ -236,7 +235,8 @@ void
 	mCamera->lookAt(Ogre::Vector3(0, 0, 0));
 	mCamera->setNearClipDistance(5);
 	
-
+	// setup a skybox
+	mSceneMgr->setSkyBox(true, "Examples/TrippySkyBox");
 
 	Ogre::Viewport* vp = mWindow->addViewport(mCamera);
 
@@ -283,7 +283,7 @@ void
         ninjaNode[10]->attachObject(ninjaEntity[10]);
         ninjaNode[11]->attachObject(ninjaEntity[11]);
  
- 
+		// ground plane
         Ogre::Plane plane(Ogre::Vector3::UNIT_Y, 0);
         Ogre::MeshManager::getSingleton().createPlane(
                 "ground",
@@ -298,18 +298,20 @@ void
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(groundEntity);
         groundEntity->setCastShadows(false);
         groundEntity->setMaterialName("Examples/Checkers");
-
-		//Procedural::BoxGenerator(100.0f, 10.0f, 100.0f, 1, 1, 1).realizeMesh("myBox");
-		//Ogre::Entity* box = mSceneMgr->createEntity("mySphere");
-
-		//Ogre::SceneNode* boxScene = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-		//boxScene->attachObject(box);
-		//boxScene->setPosition(0.0f, -50.0f, 0.0f);
-
  
+		// create a box here
+		// Ogre::MeshManager::getSingleton().createPrefabCube();
+		// Ogre::Entity* boardBox = mSceneMgr->createEntity("boardBox");
+		// mSceneMgr->createEntity("mycube", "Prefab_Cube");
+		// mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject("mycube");
+		
+		// lights
+
         mSceneMgr->setAmbientLight(Ogre::ColourValue(0, 0, 0));
         mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
- 
+		
+
+
         Ogre::Light* spotLight = mSceneMgr->createLight("SpotLight");
  
         spotLight->setDiffuseColour(0, 0, 1.0);
@@ -331,7 +333,7 @@ void
 }
 
 void 
-	TutorialApplication::initInput()
+TutorialApplication::initInput()
 {
 	Ogre::LogManager::getSingletonPtr()->logMessage("*** Initializing OIS ***");
 	OIS::ParamList pl;
@@ -352,22 +354,23 @@ void
 	mMouse = static_cast<OIS::Mouse*>(mInputManager->createInputObject( OIS::OISMouse, true ));
 
 	mMouse->setEventCallback(this);
-mKeyboard->setEventCallback(this);
+	mKeyboard->setEventCallback(this);
 
 	//Set initial mouse clipping size
 	windowResized(mWindow);
 }
 
 // Initialise the Ogre3D rendering system
-bool TutorialApplication::go()
+bool 
+TutorialApplication::go()
 {
-#ifdef _DEBUG
-	mResourcesCfg = "resources_d.cfg";
-	mPluginsCfg = "plugins_d.cfg";
-#else
-	mResourcesCfg = "resources.cfg";
-	mPluginsCfg = "plugins.cfg";
-#endif
+	#ifdef _DEBUG
+		mResourcesCfg = "resources_d.cfg";
+		mPluginsCfg = "plugins_d.cfg";
+	#else
+		mResourcesCfg = "resources.cfg";
+		mPluginsCfg = "plugins.cfg";
+	#endif
 
 	mRoot = new Ogre::Root(mPluginsCfg);
 
@@ -407,6 +410,9 @@ bool TutorialApplication::go()
 	// Initialise OIS
 	initInput();
 
+	// Setup Particle System
+	initParticleSystems();
+
 	//Register as a Window listener
 	Ogre::WindowEventUtilities::addWindowEventListener(mWindow, this);
 
@@ -415,6 +421,58 @@ bool TutorialApplication::go()
 	mRoot->startRendering();
 
 	return true;
+}
+
+void
+TutorialApplication::initParticleSystems() 
+{
+	// get the particle manager singleton pointer
+	ParticleUniverse::ParticleSystemManager* pManager = ParticleUniverse::ParticleSystemManager::getSingletonPtr();
+
+	// stuff
+	pSys0 = pManager->createParticleSystem("pSys0", "explosionSystem", mSceneMgr);
+
+	// create the particle systems
+	ParticleUniverse::ParticleSystem* pSys1 = pManager->createParticleSystem("pSys1", "mp_torch", mSceneMgr);
+	ParticleUniverse::ParticleSystem* pSys2 = pManager->createParticleSystem("pSys2", "mp_torch", mSceneMgr);
+	// cool shield thing
+	ParticleUniverse::ParticleSystem* pSys3 = pManager->createParticleSystem("pSys3", "flareShield", mSceneMgr);
+	// cool round thing system
+	ParticleUniverse::ParticleSystem* pSys4 = pManager->createParticleSystem("pSys4", "example_010", mSceneMgr);
+
+	// attach the particle systems to the scene
+	mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pSys1);	// torch 1
+	mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pSys2); // torch 2
+	mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pSys3); // sheild
+	mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pSys4); // cool round thing
+
+
+	// Scale the particle systems
+	pSys1->setScaleVelocity(10);
+	pSys1->setScale(Ogre::Vector3(10, 10, 10));
+	pSys2->setScaleVelocity(10);
+	pSys2->setScale(Ogre::Vector3(10, 10, 10));
+	pSys3->setScaleVelocity(10);
+	pSys3->setScale(Ogre::Vector3(15, 15, 15));
+	pSys4->setScaleVelocity(10);
+	pSys4->setScale(Ogre::Vector3(10, 10, 10));
+	pSys0->setScaleVelocity(10);
+	pSys0->setScale(Ogre::Vector3(10, 10, 10));
+
+		// Adjust the position of the particle systems a bit by repositioning their ParticleTechnique (there is only one technique in mp_torch)
+	// Normally you would do that by setting the position of the SceneNode to which the Particle System is attached, but in this
+	// demo they are both attached to the same rootnode.
+	pSys1->getTechnique(0)->position = Ogre::Vector3(5, 0, 0);
+	pSys2->getTechnique(0)->position = Ogre::Vector3(-5, 0, 0);
+	pSys3->getTechnique(0)->position = Ogre::Vector3(0,0,0);
+	pSys4->getTechnique(0)->position = Ogre::Vector3(0,0,0);
+
+	// Start the particle systems
+	pSys1->start();
+	pSys2->start();
+	pSys3->start();
+	pSys4->start();
+
 }
 
 //---------------------------------------------------------------------------
@@ -456,3 +514,4 @@ extern "C" {
 #endif
 
 //---------------------------------------------------------------------------
+

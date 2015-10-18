@@ -18,6 +18,8 @@ http://www.ogre3d.org/wiki/
 #ifndef __TutorialApplication_h_
 #define __TutorialApplication_h_
 
+
+
 #include <OgreRoot.h>
 #include <OISEvents.h>
 #include <OISInputManager.h>
@@ -25,6 +27,8 @@ http://www.ogre3d.org/wiki/
 #include <OISMouse.h>
 #include <OgreWindowEventUtilities.h>
 #include <SdkCameraMan.h>
+
+#include "ParticleUniverseSystemManager.h"
 
 //---------------------------------------------------------------------------
 
@@ -47,7 +51,8 @@ protected:
 	void createScene();
 	void initInput();
 
-	
+	// init particle system
+	void initParticleSystems();
 
 	// Process BufferedInput
 virtual bool keyPressed(const OIS::KeyEvent& ke);
@@ -80,6 +85,13 @@ bool mMovableFound;
  
 Ogre::RaySceneQuery* mRayScnQuery;
 
+	// partiucle
+	ParticleUniverse::ParticleSystem* pSys0;
+
+	// testing
+
+	Ogre::SceneNode*  re_mCurObject;
+
 };
 
 //---------------------------------------------------------------------------
@@ -87,3 +99,4 @@ Ogre::RaySceneQuery* mRayScnQuery;
 #endif // #ifndef __TutorialApplication_h_
 
 //---------------------------------------------------------------------------
+
