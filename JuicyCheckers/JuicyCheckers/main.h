@@ -46,18 +46,24 @@ protected:
 	virtual bool frameRenderingQueued(const Ogre::FrameEvent& evt);
 
 	// Methods for initialising the game
-	void createScene();
+	void initScene();
+	// init the input
 	void initInput();
-
+	// init the ninjas
+	void addNinjas();
 	// init particle system
-	void initParticleSystems();
+	void addParticleSystems();
+	// actually create the scene elements
+	void createScene();
+
+
 
 	// Process BufferedInput
-virtual bool keyPressed(const OIS::KeyEvent& ke);
-virtual bool keyReleased(const OIS::KeyEvent& ke);
-virtual bool mouseMoved(const OIS::MouseEvent& me);
-virtual bool mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id);
-virtual bool mouseReleased(const OIS::MouseEvent& me, OIS::MouseButtonID id);
+	virtual bool keyPressed(const OIS::KeyEvent& ke);
+	virtual bool keyReleased(const OIS::KeyEvent& ke);
+	virtual bool mouseMoved(const OIS::MouseEvent& me);
+	virtual bool mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id);
+	virtual bool mouseReleased(const OIS::MouseEvent& me, OIS::MouseButtonID id);
 
 private:
 	Ogre::Root* mRoot;
@@ -75,20 +81,16 @@ private:
 	OIS::Keyboard* mKeyboard;
 
 	// Variables relating to the ingame camera object
-	float currentDegree;
-	float maxDegree;
-	float minDegree;
+	// float currentDegree;
+	int maxDegree;
+	int minDegree;
 
-bool mMovableFound;
+	bool mMovableFound;
  
-Ogre::RaySceneQuery* mRayScnQuery;
+	Ogre::RaySceneQuery* mRayScnQuery;
 
-	// partiucle
-	ParticleUniverse::ParticleSystem* pSys0;
-
-	// testing
-
-	Ogre::SceneNode*  re_mCurObject;
+	// Particle system manager
+	ParticleUniverse::ParticleSystemManager* pManager;
 
 };
 
