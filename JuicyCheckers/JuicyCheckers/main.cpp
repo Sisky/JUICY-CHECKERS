@@ -134,7 +134,7 @@ TutorialApplication::mouseMoved(const OIS::MouseEvent& me)
 	positionNode->setPosition(pos+(scale*relativeZ)); 
 
 	// limit the scrolling amount here
-	Ogre::LogManager::getSingletonPtr()->logMessage("Current Zoom scale: " + Ogre::StringConverter::toString(dist));
+	// Ogre::LogManager::getSingletonPtr()->logMessage("Current Zoom scale: " + Ogre::StringConverter::toString(dist));
 
 	// Move the camera around an origin point if the user is holding the right mouse button
 	if(me.state.buttonDown(OIS::MB_Right))
