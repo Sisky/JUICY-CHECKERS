@@ -27,7 +27,8 @@
 #pragma pack(push, 1)
 struct JoinServer
 {
-	const DefaultMessageIDTypes m_eMessageID = ID_USER_JOIN_SERVER;
+	static const unsigned char m_eMessageID = ID_USER_JOIN_SERVER;
+	int clientID;
 };
 #pragma pack(pop)
 
@@ -35,7 +36,7 @@ struct JoinServer
 #pragma pack(push, 1)
 struct GetLobbys
 {
-	const DefaultMessageIDTypes m_eMessageID = ID_USER_GET_LOBBYS;
+	static const unsigned char m_eMessageID = ID_USER_GET_LOBBYS;
 };
 #pragma pack(pop)
 
@@ -44,7 +45,7 @@ struct GetLobbys
 #pragma pack(push, 1)
 struct JoinLobby
 {
-	const DefaultMessageIDTypes m_eMessageID = ID_USER_JOIN_LOBBY;
+	static const unsigned char  m_eMessageID = ID_USER_JOIN_LOBBY;
 };
 #pragma pack(pop)
 
@@ -53,7 +54,7 @@ struct JoinLobby
 #pragma pack(push, 1)
 struct LobbyChat
 {
-	const DefaultMessageIDTypes m_eMessageID = ID_USER_LOBBY_CHAT;
+	static const unsigned char  m_eMessageID = ID_USER_LOBBY_CHAT;
 };
 #pragma pack(pop)
 
@@ -62,7 +63,7 @@ struct LobbyChat
 #pragma pack(push, 1)
 struct MasterChat
 {
-	const DefaultMessageIDTypes m_eMessageID = ID_USER_MASTER_CHAT;
+	static const unsigned char  m_eMessageID = ID_USER_MASTER_CHAT;
 };
 #pragma pack(pop)
 
@@ -70,7 +71,7 @@ struct MasterChat
 #pragma pack(push, 1)
 struct RegisterChampionship
 {
-	const DefaultMessageIDTypes m_eMessageID = ID_USER_CHAMPIONSHIP_REGISTER;
+	static const unsigned char  m_eMessageID = ID_USER_CHAMPIONSHIP_REGISTER;
 };
 #pragma pack(pop)
 
@@ -79,7 +80,7 @@ struct RegisterChampionship
 #pragma pack(push, 1)
 struct GameUpdate
 {
-	const DefaultMessageIDTypes m_eMessageID = ID_USER_GAME_UPDATE;
+	static const unsigned char  m_eMessageID = ID_USER_GAME_UPDATE;
 };
 #pragma pack(pop)
 
@@ -89,7 +90,7 @@ struct GameUpdate
 #pragma pack(push, 1)
 struct MovePiece
 {
-	const DefaultMessageIDTypes m_eMessageID = ID_USER_MOVE_PIECE;
+	static const unsigned char  m_eMessageID = ID_USER_MOVE_PIECE;
 };
 #pragma pack(pop)
 
@@ -98,7 +99,7 @@ struct MovePiece
 #pragma pack(push, 1)
 struct KingPiece
 {
-	const DefaultMessageIDTypes m_eMessageID = ID_USER_KING_PIECE;
+	static const unsigned char  m_eMessageID = ID_USER_KING_PIECE;
 };
 #pragma pack(pop)
 
@@ -106,7 +107,7 @@ struct KingPiece
 #pragma pack(push, 1)
 struct TakePiece
 {
-	const DefaultMessageIDTypes m_eMessageID = ID_USER_TAKE_PIECE;
+	static const unsigned char  m_eMessageID = ID_USER_TAKE_PIECE;
 };
 #pragma pack(pop)
 
@@ -114,7 +115,7 @@ struct TakePiece
 #pragma pack(push, 1)
 struct SpendUpgrade
 {
-	const DefaultMessageIDTypes m_eMessageID = ID_USER_SPEND_UPGRADE;
+	static const unsigned char  m_eMessageID = ID_USER_SPEND_UPGRADE;
 };
 #pragma pack(pop)
 
@@ -122,14 +123,14 @@ struct SpendUpgrade
 #pragma pack(push, 1)
 struct GetUpgrades
 {
-	const DefaultMessageIDTypes m_eMessageID = ID_USER_GET_UPGRADES;
+	static const unsigned char  m_eMessageID = ID_USER_GET_UPGRADES;
 };
 #pragma pack(pop)
 
 #pragma pack(push, 1)
 struct Error
 {
-	const DefaultMessageIDTypes m_eMessageID = ID_USER_ERROR;
+	static const unsigned char  m_eMessageID = ID_USER_ERROR;
 };
 #pragma pack(pop)
 

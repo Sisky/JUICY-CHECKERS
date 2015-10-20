@@ -13,6 +13,16 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "RakPeerInterface.h"
+#include "MessageIdentifiers.h"
+#include "BitStream.h"
+#include "RakNetTypes.h"  // MessageID
+#include "BitStream.h"
+
+#include "stdafx.h"
+
+#include "datastructures.h"
+
 Client::Client()
 	: peer(0)
 {
@@ -26,6 +36,8 @@ Client::Client()
 Client::~Client()
 {
 	// Destroy the RakPeerInterface instance
+	peer->Shutdown(200);
+
 	RakNet::RakPeerInterface::DestroyInstance(peer);
 }
 
@@ -69,6 +81,17 @@ void
 				////bsOut.Write((RakNet::MessageID)ID_GAME_MESSAGE_1);
 				//bsOut.Write("Hello world");
 				//peer->Send(&bsOut,HIGH_PRIORITY,RELIABLE_ORDERED,0,packet->systemAddress,false);
+
+				// Now send a request to the server to join chat
+				RakNet::MessageID typeId; // This will be assigned to a type I've added after ID_USER_PACKET_ENUM, lets say ID_SET_TIMED_MINE				
+				
+				typeId=ID_USER_JOIN_SERVER;
+				RakNet::BitStream myBitStream;
+				myBitStream.Write(typeId);
+				// Assume we have a Mine* mine object
+				myBitStream.Write(5);				
+
+				peer->Send(&myBitStream, HIGH_PRIORITY,RELIABLE_ORDERED,0,packet->systemAddress,false);
 			}
 			break;
 		case ID_NEW_INCOMING_CONNECTION:
@@ -113,7 +136,15 @@ Client::handleUserPacket(RakNet::Packet* packet)
 	{
 		case ID_USER_JOIN_SERVER:
 			{
-				// The user has joined the Client 
+				// The server has accepted our request to join the server
+				RakNet::MessageID typeId=ID_USER_MASTER_CHAT; // This will be assigned to a type I've added after ID_USER_PACKET_ENUM, lets say ID_SET_TIMED_MINE
+				RakNet::RakString rakString("Name: Hello prepare to be checked");
+								
+				RakNet::BitStream myBitStream;				
+				myBitStream.Write(typeId);
+				myBitStream.Write(rakString);
+
+				peer->Send(&myBitStream, HIGH_PRIORITY,RELIABLE_ORDERED,0,packet->systemAddress,false);
 			}
 			break;
 		case ID_USER_GET_LOBBYS:
@@ -133,7 +164,15 @@ Client::handleUserPacket(RakNet::Packet* packet)
 			break;
 		case ID_USER_MASTER_CHAT:
 			{
-				// The user has joined the Client 
+				// We are receving some master chat add it to the chat buffer
+				// Get the bitstream out of the packet and forward it on to all connected peers
+				RakNet::BitStream myBitStream(packet->data, packet->length, false); // The false is for efficiency so we don't make a copy of the passed data
+				RakNet::RakString rs;
+				myBitStream.IgnoreBytes(sizeof(RakNet::MessageID));
+				myBitStream.Read(rs);
+
+
+				Ogre::LogManager::getSingletonPtr()->logMessage(rs.C_String());
 			}
 			break;
 		case ID_USER_CHAMPIONSHIP_REGISTER:

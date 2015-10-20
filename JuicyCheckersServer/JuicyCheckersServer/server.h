@@ -9,10 +9,12 @@
 #ifndef __SERVER_H__
 #define __SERVER_H__
 
-#include "RakPeerInterface.h"
-#include "MessageIdentifiers.h"
-#include "BitStream.h"
+//#include "RakPeerInterface.h"
+//#include "MessageIdentifiers.h"
+//#include "BitStream.h"
 #include "RakNetTypes.h"  // MessageID
+
+#include <vector>
 
 class Server
 {
@@ -43,10 +45,12 @@ private:
 	static const int PORT = 61126;
 	static const bool isServer = true;
 
+	// We use this boolean to stop the server
 	bool mIsRunning;
 
 
-	// Hold containers of players
+	// Hold containers connected users
+	std::vector<RakNet::RakNetGUID> mConnectedUsers;
 
 	// Hold containers of championships
 

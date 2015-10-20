@@ -13,6 +13,19 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <vector>
+#include <iterator>
+
+
+#include "RakPeerInterface.h"
+#include "MessageIdentifiers.h"
+#include "BitStream.h"
+#include "RakNetTypes.h"  // MessageID
+
+#include <RakString.h>
+
+#include "datastructures.h"
+
 Server::Server()
 	: peer(0)
 	, mIsRunning(false)
@@ -26,6 +39,8 @@ Server::Server()
 
 Server::~Server()
 {
+	peer->Shutdown(300);
+
 	// Destroy the RakPeerInterface instance
 	RakNet::RakPeerInterface::DestroyInstance(peer);
 }
@@ -36,7 +51,7 @@ void
 	// Start the RakNet server
 	RakNet::SocketDescriptor sd(PORT,0);
 	peer->Startup(MAX_CLIENTS, &sd, 1);
-	printf("Starting up Server");
+	printf("Starting up Server\n");
 
 	// We need to let the server accept incoming connections from the clients
 	peer->SetMaximumIncomingConnections(MAX_CLIENTS);
@@ -47,7 +62,10 @@ void
 void 
 	Server::Process(float _delta)
 {
-	// Every Frame we check to see if there have been new network messages
+	// This sleep aparently keeps raknet responsive
+	Sleep(30);
+
+//	 Every Frame we check to see if there have been new network messages
 	RakNet::Packet *packet; // The current packet
 
 	for (packet=peer->Receive(); packet; peer->DeallocatePacket(packet), packet=peer->Receive())
@@ -65,16 +83,7 @@ void
 			break;
 		case ID_CONNECTION_REQUEST_ACCEPTED:
 			{
-				printf("Our connection request has been accepted.\n");
-
-				// This is where we now send a join request to the server to be added to the chat
-
-				//// Use a BitStream to write a custom user message
-				//// Bitstreams are easier to use than sending casted structures, and handle endian swapping automatically
-				//RakNet::BitStream bsOut;
-				////bsOut.Write((RakNet::MessageID)ID_GAME_MESSAGE_1);
-				//bsOut.Write("Hello world");
-				//peer->Send(&bsOut,HIGH_PRIORITY,RELIABLE_ORDERED,0,packet->systemAddress,false);
+				
 			}
 			break;
 		case ID_NEW_INCOMING_CONNECTION:
@@ -120,6 +129,21 @@ Server::handleUserPacket(RakNet::Packet* packet)
 		case ID_USER_JOIN_SERVER:
 			{
 				// The user has joined the server 
+				printf("New Player Requesting to join the server\n");
+				printf("System Address: "); printf(packet->systemAddress.ToString());; printf("\n");
+				printf("RakNet GUID: "); printf(packet->guid.ToString());; printf("\n");
+				mConnectedUsers.push_back(packet->guid);
+
+				// Pass the user a success message back
+				RakNet::MessageID typeId = ID_USER_JOIN_SERVER;
+				RakNet::RakString rakString("Name: Hello prepare to be checked");	
+
+				RakNet::BitStream myBitStream;			
+				myBitStream.Write(typeId);
+				myBitStream.Write(rakString);
+
+				peer->Send(&myBitStream, HIGH_PRIORITY,RELIABLE_ORDERED,0,packet->systemAddress,false);
+				
 			}
 			break;
 		case ID_USER_GET_LOBBYS:
@@ -139,7 +163,29 @@ Server::handleUserPacket(RakNet::Packet* packet)
 			break;
 		case ID_USER_MASTER_CHAT:
 			{
-				// The user has joined the server 
+				// If we get a message from other user pass the message onto all connected clients
+				// Iterate over the RakNet GUID's and send a message to all of them.
+				
+
+				for(std::vector<RakNet::RakNetGUID>::iterator connectedPeer = mConnectedUsers.begin();
+					connectedPeer != mConnectedUsers.end(); 
+					++connectedPeer)
+				{   
+					//if((packet->guid) == (*connectedPeer)) { continue; } // Don't forward the message back to the sending peer			
+					RakNet::SystemAddress sa = peer->GetSystemAddressFromGuid(*connectedPeer);
+
+					// Get the bitstream out of the packet and forward it on to all connected peers
+					RakNet::BitStream myBitStream(packet->data, packet->length, false); // The false is for efficiency so we don't make a copy of the passed data		
+
+					peer->Send(&myBitStream, HIGH_PRIORITY,RELIABLE_ORDERED,0,sa,false);
+					printf("User Sent Master Chat Message\n");
+					myBitStream.IgnoreBytes(sizeof(RakNet::MessageID));
+					RakNet::RakString msg;
+					myBitStream.Read(msg);
+
+					printf("Message: "); printf(msg.C_String()); printf("\n");
+				}
+				
 			}
 			break;
 		case ID_USER_CHAMPIONSHIP_REGISTER:
