@@ -15,6 +15,7 @@
 
 Server::Server()
 	: peer(0)
+	, mIsRunning(false)
 {
 	// Create the reference to the rakpeer interface
 	peer = RakNet::RakPeerInterface::GetInstance();
@@ -35,9 +36,12 @@ void
 	// Start the RakNet server
 	RakNet::SocketDescriptor sd(PORT,0);
 	peer->Startup(MAX_CLIENTS, &sd, 1);
+	printf("Starting up Server");
 
 	// We need to let the server accept incoming connections from the clients
 	peer->SetMaximumIncomingConnections(MAX_CLIENTS);
+
+	mIsRunning = true;
 }
 
 void 
@@ -186,4 +190,10 @@ Server::handleUserPacket(RakNet::Packet* packet)
 	}
 
 	return handled;
+}
+
+bool
+Server::isRunning()
+{
+	return (mIsRunning);
 }

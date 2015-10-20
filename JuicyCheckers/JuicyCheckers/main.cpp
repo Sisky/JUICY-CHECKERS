@@ -14,9 +14,11 @@ Tutorial Framework (for Ogre 1.9)
 http://www.ogre3d.org/wiki/
 -----------------------------------------------------------------------------
 */
+#include <winsock2.h>
 
 #include "stdafx.h"
 #include "main.h"
+
 
 
 //---------------------------------------------------------------------------
@@ -32,12 +34,15 @@ TutorialApplication::TutorialApplication()
 	minDegree(340),
 	mMovableFound(false),
 	mRayScnQuery(0),
-	pManager(0)
+	pManager(0),
+	client(0)
 {
 }
 
 TutorialApplication::~TutorialApplication()
 {
+	delete client;
+	client = 0;
 
 	mSceneMgr->destroyQuery(mRayScnQuery);
 	
@@ -575,6 +580,9 @@ TutorialApplication::go()
 	// create the scene
 	createScene();
 
+	// Initialise the Networking
+	initNetworking();
+
 	//Register as a Window listener
 	Ogre::WindowEventUtilities::addWindowEventListener(mWindow, this);
 
@@ -585,12 +593,19 @@ TutorialApplication::go()
 	return true;
 }
 
+void 
+TutorialApplication::initNetworking()
+{
+	client = new Client();
+}
+
 
 
 //---------------------------------------------------------------------------
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
+#include <winsock2.h>
 #include "windows.h"
 #endif
 

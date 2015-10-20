@@ -23,6 +23,8 @@ public:
 
 	void Process(float _delta);
 
+	bool isRunning();
+
 protected:
 	void Initialize();
 	bool handleUserPacket(RakNet::Packet* packet);
@@ -40,6 +42,8 @@ private:
 	static const int MAX_CLIENTS = 16;
 	static const int PORT = 61126;
 	static const bool isServer = true;
+
+	bool mIsRunning;
 
 
 	// Hold containers of players

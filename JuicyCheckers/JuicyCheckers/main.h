@@ -18,6 +18,8 @@ http://www.ogre3d.org/wiki/
 #ifndef __TutorialApplication_h_
 #define __TutorialApplication_h_
 
+#include "client.h"
+
 #include <OgreRoot.h>
 #include <OISEvents.h>
 #include <OISInputManager.h>
@@ -27,6 +29,8 @@ http://www.ogre3d.org/wiki/
 #include <SdkCameraMan.h>
 
 #include "ParticleUniverseSystemManager.h"
+#include "client.h"
+
 
 //---------------------------------------------------------------------------
 
@@ -55,6 +59,9 @@ protected:
 	void addParticleSystems();
 	// actually create the scene elements
 	void createScene();
+
+	// Initialise Networking
+	void initNetworking();
 
 
 
@@ -91,6 +98,8 @@ private:
 
 	// Particle system manager
 	ParticleUniverse::ParticleSystemManager* pManager;
+
+	Client* client;
 
 };
 
