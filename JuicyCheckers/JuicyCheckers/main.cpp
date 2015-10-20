@@ -93,6 +93,7 @@ TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 	//Need to capture/update each device
 	mKeyboard->capture();
 	mMouse->capture();
+	client->Process(evt.timeSinceLastEvent);
 
 	//processInput(evt);
 
