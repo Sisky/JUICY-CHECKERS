@@ -13,6 +13,7 @@
 //#include "MessageIdentifiers.h"
 //#include "BitStream.h"
 #include "RakNetTypes.h"  // MessageID
+#include "lobby.h"
 
 #include <vector>
 
@@ -30,6 +31,11 @@ public:
 protected:
 	void Initialize();
 	bool handleUserPacket(RakNet::Packet* packet);
+
+	// This function creates a new lobby
+	RakNet::NetworkID CreateLobby(RakNet::RakNetGUID playerGUID);
+
+
 	
 private:
 
@@ -45,12 +51,16 @@ private:
 	static const int PORT = 61126;
 	static const bool isServer = true;
 
+	// This holds the Network ID Manager for lookup of NetworkID's
+	RakNet::NetworkIDManager NUIDManager;
+
 	// We use this boolean to stop the server
 	bool mIsRunning;
 
 
 	// Hold containers connected users
 	std::vector<RakNet::RakNetGUID> mConnectedUsers;
+	std::vector<Lobby*> mLobbies;
 
 	// Hold containers of championships
 

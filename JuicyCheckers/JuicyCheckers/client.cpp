@@ -15,6 +15,8 @@
 
 #include "RakPeerInterface.h"
 #include "MessageIdentifiers.h"
+#include "NetworkIDObject.h"
+#include "NetworkIDManager.h"
 #include "BitStream.h"
 #include "RakNetTypes.h"  // MessageID
 #include "BitStream.h"
@@ -145,16 +147,59 @@ Client::handleUserPacket(RakNet::Packet* packet)
 				myBitStream.Write(rakString);
 
 				peer->Send(&myBitStream, HIGH_PRIORITY,RELIABLE_ORDERED,0,packet->systemAddress,false);
+
+				// Get a listing of all the current lobbies
+				RakNet::MessageID typeId2=ID_USER_JOIN_LOBBY; // This will be assigned to a type I've added after ID_USER_PACKET_ENUM, lets say ID_SET_TIMED_MINE				
+								
+				RakNet::BitStream myBitStream2;				
+				myBitStream2.Write(typeId2);
+				//myBitStream.Write(rakString);
+
+				peer->Send(&myBitStream2, HIGH_PRIORITY,RELIABLE_ORDERED,0,packet->systemAddress,false);
 			}
 			break;
 		case ID_USER_GET_LOBBYS:
 			{
-				// The user has joined the Client 
+				// The server has sent a response with all the current game lobbies
+				// Get the BitStream the server sent
+				RakNet::BitStream lobbyStream(packet->data, packet->length, false);
+
+				// Ignore the bytes that state the message id
+				lobbyStream.IgnoreBytes(sizeof(RakNet::MessageID));
+
+				// Get the number of lobbies
+				int numLobbies;
+				lobbyStream.Read(numLobbies);
+				
+
+				
+				// Get the network ID's of the lobbies the server sent
+				// The vector will hold the current network ids of the lobbies
+				// the client can then request join a lobby
+				std::vector<RakNet::NetworkID> lobbyNetworkID;
+				for(int i = 0; i < numLobbies; ++i)
+				{
+					RakNet::NetworkID currentID;
+					lobbyStream.Read(currentID);
+
+					lobbyNetworkID.push_back(currentID);
+					
+				}				
 			}
 			break;
 		case ID_USER_JOIN_LOBBY:
 			{
-				// The user has joined the Client 
+				// The Server has responded to our request to join a lobby
+				RakNet::MessageID typeId=ID_USER_GET_LOBBYS; // This will be assigned to a type I've added after ID_USER_PACKET_ENUM, lets say ID_SET_TIMED_MINE
+
+				// Send a packet back requesting the server list all the lobbies
+				RakNet::MessageID id = ID_USER_GET_LOBBYS;
+
+				RakNet::BitStream myBitStream;
+				myBitStream.Write(id);			
+
+				peer->Send(&myBitStream, HIGH_PRIORITY,RELIABLE_ORDERED,0,packet->systemAddress,false);
+				
 			}
 			break;
 		case ID_USER_LOBBY_CHAT:
