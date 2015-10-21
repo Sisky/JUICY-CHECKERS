@@ -18,6 +18,9 @@ http://www.ogre3d.org/wiki/
 #include "stdafx.h"
 #include "main.h"
 
+#include "BoardSquare.h"
+
+
 
 //---------------------------------------------------------------------------
 TutorialApplication::TutorialApplication()
@@ -115,6 +118,10 @@ TutorialApplication::keyReleased(const OIS::KeyEvent& ke)
 bool 
 TutorialApplication::mouseMoved(const OIS::MouseEvent& me) 
 { 
+	// as the mouse moves over each item it it highlighted... each square needs a particle effect
+	Ogre::Vector2 mousePos = Ogre::Vector2(static_cast<Ogre::Real>(me.state.X.abs),static_cast<Ogre::Real>(me.state.Y.abs));
+	// cast a ray into the scene
+
 	// handling mouse scroll wheel input
 	Ogre::SceneNode* positionNode = mSceneMgr->getSceneNode("CAMERA_POSITION");
 	Ogre::Vector3 pos = positionNode->getPosition();
@@ -263,6 +270,7 @@ TutorialApplication::addNinjas()
             Ogre::String number= Ogre::StringConverter::toString(i + 1);
             ninjaEntity[i] = mSceneMgr->createEntity("ninja " + number, "ninja.mesh");
             ninjaNode[i] = mSceneMgr->getRootSceneNode()->createChildSceneNode("Node " + number);
+			
     }
  
     ninjaNode[0]->setPosition(700, 0, 500);
@@ -307,7 +315,6 @@ TutorialApplication::addParticleSystems()
 	psSelection->setScale(Ogre::Vector3(20, 20, 20));
 	// attach the particle system to the scenenode
 	psSelectableParticle->attachObject(psSelection);
-	// psSelection->start();
 
 	// define the particle system
 	// torches
@@ -345,6 +352,8 @@ TutorialApplication::addParticleSystems()
 	psTorchNode2->attachObject(psTorch2);
 	psTorchNode3->attachObject(psTorch3);
 	psTorchNode4->attachObject(psTorch4);
+
+	
 	
 	// cool shield thing
 	//ParticleUniverse::ParticleSystem* pSys3 = pManager->createParticleSystem("pSys3", "flareShield", mSceneMgr);
@@ -404,14 +413,68 @@ TutorialApplication::addParticleSystems()
 void
 TutorialApplication::createScene()
 {
+	// std::vector<BoardSquare*> Board;
+	// populate the boardsquare vector
+	for(int i = 0; i < 64; i++) {
+		BoardSquare* b = new BoardSquare();
+		b->createPlane(i + 1);
+		Board.push_back(b);
+	}
 
-	// playing board plane
-    Ogre::Plane plane(Ogre::Vector3::UNIT_Y, 0);
-    Ogre::MeshManager::getSingleton().createPlane("ground",Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,plane,1600, 1600, 1, 1,true,1, 2, 2,Ogre::Vector3::UNIT_Z);
-    Ogre::Entity* groundEntity = mSceneMgr->createEntity("ground");
-    mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(groundEntity);
-    groundEntity->setCastShadows(false);
-    groundEntity->setMaterialName("Examples/Checkers");
+
+	// create the playing board
+	// create the board scenenode and name is so that we can filter for it later
+	Ogre::SceneNode* boardSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("BOARD_NODE");
+	
+	// entity handles the mesh and colour etc
+	// node handles the position etc
+	for(int j = 0; j < 8; j++) {
+		for(int i = 0; i < 8; i++) {
+			 // array iteration
+			 int it = (i + (j * 8)) + 1;
+
+			 Ogre::String number= Ogre::StringConverter::toString(it);
+			 // obtain the plane from the boardsquare class
+			 Ogre::Entity* squareEntity = mSceneMgr->createEntity("boardSquare" + number); 
+			 squareEntity->setCastShadows(false);			 
+			 // set the material
+			 int modTest = it % 2;
+
+			 if(modTest == 1) {
+				// ensure that each other row is offset to the last
+				if(j % 2 == 1) { // odd
+					squareEntity->setMaterialName("Juicy/CheckersBlack");
+				}
+				else {
+					squareEntity->setMaterialName("Juicy/CheckersWhite");
+				}
+			 }
+			 else {
+				if(j % 2 == 1) { // odd
+					squareEntity->setMaterialName("Juicy/CheckersWhite");
+				}
+				else {
+					squareEntity->setMaterialName("Juicy/CheckersBlack");
+				}
+			 }
+
+			 // create the child scene node and assign a name, attach it to the root node
+			 // create a scene node and name it boardNode
+			 Ogre::Vector3 pos = Ogre::Vector3((i*200)-700, 0, (j*200)-700);
+			 //boardSceneNode->createChildSceneNode("squareNode" + number);
+			 // boardSceneNode->getChild("squareNode" + number)->setPosition(pos);
+			 // boardSceneNode->getChild("squareNode" + number)->attachObject(squareEntity);
+			 mSceneMgr->getSceneNode("BOARD_NODE")->createChildSceneNode("squareNode" + number);
+			 //mSceneMgr->getRootSceneNode()->createChildSceneNode("squareNode" + number);
+			 // positon the node ... board is -800 to 800, each square is 200, 200
+			 mSceneMgr->getSceneNode("squareNode" + number)->setPosition(pos);
+			 // attach the entity to the node
+			 mSceneMgr->getSceneNode("squareNode" + number)->attachObject(squareEntity);
+			 
+
+		} 
+	}
+	
 	
 	// add a wood textured box under the board plane
 	Ogre::Entity* boardBase;

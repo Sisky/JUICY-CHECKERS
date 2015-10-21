@@ -30,6 +30,8 @@ http://www.ogre3d.org/wiki/
 
 #include "ParticleUniverseSystemManager.h"
 
+class BoardSquare;
+
 //---------------------------------------------------------------------------
 
 class TutorialApplication : public Ogre::WindowEventListener, public Ogre::FrameListener, public OIS::KeyListener, public OIS::MouseListener
@@ -93,6 +95,8 @@ private:
 
 	// Particle system manager
 	ParticleUniverse::ParticleSystemManager* pManager;
+
+	std::vector<BoardSquare*> Board;
 
 };
 
