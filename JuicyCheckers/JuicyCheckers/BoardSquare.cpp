@@ -17,6 +17,9 @@ BoardSquare::~BoardSquare(void)
 void
 BoardSquare::createPlane(int planeNumber) 
 {
+	// plane number is also the id of the plane (for sorting/searching purposes)
+	setID(planeNumber);
+	// convert the id to a string 
 	Ogre::String number = Ogre::StringConverter::toString(planeNumber);
 	// define the plane object
 	m_BoardSquare = Ogre::Plane(Ogre::Vector3::UNIT_Y, 0);
