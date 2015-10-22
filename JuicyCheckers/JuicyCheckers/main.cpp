@@ -14,12 +14,14 @@ Tutorial Framework (for Ogre 1.9)
 http://www.ogre3d.org/wiki/
 -----------------------------------------------------------------------------
 */
+#include <winsock2.h>
 
 #include "stdafx.h"
 #include "main.h"
 
 // #include "BoardSquare.h"
 #include "Board.h"
+
 
 
 
@@ -37,12 +39,18 @@ TutorialApplication::TutorialApplication()
 	//mMovableFound(false),
 	mRayScnQuery(0),
 	pManager(0),
+
+	client(0),
 	pBoard(0)
+
 {
 }
 
 TutorialApplication::~TutorialApplication()
 {
+	delete client;
+	client = 0;
+
 	// destroy the ray query upon exit
 	mSceneMgr->destroyQuery(mRayScnQuery);
 	
@@ -93,6 +101,7 @@ TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 	//Need to capture/update each device
 	mKeyboard->capture();
 	mMouse->capture();
+	client->Process(evt.timeSinceLastEvent);
 
 	//processInput(evt);
 
@@ -722,6 +731,9 @@ TutorialApplication::go()
 	// create the scene
 	createScene();
 
+	// Initialise the Networking
+	initNetworking();
+
 	//Register as a Window listener
 	Ogre::WindowEventUtilities::addWindowEventListener(mWindow, this);
 
@@ -732,12 +744,19 @@ TutorialApplication::go()
 	return true;
 }
 
+void 
+TutorialApplication::initNetworking()
+{
+	client = new Client();
+}
+
 
 
 //---------------------------------------------------------------------------
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
+#include <winsock2.h>
 #include "windows.h"
 #endif
 

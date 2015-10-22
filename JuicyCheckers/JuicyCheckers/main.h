@@ -18,7 +18,7 @@ http://www.ogre3d.org/wiki/
 #ifndef __TutorialApplication_h_
 #define __TutorialApplication_h_
 
-
+#include "client.h"
 
 #include <OgreRoot.h>
 #include <OISEvents.h>
@@ -29,6 +29,8 @@ http://www.ogre3d.org/wiki/
 #include <SdkCameraMan.h>
 
 #include "ParticleUniverseSystemManager.h"
+#include "client.h"
+
 
 class BoardSquare;
 class Board;
@@ -71,6 +73,9 @@ protected:
 	// actually create the scene elements
 	void createScene();
 
+	// Initialise Networking
+	void initNetworking();
+
 
 
 	// Process BufferedInput
@@ -106,8 +111,12 @@ private:
 	// Particle system manager
 	ParticleUniverse::ParticleSystemManager* pManager;
 
+
+	Client* client;
+
 	// the player boards
 	Board* pBoard;
+
 
 };
 
