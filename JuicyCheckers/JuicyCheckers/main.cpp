@@ -269,7 +269,7 @@ TutorialApplication::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID 
 			//debug
 			// Ogre::LogManager::getSingletonPtr()->logMessage("Object found: " + it->movable->getName());
 			mCurObject = it->movable->getParentSceneNode();
-			// Ogre::LogManager::getSingletonPtr()->logMessage("Object found: " + mCurObject->getName());
+			Ogre::LogManager::getSingletonPtr()->logMessage("Object found: " + mCurObject->getName());
 
 			// should only really display on the odd squares (black) as the others are never played on
 
@@ -383,7 +383,8 @@ TutorialApplication::addParticleSystems()
 
 	// circle particle that is triggered when an object is clicked
 	ParticleUniverse::ParticleSystem* psSelection = pManager->createParticleSystem("psSelection", "example_010", mSceneMgr);
-	// set the mask
+		
+	// set the query mask
 	psSelection->setQueryFlags(PARTICLE_MASK);
 	// create the scene node
 	Ogre::SceneNode* psSelectableParticle = mSceneMgr->getRootSceneNode()->createChildSceneNode("selectionNode");
