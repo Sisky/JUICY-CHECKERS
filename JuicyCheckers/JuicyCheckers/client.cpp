@@ -139,23 +139,25 @@ Client::handleUserPacket(RakNet::Packet* packet)
 		case ID_USER_JOIN_SERVER:
 			{
 				// The server has accepted our request to join the server
-				RakNet::MessageID typeId=ID_USER_MASTER_CHAT; // This will be assigned to a type I've added after ID_USER_PACKET_ENUM, lets say ID_SET_TIMED_MINE
-				RakNet::RakString rakString("Name: Hello prepare to be checked");
-								
-				RakNet::BitStream myBitStream;				
-				myBitStream.Write(typeId);
-				myBitStream.Write(rakString);
+				// We should probably transition to the lobby listing state now
 
-				peer->Send(&myBitStream, HIGH_PRIORITY,RELIABLE_ORDERED,0,packet->systemAddress,false);
-
-				// Get a listing of all the current lobbies
-				RakNet::MessageID typeId2=ID_USER_JOIN_LOBBY; // This will be assigned to a type I've added after ID_USER_PACKET_ENUM, lets say ID_SET_TIMED_MINE				
-								
-				RakNet::BitStream myBitStream2;				
-				myBitStream2.Write(typeId2);
+				//RakNet::MessageID typeId=ID_USER_MASTER_CHAT; // This will be assigned to a type I've added after ID_USER_PACKET_ENUM, lets say ID_SET_TIMED_MINE
+				//RakNet::RakString rakString("Name: Hello prepare to be checked");
+				//				
+				//RakNet::BitStream myBitStream;				
+				//myBitStream.Write(typeId);
 				//myBitStream.Write(rakString);
 
-				peer->Send(&myBitStream2, HIGH_PRIORITY,RELIABLE_ORDERED,0,packet->systemAddress,false);
+				//peer->Send(&myBitStream, HIGH_PRIORITY,RELIABLE_ORDERED,0,packet->systemAddress,false);
+
+				//// Get a listing of all the current lobbies
+				//RakNet::MessageID typeId2=ID_USER_JOIN_LOBBY; // This will be assigned to a type I've added after ID_USER_PACKET_ENUM, lets say ID_SET_TIMED_MINE				
+				//				
+				//RakNet::BitStream myBitStream2;				
+				//myBitStream2.Write(typeId2);
+				////myBitStream.Write(rakString);
+
+				//peer->Send(&myBitStream2, HIGH_PRIORITY,RELIABLE_ORDERED,0,packet->systemAddress,false);
 			}
 			break;
 		case ID_USER_GET_LOBBYS:
@@ -170,9 +172,7 @@ Client::handleUserPacket(RakNet::Packet* packet)
 				// Get the number of lobbies
 				int numLobbies;
 				lobbyStream.Read(numLobbies);
-				
-
-				
+								
 				// Get the network ID's of the lobbies the server sent
 				// The vector will hold the current network ids of the lobbies
 				// the client can then request join a lobby
@@ -180,7 +180,9 @@ Client::handleUserPacket(RakNet::Packet* packet)
 				for(int i = 0; i < numLobbies; ++i)
 				{
 					RakNet::NetworkID currentID;
+					RakNet::RakString lobbyName;
 					lobbyStream.Read(currentID);
+					lobbyStream.Read(lobbyName);
 
 					lobbyNetworkID.push_back(currentID);
 					
@@ -190,21 +192,23 @@ Client::handleUserPacket(RakNet::Packet* packet)
 		case ID_USER_JOIN_LOBBY:
 			{
 				// The Server has responded to our request to join a lobby
-				RakNet::MessageID typeId=ID_USER_GET_LOBBYS; // This will be assigned to a type I've added after ID_USER_PACKET_ENUM, lets say ID_SET_TIMED_MINE
+				// We should change the gamestate here to the lobby screen
 
-				// Send a packet back requesting the server list all the lobbies
-				RakNet::MessageID id = ID_USER_GET_LOBBYS;
+				
+			}
+			break;
+		case ID_USER_CREATE_LOBBY:
+			{
+				// The Server has responded to our request to join a lobby
+				// The server will have put us in the lobby so we should procress to the lobby screen
 
-				RakNet::BitStream myBitStream;
-				myBitStream.Write(id);			
-
-				peer->Send(&myBitStream, HIGH_PRIORITY,RELIABLE_ORDERED,0,packet->systemAddress,false);
 				
 			}
 			break;
 		case ID_USER_LOBBY_CHAT:
 			{
-				// The user has joined the Client 
+				// We have received some forwarded chat that is destined for the lobby we are currently in
+
 			}
 			break;
 		case ID_USER_MASTER_CHAT:
@@ -228,16 +232,24 @@ Client::handleUserPacket(RakNet::Packet* packet)
 		case ID_USER_GAME_UPDATE:
 			{
 				// The user has joined the Client 
+				// The server has sent data that contains the entire current state of the game
+				// recompile this information from the bitstream
 			}
 			break;
 		case ID_USER_MOVE_PIECE:
 			{
-				// The user has joined the Client 
+				// This is the server issuing a move piece command
+				// structured like
+				// Type
+				// Position1X Position1Y
+				// Position2X Position2Y
+
+
 			}
 			break;
 		case ID_USER_KING_PIECE:
 			{
-				// The user has joined the Client 
+				// This is the server issuing a command to kind a certain piece.
 			}
 			break;
 		case ID_USER_TAKE_PIECE:
@@ -269,3 +281,37 @@ Client::handleUserPacket(RakNet::Packet* packet)
 
 	return handled;
 }
+
+void 
+Client::SendMovement(int x1, int y1, int x2, int y2)
+{
+	// This function will send the movement the user requested to the server
+	// for verification and to update the other peers
+
+}
+
+void 
+Client::GetTurn()
+{
+
+}
+
+void 
+Client::GetLobbies()
+{
+
+}
+
+void 
+Client::JoinLobby()
+{
+
+}
+
+void 
+Client::TakePiece()
+{
+
+}
+
+void 

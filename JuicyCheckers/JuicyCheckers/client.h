@@ -23,9 +23,20 @@ public:
 
 	void Process(float _delta);
 
+	void SendMovement(int x1, int y1, int x2, int y2);
+	void GetTurn();
+	void GetLobbies();
+	void JoinLobby();
+	void TakePiece();
+
 protected:
 	void Initialize();
 	bool handleUserPacket(RakNet::Packet* packet);
+
+	// Will need some kind of method to call to update the current gamestate
+	//void UpdateGameState(Game& game);
+
+
 	
 private:
 

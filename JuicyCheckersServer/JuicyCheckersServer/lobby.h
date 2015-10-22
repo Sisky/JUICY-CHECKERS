@@ -14,6 +14,8 @@
 #include "NetworkIDObject.h"
 #include "NetworkIDManager.h"
 
+#include "match.h"
+
 class Lobby : public RakNet::NetworkIDObject
 {
 	// Member Functions
@@ -29,6 +31,14 @@ public:
 	void AddClient(RakNet::RakNetGUID guid);
 	void RemoveClient(RakNet::RakNetGUID guid);
 
+	// This method will create all the games and assign two players to each game.
+	void StartGames();
+
+	void SetName(RakNet::RakString _name);
+	RakNet::RakString GetName();
+
+	void ProcessNetworkMessage(RakNet::RakPeerInterface* peer, RakNet::Packet* packet);
+
 
 	
 
@@ -42,6 +52,9 @@ public:
 protected:
 
 private:
+	// Store what the name of this lobby is
+	RakNet::RakString name;
+	
 	// Hold a container of RakNetGUID's that are part of this
 	// lobby
 	std::vector<RakNet::RakNetGUID> mPlayerContainer;
@@ -51,7 +64,7 @@ private:
 	RakNet::RakNetGUID mHostingPlayer;
 
 	// Hold a container of Games that are part of this lobby/championship
-	//std::vector<Match*> mMatches;
+	std::vector<Match*> mMatches;
 	
 };
 
