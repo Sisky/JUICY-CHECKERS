@@ -18,6 +18,8 @@ http://www.ogre3d.org/wiki/
 #ifndef __TutorialApplication_h_
 #define __TutorialApplication_h_
 
+#include "client.h"
+
 #include <OgreRoot.h>
 #include <OISEvents.h>
 #include <OISInputManager.h>
@@ -27,6 +29,11 @@ http://www.ogre3d.org/wiki/
 #include <SdkCameraMan.h>
 
 #include "ParticleUniverseSystemManager.h"
+#include "client.h"
+
+
+class BoardSquare;
+class Board;
 
 //---------------------------------------------------------------------------
 
@@ -37,6 +44,16 @@ public:
 	virtual ~TutorialApplication(void);
 	bool go();
 
+	// << refers to bitshifting the value.... as in 00000001 << 0 = 00000001
+	// 00000001 << 1 = 00000010 = 2 in binary etc
+	enum QueryFlags
+	{
+	  ROBOT_MASK = 1 << 0,
+	  NINJA_MASK = 1 << 1,
+	  BOARD_MASK = 1 << 2,
+	  PARTICLE_MASK = 1 << 3
+	};
+
 protected:
 	// Ogre::WindowEventListener
 	virtual void windowResized(Ogre::RenderWindow* rw);
@@ -46,18 +63,27 @@ protected:
 	virtual bool frameRenderingQueued(const Ogre::FrameEvent& evt);
 
 	// Methods for initialising the game
-	void createScene();
+	void initScene();
+	// init the input
 	void initInput();
-
+	// init the ninjas
+	void addNinjas();
 	// init particle system
-	void initParticleSystems();
+	void addParticleSystems();
+	// actually create the scene elements
+	void createScene();
+
+	// Initialise Networking
+	void initNetworking();
+
+
 
 	// Process BufferedInput
-virtual bool keyPressed(const OIS::KeyEvent& ke);
-virtual bool keyReleased(const OIS::KeyEvent& ke);
-virtual bool mouseMoved(const OIS::MouseEvent& me);
-virtual bool mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id);
-virtual bool mouseReleased(const OIS::MouseEvent& me, OIS::MouseButtonID id);
+	virtual bool keyPressed(const OIS::KeyEvent& ke);
+	virtual bool keyReleased(const OIS::KeyEvent& ke);
+	virtual bool mouseMoved(const OIS::MouseEvent& me);
+	virtual bool mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id);
+	virtual bool mouseReleased(const OIS::MouseEvent& me, OIS::MouseButtonID id);
 
 private:
 	Ogre::Root* mRoot;
@@ -75,20 +101,22 @@ private:
 	OIS::Keyboard* mKeyboard;
 
 	// Variables relating to the ingame camera object
-	float currentDegree;
-	float maxDegree;
-	float minDegree;
+	// float currentDegree;
+	int maxDegree;
+	int minDegree;
 
-bool mMovableFound;
  
-Ogre::RaySceneQuery* mRayScnQuery;
+	Ogre::RaySceneQuery* mRayScnQuery;
 
-	// partiucle
-	ParticleUniverse::ParticleSystem* pSys0;
+	// Particle system manager
+	ParticleUniverse::ParticleSystemManager* pManager;
 
-	// testing
 
-	Ogre::SceneNode*  re_mCurObject;
+	Client* client;
+
+	// the player boards
+	Board* pBoard;
+
 
 };
 
