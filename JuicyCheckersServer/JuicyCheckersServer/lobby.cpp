@@ -15,6 +15,12 @@
 #include <RakPeerInterface.h>
 #include <BitStream.h>
 
+#include "MessageIdentifiers.h"
+
+#include "errors.h"
+
+#include "match.h"
+
 // Local Includes
 
 Lobby::Lobby()
@@ -96,9 +102,44 @@ void
 }
 
 void 
-Lobby::ProcessNetworkMessage(RakNet::RakPeerInterface* peer, RakNet::Packet* packet)
+	Lobby::ProcessNetworkMessage(RakNet::RakPeerInterface* peer, RakNet::Packet* packet)
 {
 	// This function processes network messages that are directed at this lobby
 	// if then gets the network id of the match and forwards it on
+	RakNet::BitStream myBitStream(packet->data, packet->length, false);
+	myBitStream.IgnoreBytes(sizeof(RakNet::MessageID));	// Ignore the message identifer 
+	myBitStream.IgnoreBytes(sizeof(RakNet::NetworkID)); // Ignore the ID of the Lobby
+
+	// Get the ID of the match that this message belongs to
+	RakNet::NetworkID matchID = RakNet::UNASSIGNED_NETWORK_ID;
+	myBitStream.Read(matchID);
+
+	// Check to see that we have a match with this ID
+	// if we do forward the message onto the match
+	bool doesMatchExist = false;
+	Match* curMatch = 0;
+	for(std::vector<Match*>::iterator match = mMatches.begin();
+		match != mMatches.end(); 
+		++match)
+	{   
+		if((*match)->GetNetworkID() == matchID)
+		{
+			// This lobby does exist
+			doesMatchExist = true;
+			curMatch = (*match);
+			break;
+		}
+	}
+
+	if(doesMatchExist && curMatch != 0)
+	{
+		curMatch->ProcessPacket(peer, packet);
+	}
+	else
+	{
+		RakNet::BitStream replyLobby;
+		replyLobby.Write((RakNet::MessageID)ID_USER_ERROR);
+		replyLobby.Write(ERROR_ID_MATCHID);
+	}
 
 }

@@ -313,5 +313,3 @@ Client::TakePiece()
 {
 
 }
-
-void 

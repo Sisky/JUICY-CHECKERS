@@ -13,6 +13,7 @@
 #include "RakNetTypes.h"  // MessageID
 #include "NetworkIDObject.h"
 #include "NetworkIDManager.h"
+#include "RakString.h"
 
 #include "match.h"
 

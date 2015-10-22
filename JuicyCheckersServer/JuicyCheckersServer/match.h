@@ -23,7 +23,7 @@ public:
 	void Process(float _delta);
 
 	// Process the packet that is intended for this match
-	void ProcessPacket(RakNet::Packet packet);
+	void ProcessPacket(RakNet::RakPeerInterface* peer, RakNet::Packet* packet);
 
 	void SetPlayers(RakNet::RakNetGUID p1, RakNet::RakNetGUID p2);
 
@@ -40,8 +40,12 @@ private:
 	RakNet::RakNetGUID playerOne;
 	RakNet::RakNetGUID playerTwo;
 
+	// The current players turn
+	RakNet::RakNetGUID currentPlayer;
+
 	// Probably will need to hold some kind of Game data here for 
 	// the verification of moves
+	
 
 };
 

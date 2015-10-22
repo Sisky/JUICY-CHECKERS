@@ -319,17 +319,16 @@ Server::handleUserPacket(RakNet::Packet* packet)
 					printf("Message: "); printf(msg.C_String()); printf("\n");				
 			}
 			break;
+
+			// For any of the below cases we forward the packet onto the lobby which will forward the packet
+			// to the appropriate match
 		case ID_USER_CHAMPIONSHIP_REGISTER:
-			{
-				// The user has joined the server 
-			}
-			break;
 		case ID_USER_GAME_UPDATE:
-			{
-				// The user has joined the server 
-			}
-			break;
 		case ID_USER_MOVE_PIECE:
+		case ID_USER_KING_PIECE:
+		case ID_USER_TAKE_PIECE:
+		case ID_USER_SPEND_UPGRADE:
+		case ID_USER_GET_UPGRADES:
 			{
 				// The user is attempting to move a piece filter the packet up through the lobby to the
 				// match that is resonsible for the move
@@ -362,26 +361,6 @@ Server::handleUserPacket(RakNet::Packet* packet)
 					replyLobby.Write((RakNet::MessageID)ID_USER_ERROR);
 					replyLobby.Write(ERROR_ID_LOBBYCHAT);
 				}
-			}
-			break;
-		case ID_USER_KING_PIECE:
-			{
-				// The user has joined the server 
-			}
-			break;
-		case ID_USER_TAKE_PIECE:
-			{
-				// The user has joined the server 
-			}
-			break;
-		case ID_USER_SPEND_UPGRADE:
-			{
-				// The user has joined the server 
-			}
-			break;
-		case ID_USER_GET_UPGRADES:
-			{
-				// The user has joined the server 
 			}
 			break;
 		case ID_USER_ERROR:

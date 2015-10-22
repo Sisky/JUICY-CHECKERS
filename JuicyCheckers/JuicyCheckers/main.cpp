@@ -40,8 +40,7 @@ TutorialApplication::TutorialApplication()
 	mRayScnQuery(0),
 	pManager(0),
 
-	client(0)
-
+	client(0),
 	pBoard(0)
 
 {
