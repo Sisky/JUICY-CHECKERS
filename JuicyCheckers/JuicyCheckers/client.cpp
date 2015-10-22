@@ -208,6 +208,14 @@ Client::handleUserPacket(RakNet::Packet* packet)
 		case ID_USER_LOBBY_CHAT:
 			{
 				// We have received some forwarded chat that is destined for the lobby we are currently in
+				RakNet::BitStream myBitStream(packet->data, packet->length, false); // The false is for efficiency so we don't make a copy of the passed data
+				RakNet::RakString rs;
+				myBitStream.IgnoreBytes(sizeof(RakNet::MessageID));	// Ignore the Message ID
+				myBitStream.IgnoreBytes(sizeof(RakNet::NetworkID)); // Ignore the lobby ID
+				myBitStream.Read(rs);
+
+				// The RakString contains the message being sent to us
+				Ogre::LogManager::getSingletonPtr()->logMessage(rs.C_String());
 
 			}
 			break;
