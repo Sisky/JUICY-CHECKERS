@@ -30,6 +30,9 @@ http://www.ogre3d.org/wiki/
 
 #include "ParticleUniverseSystemManager.h"
 
+class BoardSquare;
+class Board;
+
 //---------------------------------------------------------------------------
 
 class TutorialApplication : public Ogre::WindowEventListener, public Ogre::FrameListener, public OIS::KeyListener, public OIS::MouseListener
@@ -38,6 +41,16 @@ public:
 	TutorialApplication(void);
 	virtual ~TutorialApplication(void);
 	bool go();
+
+	// << refers to bitshifting the value.... as in 00000001 << 0 = 00000001
+	// 00000001 << 1 = 00000010 = 2 in binary etc
+	enum QueryFlags
+	{
+	  ROBOT_MASK = 1 << 0,
+	  NINJA_MASK = 1 << 1,
+	  BOARD_MASK = 1 << 2,
+	  PARTICLE_MASK = 1 << 3
+	};
 
 protected:
 	// Ogre::WindowEventListener
@@ -87,12 +100,14 @@ private:
 	int maxDegree;
 	int minDegree;
 
-	bool mMovableFound;
  
 	Ogre::RaySceneQuery* mRayScnQuery;
 
 	// Particle system manager
 	ParticleUniverse::ParticleSystemManager* pManager;
+
+	// the player boards
+	Board* pBoard;
 
 };
 
