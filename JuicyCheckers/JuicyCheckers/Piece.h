@@ -6,10 +6,11 @@
 // position
 // model
 // powerup state
+// each piece contains an int pertaining to the board square that is occupies.
 
-#include <OgreRoot.h>
+// #include <OgreRoot.h>
 
-class Piece
+class Piece 
 {
 public:
 	Piece(void);
@@ -31,6 +32,33 @@ public:
 	void setOwner(int playerNum) { m_Owner = playerNum; }
 	int getOwner() { return m_Owner; }
 
+	// board ID
+	void setBoardSquareID(int boardSquareID) { m_BoardSquareID = boardSquareID; }
+	int getBoardSquareID() { return m_BoardSquareID; }
+
+	// piece ID
+	void setPieceID(int pieceID) { m_PieceID = pieceID; }
+	int getPieceID() { return m_PieceID; }
+
+	// piece postion
+	void setPosition(Ogre::Vector3 pos) { m_Position = pos; }
+	Ogre::Vector3 getPosition() { return m_Position; }
+
+	// entity
+	void createEntity(Ogre::SceneManager& sManager);
+	Ogre::Entity* getEntity()	 { return m_Entity; }
+
+	void setEntity(Ogre::Entity* entity) { m_Entity = entity; }
+
+	// node
+	void setNode(Ogre::SceneNode* node) { m_Node = node; }
+	Ogre::SceneNode* getNode() { return m_Node; }
+
+	//// attaches the node to the specified node
+	//void attach(Ogre::SceneNode* node);
+	//// detaches the node from the specified node
+	//void detach(Ogre::SceneNode* node);
+
 protected:
 private:
 
@@ -39,9 +67,14 @@ public:
 protected:
 	bool			m_Visible;	
 	Ogre::String	m_Mesh;			// e.g. "ninja.mesh"
+	Ogre::Vector3	m_Position;	
+	Ogre::Entity*	m_Entity;		// the entity for the piece
+	Ogre::SceneNode* m_Node;		// the node for the entity... allows rotation, and translation etc
 	int				m_PowerUp;		// 0 - 10 represeting different powerups
 	int				m_Owner;		// piece owner .. player 1 = 1 player 2 = 2
-
+	int				m_BoardSquareID;// ID of the board square upon which the piece sits
+	int				m_PieceID;		// ID of the piece
+	
 private:
 };
 

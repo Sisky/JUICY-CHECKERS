@@ -20,7 +20,8 @@ http://www.ogre3d.org/wiki/
 
 // #include "BoardSquare.h"
 #include "Board.h"
-
+#include "Piece.h"
+#include "PieceController.h"
 
 
 //---------------------------------------------------------------------------
@@ -31,13 +32,12 @@ TutorialApplication::TutorialApplication()
 	mSceneMgr(0),
 	mCamera(0),
 	mWindow(0),
-	//currentDegree(0.0f),
 	maxDegree(500),
 	minDegree(340),
-	//mMovableFound(false),
 	mRayScnQuery(0),
 	pManager(0),
-	pBoard(0)
+	pBoard(0),
+	pController(0)
 {
 }
 
@@ -128,7 +128,7 @@ TutorialApplication::mouseMoved(const OIS::MouseEvent& me)
 	mRayScnQuery = mSceneMgr->createRayQuery(Ogre::Ray());
 	mRayScnQuery->setRay(mouseRay);
 	mRayScnQuery->setSortByDistance(true);
-	mRayScnQuery->setQueryMask(BOARD_MASK);	// should only query the board squares and nothing else
+	mRayScnQuery->setQueryMask(BOARD_BLACK);	// should only query the board squares and nothing else
 	// process the ray query and look at the results
 	Ogre::RaySceneQueryResult& result = mRayScnQuery->execute();
 	Ogre::RaySceneQueryResult::iterator it = result.begin();
@@ -247,7 +247,7 @@ TutorialApplication::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID 
 	mRayScnQuery = mSceneMgr->createRayQuery(Ogre::Ray());
 	mRayScnQuery->setRay(mouseRay);
 	mRayScnQuery->setSortByDistance(true);
-	mRayScnQuery->setQueryMask(BOARD_MASK);	// should only query the board squares and nothing else
+	mRayScnQuery->setQueryMask(BOARD_BLACK);	// should only query the black board squares and nothing else
 	// process the ray query and look at the results
 	Ogre::RaySceneQueryResult& result = mRayScnQuery->execute();
 	Ogre::RaySceneQueryResult::iterator it = result.begin();
@@ -269,17 +269,46 @@ TutorialApplication::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID 
 			//debug
 			// Ogre::LogManager::getSingletonPtr()->logMessage("Object found: " + it->movable->getName());
 			mCurObject = it->movable->getParentSceneNode();
-			Ogre::LogManager::getSingletonPtr()->logMessage("Object found: " + mCurObject->getName());
-
-			// should only really display on the odd squares (black) as the others are never played on
-
+			
 			// left mouse button was pressed
 			if(id == OIS::MB_Left)
 			{
-			// if the left mouse button was pressed.. set the position of the 'selection particle effect' to be the position of the selected object
+				// test if a source object has been selected
+				//if(pController->getSource() != nullptr) {
+				//	// select a destination square
+				//	pController->setDestination(mCurObject);
+				//	Ogre::LogManager::getSingletonPtr()->logMessage("Target Object Selected : " + mCurObject->getName());
+				//}
+
+				// determine if the boardsqaure has an attached piece
+				if(mCurObject->numChildren() > 0) {
+					// number of children will be 0 is there is nothing attached to the square
+					Ogre::Node* c = mCurObject->getChild(0);
+					//Ogre::LogManager::getSingletonPtr()->logMessage("Child Object clicked   : " + c->getName());
+					//Ogre::LogManager::getSingletonPtr()->logMessage("Child Object position (relative to parent) : " + Ogre::StringConverter::toString(c->getPosition()));
+					//Ogre::LogManager::getSingletonPtr()->logMessage("Parent Object position : " + Ogre::StringConverter::toString(mCurObject->getPosition()));
+					// check if there is a selected item already or not
+					// if(pController->getSource() == nullptr) {
+					// set the selected child object as the source... this can only happen if there is a child object .. aka a piece on a square
+					pController->setSource(c);
+					Ogre::LogManager::getSingletonPtr()->logMessage("Source Object Selected : " + c->getName());
+					//}
+				}
+				else {
+					// any square without a piece attached to it is a valid destination
+					pController->setDestination(mCurObject);
+					Ogre::LogManager::getSingletonPtr()->logMessage("Target Object Selected : " + mCurObject->getName());
+				}
+
+				// test if both source and destination are selected and offload to the PieceController
+				if(pController->getSource() != nullptr && pController->getDest() != nullptr) {
+					pController->movePiece();
+				}
+
+				// if the left mouse button was pressed.. set the position of the 'selection particle effect' to be the position of the selected object
 				mSceneMgr->getSceneNode("selectionNode")->setPosition(mCurObject->getPosition());
 
-				// if the effect was not already started.. start it
+				// if the selection effect was not already started.. start it
 				if(pManager->getParticleSystem("psSelection")->getState() != ParticleUniverse::ParticleSystem::ParticleSystemState::PSS_STARTED) {
 					pManager->getParticleSystem("psSelection")->start();
 				}
@@ -332,47 +361,132 @@ TutorialApplication::mouseReleased(const OIS::MouseEvent& me, OIS::MouseButtonID
 	return true; 
 }
 
-// Add the ninjas to the scene
 void
-TutorialApplication::addNinjas() 
+TutorialApplication::addPieces()
 {
+	Ogre::String number;
 
-	Ogre::Entity* ninjaEntity[12];
-    Ogre::SceneNode* ninjaNode[12];
- 
-    for (int i = 0; i < sizeof(ninjaEntity) / sizeof(ninjaEntity[0]); i++) {
-            Ogre::String number= Ogre::StringConverter::toString(i + 1);
-            ninjaEntity[i] = mSceneMgr->createEntity("ninja " + number, "ninja.mesh");
-			ninjaEntity[i]->setQueryFlags(NINJA_MASK); // for sorting purposes
-            ninjaNode[i] = mSceneMgr->getRootSceneNode()->createChildSceneNode("Node " + number);
-			
-    }
-	
-    ninjaNode[0]->setPosition(700, 0, 500);
-    ninjaNode[1]->setPosition(500, 0, 700);
-    ninjaNode[2]->setPosition(300, 0, 500);
-    ninjaNode[3]->setPosition(100, 0, 700);
-    ninjaNode[4]->setPosition(-100, 0, 500);
-    ninjaNode[5]->setPosition(-300, 0, 700);
-    ninjaNode[6]->setPosition(-500, 0, 500);
-    ninjaNode[7]->setPosition(-700, 0, 700);
-    ninjaNode[8]->setPosition(100, 0, 300);
-    ninjaNode[9]->setPosition(500, 0, 300);
-    ninjaNode[10]->setPosition(-300, 0, 300);
-    ninjaNode[11]->setPosition(-700, 0, 300);
-    ninjaNode[0]->attachObject(ninjaEntity[0]);
-    ninjaNode[1]->attachObject(ninjaEntity[1]);
-    ninjaNode[2]->attachObject(ninjaEntity[2]);
-    ninjaNode[3]->attachObject(ninjaEntity[3]);
-    ninjaNode[4]->attachObject(ninjaEntity[4]);
-    ninjaNode[5]->attachObject(ninjaEntity[5]);
-    ninjaNode[6]->attachObject(ninjaEntity[6]);
-    ninjaNode[7]->attachObject(ninjaEntity[7]);
-    ninjaNode[8]->attachObject(ninjaEntity[8]);
-    ninjaNode[9]->attachObject(ninjaEntity[9]);
-    ninjaNode[10]->attachObject(ninjaEntity[10]);
-    ninjaNode[11]->attachObject(ninjaEntity[11]);
+
+	// populate the vector array
+
+	for(int i = 0; i < 24; i++) {
+		Piece* p = new Piece();
+		// convert the count to a string
+		number = Ogre::StringConverter::toString(i+1);
+
+		// set the piece ID
+		p->setPieceID(i+1);
+		// set visibility
+		p->setVisible(true);
+		p->setPowerup(0);
+
+		// first 12 will be ninjas
+		if(i < 12) {
+			// add the piece
+			p->setMesh("robot.mesh");
+			p->setOwner(1);
+		}
+		else {
+		// next 12 will be robots
+			p->setMesh("ninja.mesh");
+			p->setOwner(2);
+		}	
+
+		// push to the array
+		pPieces.push_back(p);
+	}
+
+	// once all pieces are populated... set their associated board id and position and attach the entity to the board square node
+	int count = 0;
+	for(auto& i : pPieces) {
+
+		count += 2;
+		i->setBoardSquareID(count);
+
+		// use that board ID to get the scenenode of the boardsquare
+		Ogre::SceneNode* s = pBoard->getSceneNode(count, *mSceneMgr);
+		// create the scene node
+		number = Ogre::StringConverter::toString(i->getPieceID());
+		// create child node of the board square
+		Ogre::SceneNode* pieceNode = s->createChildSceneNode("pieceNode" + number);
+
+		// create the piece entity
+		Ogre::Entity* pieceEntity = mSceneMgr->createEntity("piece" + number, i->getMesh());
+		// set the query mask
+		pieceEntity->setQueryFlags(PIECE_MASK); 
+
+		// check which player owns the piece and rotate / scale accordingly
+		if(i->getOwner() == PLAYER_ONE) { // robots... need to be rotated and scaled
+			// rotate
+			pieceNode->yaw(Ogre::Degree(-90));
+			// scale
+			pieceNode->scale(Ogre::Vector3(3,2.5,2));
+		}
+
+		// attach the entity to the piece node
+		pieceNode->attachObject(pieceEntity);
+
+		// store the node
+		i->setNode(pieceNode);
+		// store the position of the board node in the piece class
+		i->setPosition(s->getPosition());
+		// store the entity in the piece class
+		i->setEntity(pieceEntity);
+		
+		// player 1	(robots)
+		if(count == 8) { count--; }
+		if(count == 15) { count++; }
+		// center of board
+		if(count == 24) { count = 39; }
+		// player 2 (ninjas)
+		if(count == 47) { count++; }
+		if(count == 56) { count--; }
+		
+
+	}
 }
+
+//// Add the ninjas to the scene
+//void
+//TutorialApplication::addNinjas() 
+//{
+//	
+//	Ogre::Entity* ninjaEntity[12];
+//    Ogre::SceneNode* ninjaNode[12];
+// 
+//    for (int i = 0; i < sizeof(ninjaEntity) / sizeof(ninjaEntity[0]); i++) {
+//            Ogre::String number= Ogre::StringConverter::toString(i + 1);
+//            ninjaEntity[i] = mSceneMgr->createEntity("ninja " + number, "ninja.mesh");
+//			ninjaEntity[i]->setQueryFlags(NINJA_MASK); // for sorting purposes
+//            ninjaNode[i] = mSceneMgr->getRootSceneNode()->createChildSceneNode("Node " + number);
+//			
+//    }
+//	
+//    ninjaNode[0]->setPosition(700, 0, 500);
+//    ninjaNode[1]->setPosition(500, 0, 700);
+//    ninjaNode[2]->setPosition(300, 0, 500);
+//    ninjaNode[3]->setPosition(100, 0, 700);
+//    ninjaNode[4]->setPosition(-100, 0, 500);
+//    ninjaNode[5]->setPosition(-300, 0, 700);
+//    ninjaNode[6]->setPosition(-500, 0, 500);
+//    ninjaNode[7]->setPosition(-700, 0, 700);
+//    ninjaNode[8]->setPosition(100, 0, 300);
+//    ninjaNode[9]->setPosition(500, 0, 300);
+//    ninjaNode[10]->setPosition(-300, 0, 300);
+//    ninjaNode[11]->setPosition(-700, 0, 300);
+//    ninjaNode[0]->attachObject(ninjaEntity[0]);
+//    ninjaNode[1]->attachObject(ninjaEntity[1]);
+//    ninjaNode[2]->attachObject(ninjaEntity[2]);
+//    ninjaNode[3]->attachObject(ninjaEntity[3]);
+//    ninjaNode[4]->attachObject(ninjaEntity[4]);
+//    ninjaNode[5]->attachObject(ninjaEntity[5]);
+//    ninjaNode[6]->attachObject(ninjaEntity[6]);
+//    ninjaNode[7]->attachObject(ninjaEntity[7]);
+//    ninjaNode[8]->attachObject(ninjaEntity[8]);
+//    ninjaNode[9]->attachObject(ninjaEntity[9]);
+//    ninjaNode[10]->attachObject(ninjaEntity[10]);
+//    ninjaNode[11]->attachObject(ninjaEntity[11]);
+//}
 
 // Initialize the particle system
 void
@@ -492,7 +606,17 @@ TutorialApplication::addParticleSystems()
 
 }
 
-
+void
+TutorialApplication::drawPieces()
+{
+	// loop through the piece array
+	for(auto& i : pPieces) { 
+		// the piece is visible
+		if(i->isVisible()) {
+			
+		}
+	}
+}
 // add the assets the game scene here
 void
 TutorialApplication::createScene()
@@ -501,7 +625,6 @@ TutorialApplication::createScene()
 	for(int i = 0; i < 64; i++) {
 		pBoard->addSquare(i+1);
 	}
-
 
 	// create the playing board
 	// create the board scenenode and name is so that we can filter for it later
@@ -517,7 +640,7 @@ TutorialApplication::createScene()
 			 Ogre::String number= Ogre::StringConverter::toString(it);
 			 // obtain the plane from the boardsquare class
 			 Ogre::Entity* squareEntity = mSceneMgr->createEntity("boardSquare" + number); 
-			 squareEntity->setQueryFlags(BOARD_MASK);	// set the query mask here
+			 
 			 squareEntity->setCastShadows(false);			 
 			 // set the material
 			 int modTest = it % 2;
@@ -526,17 +649,26 @@ TutorialApplication::createScene()
 				// ensure that each other row is offset to the last
 				if(j % 2 == 1) { // odd
 					squareEntity->setMaterialName("Juicy/CheckersBlack");
+					// set the query mask
+					squareEntity->setQueryFlags(BOARD_BLACK);	
 				}
 				else {
 					squareEntity->setMaterialName("Juicy/CheckersWhite");
+					// set the query mask
+					squareEntity->setQueryFlags(BOARD_WHITE);	
 				}
 			 }
 			 else {
 				if(j % 2 == 1) { // odd
 					squareEntity->setMaterialName("Juicy/CheckersWhite");
+					// set the query mask
+					squareEntity->setQueryFlags(BOARD_WHITE);	
 				}
 				else {
+
 					squareEntity->setMaterialName("Juicy/CheckersBlack");
+					// set the query mask
+					squareEntity->setQueryFlags(BOARD_BLACK);	
 				}
 			 }
 
@@ -557,6 +689,8 @@ TutorialApplication::createScene()
 		} 
 	}
 	
+	// populate the piece array
+	addPieces();
 	
 	// add a wood textured box under the board plane
 	Ogre::Entity* boardBase;
@@ -568,8 +702,12 @@ TutorialApplication::createScene()
 	boardBaseSceneNode->scale(Ogre::Vector3(20, 1, 20));
 	boardBaseSceneNode->attachObject(boardBase);
 
-	// setup and initialize the ninjas
-	addNinjas();
+	// draw the pieces on the board in their original position
+
+	// loop through the piece array and match that to the board array
+	
+	
+	
 
 	// setup and initialize the particle sytems
 	addParticleSystems();
@@ -586,6 +724,9 @@ TutorialApplication::initScene()
 
 	// initialize the playing board
 	pBoard = new Board();
+
+	// initialize the piece controller
+	pController = new PieceController();
 
 	// We want to create a scene node that we can rotate the camera around at the origin
 	Ogre::SceneNode* cameraParent = mSceneMgr->getRootSceneNode()->createChildSceneNode("CAMERA_ROTATION");;

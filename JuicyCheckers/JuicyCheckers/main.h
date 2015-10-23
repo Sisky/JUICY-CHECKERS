@@ -30,8 +30,11 @@ http://www.ogre3d.org/wiki/
 
 #include "ParticleUniverseSystemManager.h"
 
+// forward declarations
 class BoardSquare;
 class Board;
+class Piece;
+class PieceController;
 
 //---------------------------------------------------------------------------
 
@@ -48,8 +51,16 @@ public:
 	{
 	  ROBOT_MASK = 1 << 0,
 	  NINJA_MASK = 1 << 1,
-	  BOARD_MASK = 1 << 2,
-	  PARTICLE_MASK = 1 << 3
+	  BOARD_BLACK = 1 << 2,
+	  BOARD_WHITE = 1 << 3,
+	  PARTICLE_MASK = 1 << 4,
+	  PIECE_MASK = 1 << 5
+	};
+
+	enum Player
+	{
+		PLAYER_ONE = 1,
+		PLAYER_TWO = 2
 	};
 
 protected:
@@ -66,6 +77,11 @@ protected:
 	void initInput();
 	// init the ninjas
 	void addNinjas();
+	// add the pieces to the array
+	void addPieces();
+	// draw the pieces on the board
+	void drawPieces();
+
 	// init particle system
 	void addParticleSystems();
 	// actually create the scene elements
@@ -108,6 +124,12 @@ private:
 
 	// the player boards
 	Board* pBoard;
+
+	// vector array of pieces.. total of 12 per side (24 in total)
+	std::vector<Piece*> pPieces;
+
+	// Piece Controller
+	PieceController* pController;
 
 };
 
