@@ -150,7 +150,7 @@ TutorialApplication::mouseMoved(const OIS::MouseEvent& me)
 		if(movableFound) {
 			//debug
 			// Ogre::LogManager::getSingletonPtr()->logMessage("Object found: " + it->movable->getName());
-			mCurObject = it->movable->getParentSceneNode();
+			//  mCurObject = it->movable->getParentSceneNode();
 			// Ogre::LogManager::getSingletonPtr()->logMessage("Object found: " + mCurObject->getName());
 			// mCurObject->showBoundingBox(true);
 
