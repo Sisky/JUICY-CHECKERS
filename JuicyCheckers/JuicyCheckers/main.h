@@ -35,6 +35,7 @@ http://www.ogre3d.org/wiki/
 
 #include "ParticleUniverseSystemManager.h"
 #include "client.h"
+#include "MenuSystem.h"
 
 
 
@@ -47,12 +48,14 @@ class PieceController;
 
 //---------------------------------------------------------------------------
 
-class TutorialApplication : public Ogre::WindowEventListener, public Ogre::FrameListener, public OIS::KeyListener, public OIS::MouseListener, OgreBites::SdkTrayListener
+class TutorialApplication : public Ogre::WindowEventListener, public Ogre::FrameListener, public OIS::KeyListener, public OIS::MouseListener
 {
 public:
 	TutorialApplication(void);
 	virtual ~TutorialApplication(void);
 	bool go();
+
+	void setShutdown();
 
 	// << refers to bitshifting the value.... as in 00000001 << 0 = 00000001
 	// 00000001 << 1 = 00000010 = 2 in binary etc
@@ -101,8 +104,6 @@ protected:
 	// Initialise the Menu System
 	void initMenu();
 
-	// Menu Listeners
-	void buttonHit(OgreBites::Button* button);
 
 
 
@@ -153,16 +154,8 @@ private:
 	// Piece Controller
 	PieceController* pController;
 
-	// Menu Stuff
-    // OgreBites
-    Ogre::OverlaySystem*        mOverlaySystem;
-	OgreBites::Button*			startButton;
-	OgreBites::Button*			exitButton;
-	OgreBites::TextBox*			textBox;
-    OgreBites::InputContext     mInputContext;
-    OgreBites::SdkTrayManager*	mTrayMgr;
-    OgreBites::SdkCameraMan*    mCameraMan;     	// Basic camera controller
-    OgreBites::ParamsPanel*     mDetailsPanel;   	// Sample details panel
+	// MenuSystem
+	MenuSystem* mMenuSystem;
 
 
 };
