@@ -7,7 +7,7 @@
 */	
 
 // Includes 
-#include "client.h"
+
 
 #include <tchar.h>
 #include <stdio.h>
@@ -22,6 +22,9 @@
 #include "BitStream.h"
 
 #include "stdafx.h"
+#include "client.h"
+// Menu Stuff
+
 
 #include "datastructures.h"
 

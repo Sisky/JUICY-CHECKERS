@@ -27,6 +27,7 @@ http://www.ogre3d.org/wiki/
 #include <OISMouse.h>
 #include <OgreWindowEventUtilities.h>
 #include <SdkCameraMan.h>
+#include <SdkTrays.h>
 
 #include "ParticleUniverseSystemManager.h"
 #include "client.h"
@@ -40,7 +41,7 @@ class PieceController;
 
 //---------------------------------------------------------------------------
 
-class TutorialApplication : public Ogre::WindowEventListener, public Ogre::FrameListener, public OIS::KeyListener, public OIS::MouseListener
+class TutorialApplication : public Ogre::WindowEventListener, public Ogre::FrameListener, public OIS::KeyListener, public OIS::MouseListener, OgreBites::SdkTrayListener
 {
 public:
 	TutorialApplication(void);
@@ -91,6 +92,9 @@ protected:
 	// Initialise Networking
 	void initNetworking();
 
+	// Initialise the Menu System
+	void initMenu();
+
 
 
 	// Process BufferedInput
@@ -137,6 +141,16 @@ private:
 
 	// Piece Controller
 	PieceController* pController;
+
+	// Menu Stuff
+    // OgreBites
+    Ogre::OverlaySystem*        mOverlaySystem;
+	OgreBites::Button*			button;
+	OgreBites::TextBox*			textBox;
+    OgreBites::InputContext     mInputContext;
+    OgreBites::SdkTrayManager*	mTrayMgr;
+    OgreBites::SdkCameraMan*    mCameraMan;     	// Basic camera controller
+    OgreBites::ParamsPanel*     mDetailsPanel;   	// Sample details panel
 
 
 };
