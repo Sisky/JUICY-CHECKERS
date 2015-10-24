@@ -1,0 +1,34 @@
+Setup for RakNet
+
+Setup C++ Includes
+--------------------
+C++ / General / Additional Include Directories
+	Browse to the location of the project and then open the JuicyCheckersServer folder and then select the raknet folder as the additional includes directory.
+	Heres an example of my include path C:\Users\jony\source\juicy\JuicyCheckers\JuicyCheckersServer\raknet
+	
+	
+Download RakNet API
+---------------------
+I have built Raknet and have put it in the Google Drive below is the direct link
+	https://drive.google.com/open?id=0BxJ4eq4VJ59CN1l5THM5UDhSSFU
+	
+	In this .zip file is the entire RakNet folder place this in a suitable location such as C:/DEV/ and extract
+	
+Now set the Additional Linker Includes
+---------------------
+Linker / General / Additional Library Directories
+	Add an additional directory as the lib folder within the RakNet folder you previously extracted.
+	Heres an example of my path C:\DEV\raknet\Lib
+	
+Now Set the additional dependencies
+---------------------
+You will need to specify the additional dependencies
+
+Linker / Input / Additional Dependencies
+	ws2_32.lib;RakNet_VS2008_DLL_Debug_Win32.lib;
+	
+Place the .dll with the .exe
+---------------------
+I have uploaded the .dll for use with RakNet.  
+	https://drive.google.com/open?id=0BxJ4eq4VJ59CZm9qRXY0VExqTWc
+This .dll needs to be placed with the .exe for RakNet to run.  So place it in your OGRE_HOME/bin/Debug folder
