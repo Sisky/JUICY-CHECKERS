@@ -112,7 +112,7 @@ void MenuSystem::buttonHit(OgreBites::Button* button)
 {
 	if(button == startButton)
 	{
-		SetMenu(MATCHMENU);
+		SetMenu(LISTLOBBYMENU);
 	}
 	else if(button == exitButton)
 	{
@@ -123,6 +123,20 @@ void MenuSystem::buttonHit(OgreBites::Button* button)
 		// frameRenderingQueued can return a false and quit
 	}
 }
+
+void 
+MenuSystem::itemSelected(OgreBites::SelectMenu* selectMenu)
+{
+	if(selectMenu == selectLobby)
+	{
+		//selectMenu>
+	}
+	//else if(()
+	//{
+		// Just incase we have more selectmenus
+	//}
+}
+
 
 //void 
 //MenuSystem::SetMainRef(TutorialApplication* main)
@@ -167,7 +181,17 @@ MenuSystem::createMenu(MENUS menu)
 			currentTray = new OgreBites::SdkTrayManager("ListLobbyMenu", mWindow, mInputContext, this);
 
 			// Design the tray, Save the buttons if you want to check if they are pressed
+			// Create the label
+			currentTray->createLabel(OgreBites::TL_TOP, "JoinCreateLobby", "Join/Create Lobby", 500);
+			createLobbyButton = currentTray->createButton(OgreBites::TL_CENTER, "createLobby", "Create Lobby");
+			// Have the option to create a new lobby
 
+
+			lobbyVector.push_back(Ogre::String("Jonys Lobby"));
+			lobbyVector.push_back(Ogre::String("Daves Lobby"));
+			lobbyVector.push_back(Ogre::String("Kens Lobby"));
+			// Below this we will have a listing of lobbys that the user can click on
+			selectLobby = currentTray->createThickSelectMenu(OgreBites::TL_CENTER, "selectLobby", Ogre::DisplayString("Select a Lobby"), Ogre::Real(300.0), 12, lobbyVector); 
 
 			// Add the tray into the tray container.  NOTE: This function is designed to be run from 0 -> MENU.max
 			mTrays.push_back(currentTray);
@@ -180,6 +204,11 @@ MenuSystem::createMenu(MENUS menu)
 			currentTray = new OgreBites::SdkTrayManager("CreateLobbyMenu", mWindow, mInputContext, this);
 
 			// Design the tray, Save the buttons if you want to check if they are pressed
+			// Label
+
+			// Text area for the name
+
+			// Button to create
 
 
 			// Add the tray into the tray container.  NOTE: This function is designed to be run from 0 -> MENU.max
@@ -192,6 +221,12 @@ MenuSystem::createMenu(MENUS menu)
 			currentTray = new OgreBites::SdkTrayManager("LobbyMenu", mWindow, mInputContext, this);
 
 			// Design the tray, Save the buttons if you want to check if they are pressed
+			// Label
+			// List the current players
+
+			// Have a (ready) button
+
+			// Have a chat box 
 
 
 			// Add the tray into the tray container.  NOTE: This function is designed to be run from 0 -> MENU.max
@@ -205,6 +240,8 @@ MenuSystem::createMenu(MENUS menu)
 			currentTray = new OgreBites::SdkTrayManager("MatchMenu", mWindow, mInputContext, this);
 
 			// Design the tray, Save the buttons if you want to check if they are pressed
+			// Here we will have some elements such as labels in certain positions to indicate 
+			// the current turn,  timers upgrades etc etc.
 
 
 			// Add the tray into the tray container.  NOTE: This function is designed to be run from 0 -> MENU.max
@@ -218,6 +255,11 @@ MenuSystem::createMenu(MENUS menu)
 			currentTray = new OgreBites::SdkTrayManager("ResultMenu", mWindow, mInputContext, this);
 
 			// Design the tray, Save the buttons if you want to check if they are pressed
+			// Label
+
+			// Label results
+
+
 
 
 			// Add the tray into the tray container.  NOTE: This function is designed to be run from 0 -> MENU.max

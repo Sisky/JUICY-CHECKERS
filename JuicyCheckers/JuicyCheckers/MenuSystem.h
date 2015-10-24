@@ -54,6 +54,7 @@ public:
 	bool MouseReleased(const OIS::MouseEvent& me, OIS::MouseButtonID id);
 
 	void buttonHit(OgreBites::Button* button);
+	void itemSelected(OgreBites::SelectMenu* selectMenu);
 
 	void SetMenu(MENUS menu);
 
@@ -77,9 +78,14 @@ private:
 		// Menu Stuff
     // OgreBites
     Ogre::OverlaySystem*        mOverlaySystem;
+
+	// We hold these pointers to SDKTrayWidgets so we can
+	// check which widget triggered the listener event
 	OgreBites::Button*			startButton;
 	OgreBites::Button*			exitButton;
-	OgreBites::TextBox*			textBox;
+	OgreBites::Button*			createLobbyButton;
+	OgreBites::SelectMenu*			selectLobby;
+	Ogre::StringVector lobbyVector;
     
 	OgreBites::SdkCameraMan*    mCameraMan;     	// Basic camera controller
 	OgreBites::ParamsPanel*     mDetailsPanel;   	// Sample details panel
