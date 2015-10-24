@@ -75,8 +75,7 @@ protected:
 	void initScene();
 	// init the input
 	void initInput();
-	// init the ninjas
-	void addNinjas();
+
 	// add the pieces to the array
 	void addPieces();
 	// draw the pieces on the board

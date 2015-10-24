@@ -133,68 +133,45 @@ TutorialApplication::mouseMoved(const OIS::MouseEvent& me)
 	Ogre::RaySceneQueryResult& result = mRayScnQuery->execute();
 	Ogre::RaySceneQueryResult::iterator it = result.begin();
 
-	Ogre::SceneNode*  mCurObject;
 	// reset the found flag
 	bool movableFound = false;
 
 	// test the squares and show something to indicate that it is being moused over
 	for ( ; it != result.end(); it++)
 	{
-		// display all result from the query
-		// mCurObject = it->movable->getName()
-		
-
 		// exclude the board base
 		movableFound = it->movable && it->movable->getName() != "boardBase";
 
 		if(movableFound) {
-			//debug
-			// Ogre::LogManager::getSingletonPtr()->logMessage("Object found: " + it->movable->getName());
-			//  mCurObject = it->movable->getParentSceneNode();
-			// Ogre::LogManager::getSingletonPtr()->logMessage("Object found: " + mCurObject->getName());
-			// mCurObject->showBoundingBox(true);
-
-			// should only really display on the odd squares (black) as the others are never played on
-
 			// SHOW GENERIC MOUSEOVER HIGHLIGHT HERE
-
-
-			// if the left mouse button was pressed.. set the position of the 'selection particle effect' to be the position of the selected object
-			// need a different particle effect here.. to show the selection
-			//mSceneMgr->getSceneNode("selectionNode")->setPosition(mCurObject->getPosition());
-
-			//// if the effect was not already started.. start it
-			//if(pManager->getParticleSystem("psSelection")->getState() != ParticleUniverse::ParticleSystem::ParticleSystemState::PSS_STARTED) {
-			//	pManager->getParticleSystem("psSelection")->start();
-			//}
-
 			break;
 		}
 	}
 
-
-
-	// handling mouse scroll wheel input
-	Ogre::SceneNode* positionNode = mSceneMgr->getSceneNode("CAMERA_POSITION");
-	Ogre::Vector3 pos = positionNode->getPosition();
-
-	// the orgin need to change according to the currently selected item
-	Ogre::Vector3 origin = Ogre::Vector3(0,0,0);
-	Ogre::Vector3 scale = origin - pos;
-	scale.normalise();
-	int absoluteZ = me.state.Z.abs;
+	// change in Z value (delta mousewheel)
 	int relativeZ = me.state.Z.rel;
+	// Ogre::LogManager::getSingletonPtr()->logMessage("Z mouse: " + Ogre::StringConverter::toString(relativeZ));
+	// only do the zoom if there is a change in the mouse wheel
+	if(relativeZ > 1 || relativeZ < -1) {
+		// handling mouse scroll wheel input
+		Ogre::SceneNode* positionNode = mSceneMgr->getSceneNode("CAMERA_POSITION");
+		Ogre::Vector3 pos = positionNode->getPosition();
 
-	// no change in zoom at limits
+		// the origin need to change according to the currently selected item
+		Ogre::Vector3 origin = Ogre::Vector3(0,0,0);
+		Ogre::Vector3 scale = origin - pos;
+		scale.normalise();
 
-	//Ogre::Real dist = pos.distance(origin);
-	//if(dist <= 100) { scale = 0; }
-	
-	positionNode->setPosition(pos+(scale*relativeZ)); 
-
-	// limit the scrolling amount here
-	// Ogre::LogManager::getSingletonPtr()->logMessage("Current Zoom scale: " + Ogre::StringConverter::toString(dist));
-
+		Ogre::Vector3 newPos = pos+(scale*static_cast<Ogre::Real>(relativeZ));
+		// check the distance between the new position node and the origin
+		Ogre::Real dist = newPos.distance(origin); // expensive calculation
+		// Ogre::LogManager::getSingletonPtr()->logMessage("Z mouse: " + Ogre::StringConverter::toString(dist));
+		// set the limits on the zoom factor
+		if(dist > 343 && dist < 4000) {
+			// allow zooming
+			positionNode->setPosition(newPos); 
+		} 
+	}
 	// Move the camera around an origin point if the user is holding the right mouse button
 	if(me.state.buttonDown(OIS::MB_Right))
 	{
@@ -202,36 +179,13 @@ TutorialApplication::mouseMoved(const OIS::MouseEvent& me)
 		int relativeX = me.state.X.rel;
 		int relativeY = me.state.Y.rel;
 		
-		// absolute mouse position
-		int absoluteY = me.state.Y.abs;
-		// 		
-		// Ogre::LogManager::getSingletonPtr()->logMessage("Current Y value: " + relativeY);
-		// std::cout << "Current Mouse Y : " << relativeY << std::endl;
-		
-
-		// limit the angle the camera can move
-		// if(absoluteY > maxDegree){ me.state.Y.abs = maxDegree; }
-		// if(absoluteY < minDegree){ me.state.Y.abs = minDegree; }
-
+		// rotation node is situated at the origin
 		Ogre::SceneNode* rotationNode = mSceneMgr->getSceneNode("CAMERA_ROTATION");
-		
-		//// get information about the current pitch of the camera.....working in quaternions >_<
-		//Ogre::Real pitchAngleSign = rotationNode->getOrientation().x;
-		//Ogre::Real pitchAngle = (2 * Ogre::Degree(Ogre::Math::ACos(rotationNode->getOrientation().w)).valueDegrees());
-		//if (pitchAngle > 90.0f)
-		//{
-		//	if (pitchAngleSign > 0)
-		//		// Set orientation to 90 degrees on X-axis.
-		//		rotationNode->setOrientation(Ogre::Quaternion(Ogre::Math::Sqrt(0.5f),
-		//															Ogre::Math::Sqrt(0.5f), 0, 0));
-		//	else if (pitchAngleSign < 0)
-		//		// Sets orientation to -90 degrees on X-axis.
-		//		rotationNode->setOrientation(Ogre::Quaternion(Ogre::Math::Sqrt(0.5f),
-		//															-Ogre::Math::Sqrt(0.5f), 0, 0));
-		//}
-
+		// normal yaw (rotation about the Y axis)
 		rotationNode->rotate(Ogre::Quaternion(Ogre::Degree(relativeX*0.1f), Ogre::Vector3(0,-1,0)) , Ogre::Node::TransformSpace::TS_WORLD);
-		rotationNode->rotate(Ogre::Quaternion(Ogre::Degree(relativeY*0.1f), Ogre::Vector3(1,0,0)) , Ogre::Node::TransformSpace::TS_LOCAL);
+		// normal pitch (rotation about the X axis)
+		rotationNode->pitch(static_cast<Ogre::Degree>(relativeY * 0.1));
+		
 	}
 	return true; 
 }
@@ -445,48 +399,6 @@ TutorialApplication::addPieces()
 
 	}
 }
-
-//// Add the ninjas to the scene
-//void
-//TutorialApplication::addNinjas() 
-//{
-//	
-//	Ogre::Entity* ninjaEntity[12];
-//    Ogre::SceneNode* ninjaNode[12];
-// 
-//    for (int i = 0; i < sizeof(ninjaEntity) / sizeof(ninjaEntity[0]); i++) {
-//            Ogre::String number= Ogre::StringConverter::toString(i + 1);
-//            ninjaEntity[i] = mSceneMgr->createEntity("ninja " + number, "ninja.mesh");
-//			ninjaEntity[i]->setQueryFlags(NINJA_MASK); // for sorting purposes
-//            ninjaNode[i] = mSceneMgr->getRootSceneNode()->createChildSceneNode("Node " + number);
-//			
-//    }
-//	
-//    ninjaNode[0]->setPosition(700, 0, 500);
-//    ninjaNode[1]->setPosition(500, 0, 700);
-//    ninjaNode[2]->setPosition(300, 0, 500);
-//    ninjaNode[3]->setPosition(100, 0, 700);
-//    ninjaNode[4]->setPosition(-100, 0, 500);
-//    ninjaNode[5]->setPosition(-300, 0, 700);
-//    ninjaNode[6]->setPosition(-500, 0, 500);
-//    ninjaNode[7]->setPosition(-700, 0, 700);
-//    ninjaNode[8]->setPosition(100, 0, 300);
-//    ninjaNode[9]->setPosition(500, 0, 300);
-//    ninjaNode[10]->setPosition(-300, 0, 300);
-//    ninjaNode[11]->setPosition(-700, 0, 300);
-//    ninjaNode[0]->attachObject(ninjaEntity[0]);
-//    ninjaNode[1]->attachObject(ninjaEntity[1]);
-//    ninjaNode[2]->attachObject(ninjaEntity[2]);
-//    ninjaNode[3]->attachObject(ninjaEntity[3]);
-//    ninjaNode[4]->attachObject(ninjaEntity[4]);
-//    ninjaNode[5]->attachObject(ninjaEntity[5]);
-//    ninjaNode[6]->attachObject(ninjaEntity[6]);
-//    ninjaNode[7]->attachObject(ninjaEntity[7]);
-//    ninjaNode[8]->attachObject(ninjaEntity[8]);
-//    ninjaNode[9]->attachObject(ninjaEntity[9]);
-//    ninjaNode[10]->attachObject(ninjaEntity[10]);
-//    ninjaNode[11]->attachObject(ninjaEntity[11]);
-//}
 
 // Initialize the particle system
 void
@@ -739,9 +651,8 @@ TutorialApplication::initScene()
 	// setup viewport
 	Ogre::Viewport* vp = mWindow->addViewport(mCamera);
 	vp->setBackgroundColour(Ogre::ColourValue(0,0,0));
-
+	
 	// Camera settings
-	//mCamera->setPosition(Ogre::Vector3(0, 300, -500));
 	mCamera->lookAt(Ogre::Vector3(0, 0, 0));
 	mCamera->setNearClipDistance(5);
 	mCamera->setAspectRatio(Ogre::Real(vp->getActualWidth()) / 	Ogre::Real(vp->getActualHeight()));
@@ -766,7 +677,7 @@ TutorialApplication::initScene()
     spotLight->setPosition(Ogre::Vector3(200, 200, 0));
     spotLight->setSpotlightRange(Ogre::Degree(35), Ogre::Degree(50));
 
-	// directional light
+	// directional light... pointing straight down
     Ogre::Light* directionalLight = mSceneMgr->createLight("DirectionalLight");
     directionalLight->setType(Ogre::Light::LT_DIRECTIONAL);
     directionalLight->setDiffuseColour(Ogre::ColourValue(256, 256, 256));
