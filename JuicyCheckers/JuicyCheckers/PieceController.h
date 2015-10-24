@@ -6,6 +6,8 @@
 // tracks the selected item (scenenode)
 // performs the movement from one position to another
 
+class Client;
+
 
 class PieceController
 {
@@ -43,6 +45,12 @@ public:
 	// prefab movements
 	bool testMovePiece(Ogre::SceneNode* piece, PieceDirection direction);
 
+	// Network Methods
+	void setNetworkInterface(Client* _client);
+	Client* getNetworkInterface();
+
+	void moveNetworkPiece(Ogre::SceneNode* source, Ogre::SceneNode* dest);
+
 protected:
 private:
 
@@ -52,6 +60,8 @@ public:
 protected:
 	Ogre::SceneNode* m_sourceNode;
 	Ogre::SceneNode* m_destNode;
+
+	Client* m_clientNetwork;
 private:
 
 };

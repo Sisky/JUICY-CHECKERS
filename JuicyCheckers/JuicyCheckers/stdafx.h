@@ -1,6 +1,7 @@
 // stdafx.h
  
 // Ogre headers you need
+#include <winsock2.h>
 #include <OgreException.h>
 #include <OgreRoot.h>
 #include <OgreConfigFile.h>

@@ -7,8 +7,6 @@
 */	
 
 // Includes 
-#include "client.h"
-
 #include <tchar.h>
 #include <stdio.h>
 #include <string.h>
@@ -24,6 +22,8 @@
 #include "stdafx.h"
 
 #include "datastructures.h"
+
+#include "client.h"
 
 Client::Client()
 	: peer(0)
@@ -291,11 +291,17 @@ Client::handleUserPacket(RakNet::Packet* packet)
 }
 
 void 
-Client::SendMovement(int x1, int y1, int x2, int y2)
+Client::SendMovement(int source, int dest)
 {
 	// This function will send the movement the user requested to the server
 	// for verification and to update the other peers
+	RakNet::MessageID sendMovement = ID_USER_MOVE_PIECE;
+	RakNet::BitStream command;
+	command.Write(sendMovement);
+	command.Write(source);
+	command.Write(dest);
 
+	peer->Send(&command, HIGH_PRIORITY,RELIABLE_ORDERED,0,server,false);
 }
 
 void 
