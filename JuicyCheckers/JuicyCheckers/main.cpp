@@ -40,7 +40,9 @@ TutorialApplication::TutorialApplication()
 	pManager(0),
 	pBoard(0),
 	pController(0),
-	client(0)
+	client(0),
+	mOverlaySystem(0),
+	shutdown(false)
 {
 }
 
@@ -48,6 +50,9 @@ TutorialApplication::~TutorialApplication()
 {
 	delete client;
 	client = 0;
+	 if (mTrayMgr) delete mTrayMgr;
+	    if (mOverlaySystem) delete mOverlaySystem;
+		   
 
 	// destroy the ray query upon exit
 	mSceneMgr->destroyQuery(mRayScnQuery);
@@ -101,10 +106,16 @@ TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 	mMouse->capture();
 	client->Process(evt.timeSinceLastEvent);
 
+	 mTrayMgr->frameRenderingQueued(evt);
+
 	//processInput(evt);
 
 	if(mKeyboard->isKeyDown(OIS::KC_ESCAPE))
 		return false;
+	if(shutdown)
+	{
+		return false;
+	}
 
 	return true;
 }
@@ -127,6 +138,7 @@ TutorialApplication::keyReleased(const OIS::KeyEvent& ke)
 bool 
 TutorialApplication::mouseMoved(const OIS::MouseEvent& me) 
 { 
+	if (mTrayMgr->injectMouseMove(me)) return true;
 	// as the mouse moves over each item it it highlighted... each square needs a particle effect
 	Ogre::Vector2 mousePos = Ogre::Vector2(static_cast<Ogre::Real>(me.state.X.abs),static_cast<Ogre::Real>(me.state.Y.abs));
 	// cast a ray into the scene through the camera to viewport matrix
@@ -200,6 +212,8 @@ TutorialApplication::mouseMoved(const OIS::MouseEvent& me)
 bool 
 TutorialApplication::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id) 
 { 
+	if (mTrayMgr->injectMouseDown(me, id)) return true;
+
 	// get the x,y position of the mouse
 	Ogre::Vector2 mousePos = Ogre::Vector2(static_cast<Ogre::Real>(me.state.X.abs),static_cast<Ogre::Real>(me.state.Y.abs));
 	// cast a ray into the scene through the camera to viewport matrix
@@ -319,6 +333,7 @@ TutorialApplication::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID 
 bool 
 TutorialApplication::mouseReleased(const OIS::MouseEvent& me, OIS::MouseButtonID id) 
 { 
+	if (mTrayMgr->injectMouseUp(me, id)) return true;
 	return true; 
 }
 
@@ -637,7 +652,6 @@ TutorialApplication::createScene()
 void
 TutorialApplication::initScene()
 {
-	mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC);
 
 	mCamera = mSceneMgr->createCamera("MainCam");
 
@@ -711,10 +725,10 @@ TutorialApplication::initInput()
 	mWindow->getCustomAttribute("WINDOW", &windowHnd);
 	windowHndStr << windowHnd;
 	pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
-	pl.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_FOREGROUND" )));
-    pl.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_NONEXCLUSIVE")));
-    pl.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_FOREGROUND")));
-    pl.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_NONEXCLUSIVE")));
+	pl.insert(std::make_pair(std::string("w32_mouse"), std::string("discl_foreground" )));
+    pl.insert(std::make_pair(std::string("w32_mouse"), std::string("discl_nonexclusive")));
+    pl.insert(std::make_pair(std::string("w32_keyboard"), std::string("discl_foreground")));
+    pl.insert(std::make_pair(std::string("w32_keyboard"), std::string("discl_nonexclusive")));
 
 	mInputManager = OIS::InputManager::createInputSystem( pl );
 
@@ -770,6 +784,12 @@ TutorialApplication::go()
 
 	Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
+	// I had to move the creation of the scene manager here so I can create the overlay system before the call
+	// to Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+	mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC);
+	mOverlaySystem = new Ogre::OverlaySystem();
+	mSceneMgr->addRenderQueueListener(mOverlaySystem);
+
 	Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
 
 	// Initialise the scene
@@ -784,10 +804,15 @@ TutorialApplication::go()
 	// Initialise the Networking
 	initNetworking();
 
+
+
 	//Register as a Window listener
 	Ogre::WindowEventUtilities::addWindowEventListener(mWindow, this);
 
 	mRoot->addFrameListener(this);
+
+	// Init the menu
+		initMenu();
 
 	mRoot->startRendering();
 
@@ -798,6 +823,33 @@ void
 TutorialApplication::initNetworking()
 {
 	client = new Client();
+}
+
+void 
+TutorialApplication::initMenu()
+{
+	// Initialize the OverlaySystem (changed for Ogre 1.9)
+
+    mInputContext.mKeyboard = mKeyboard;
+    mInputContext.mMouse = mMouse;
+    mTrayMgr = new OgreBites::SdkTrayManager("InterfaceName", mWindow, mInputContext, this);
+	mTrayMgr->createLabel(OgreBites::TL_TOP, "GameTitle", "Juicy Checkers", 500);
+	startButton = mTrayMgr->createButton(OgreBites::TL_CENTER, "startBtn", "Start Multiplayer");
+	//mTrayMgr->createButton(OgreBites::TL_CENTER, "tourBtn", "Tournament Mode");
+	exitButton = mTrayMgr->createButton(OgreBites::TL_CENTER, "extBtn", "Exit Game");
+	//mTrayMgr->hideCursor();
+}
+
+void TutorialApplication::buttonHit(OgreBites::Button* hitButton)
+{
+	if(hitButton == startButton)
+	{
+		mTrayMgr->hideTrays();
+	}
+	else if(hitButton == exitButton)
+	{
+		 shutdown = true;
+	}
 }
 
 
