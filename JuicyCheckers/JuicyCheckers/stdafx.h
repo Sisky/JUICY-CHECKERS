@@ -1,5 +1,5 @@
 // stdafx.h
- 
+#include "winsock2.h"
 // Ogre headers you need
 #include <winsock2.h>
 #include <OgreException.h>

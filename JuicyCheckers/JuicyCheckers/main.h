@@ -20,6 +20,7 @@ http://www.ogre3d.org/wiki/
 
 #include "client.h"
 
+#include <Ogre.h>
 #include <OgreRoot.h>
 #include <OISEvents.h>
 #include <OISInputManager.h>
@@ -27,9 +28,15 @@ http://www.ogre3d.org/wiki/
 #include <OISMouse.h>
 #include <OgreWindowEventUtilities.h>
 #include <SdkCameraMan.h>
+#include <SdkTrays.h>
+#include <OgreFontManager.h>
+#include <OgreBorderPanelOverlayElement.h>
+#include <OgreTextAreaOverlayElement.h>
 
 #include "ParticleUniverseSystemManager.h"
 #include "client.h"
+
+
 
 
 // forward declarations
@@ -40,7 +47,7 @@ class PieceController;
 
 //---------------------------------------------------------------------------
 
-class TutorialApplication : public Ogre::WindowEventListener, public Ogre::FrameListener, public OIS::KeyListener, public OIS::MouseListener
+class TutorialApplication : public Ogre::WindowEventListener, public Ogre::FrameListener, public OIS::KeyListener, public OIS::MouseListener, OgreBites::SdkTrayListener
 {
 public:
 	TutorialApplication(void);
@@ -91,6 +98,12 @@ protected:
 	// Initialise Networking
 	void initNetworking();
 
+	// Initialise the Menu System
+	void initMenu();
+
+	// Menu Listeners
+	void buttonHit(OgreBites::Button* button);
+
 
 
 	// Process BufferedInput
@@ -101,6 +114,8 @@ protected:
 	virtual bool mouseReleased(const OIS::MouseEvent& me, OIS::MouseButtonID id);
 
 private:
+	bool shutdown;
+
 	Ogre::Root* mRoot;
 	Ogre::String mResourcesCfg;
 	Ogre::String mPluginsCfg;
@@ -137,6 +152,17 @@ private:
 
 	// Piece Controller
 	PieceController* pController;
+
+	// Menu Stuff
+    // OgreBites
+    Ogre::OverlaySystem*        mOverlaySystem;
+	OgreBites::Button*			startButton;
+	OgreBites::Button*			exitButton;
+	OgreBites::TextBox*			textBox;
+    OgreBites::InputContext     mInputContext;
+    OgreBites::SdkTrayManager*	mTrayMgr;
+    OgreBites::SdkCameraMan*    mCameraMan;     	// Basic camera controller
+    OgreBites::ParamsPanel*     mDetailsPanel;   	// Sample details panel
 
 
 };
