@@ -41,8 +41,9 @@ TutorialApplication::TutorialApplication()
 	pBoard(0),
 	pController(0),
 	client(0),
-	mOverlaySystem(0),
-	shutdown(false)
+	
+	shutdown(false),
+	mMenuSystem(0)
 {
 }
 
@@ -50,8 +51,7 @@ TutorialApplication::~TutorialApplication()
 {
 	delete client;
 	client = 0;
-	 if (mTrayMgr) delete mTrayMgr;
-	    if (mOverlaySystem) delete mOverlaySystem;
+	
 		   
 
 	// destroy the ray query upon exit
@@ -106,7 +106,7 @@ TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 	mMouse->capture();
 	client->Process(evt.timeSinceLastEvent);
 
-	 mTrayMgr->frameRenderingQueued(evt);
+	mMenuSystem->frameRenderingQueued(evt);
 
 	//processInput(evt);
 
@@ -138,7 +138,7 @@ TutorialApplication::keyReleased(const OIS::KeyEvent& ke)
 bool 
 TutorialApplication::mouseMoved(const OIS::MouseEvent& me) 
 { 
-	if (mTrayMgr->injectMouseMove(me)) return true;
+	mMenuSystem->MouseMoved(me);
 	// as the mouse moves over each item it it highlighted... each square needs a particle effect
 	Ogre::Vector2 mousePos = Ogre::Vector2(static_cast<Ogre::Real>(me.state.X.abs),static_cast<Ogre::Real>(me.state.Y.abs));
 	// cast a ray into the scene through the camera to viewport matrix
@@ -212,7 +212,7 @@ TutorialApplication::mouseMoved(const OIS::MouseEvent& me)
 bool 
 TutorialApplication::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id) 
 { 
-	if (mTrayMgr->injectMouseDown(me, id)) return true;
+	mMenuSystem->MousePressed(me,id);
 
 	// get the x,y position of the mouse
 	Ogre::Vector2 mousePos = Ogre::Vector2(static_cast<Ogre::Real>(me.state.X.abs),static_cast<Ogre::Real>(me.state.Y.abs));
@@ -333,7 +333,7 @@ TutorialApplication::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID 
 bool 
 TutorialApplication::mouseReleased(const OIS::MouseEvent& me, OIS::MouseButtonID id) 
 { 
-	if (mTrayMgr->injectMouseUp(me, id)) return true;
+	mMenuSystem->MouseReleased(me,id);
 	return true; 
 }
 
@@ -787,9 +787,10 @@ TutorialApplication::go()
 	// I had to move the creation of the scene manager here so I can create the overlay system before the call
 	// to Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
 	mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC);
-	mOverlaySystem = new Ogre::OverlaySystem();
-	mSceneMgr->addRenderQueueListener(mOverlaySystem);
+	mMenuSystem = new MenuSystem();
+	mMenuSystem->InitialiseOverlaySystem(mSceneMgr);
 
+	// Make sure all resources are loaded
 	Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
 
 	// Initialise the scene
@@ -804,7 +805,8 @@ TutorialApplication::go()
 	// Initialise the Networking
 	initNetworking();
 
-
+	// Initialise the Menu
+	initMenu();
 
 	//Register as a Window listener
 	Ogre::WindowEventUtilities::addWindowEventListener(mWindow, this);
@@ -812,7 +814,7 @@ TutorialApplication::go()
 	mRoot->addFrameListener(this);
 
 	// Init the menu
-		initMenu();
+		
 
 	mRoot->startRendering();
 
@@ -828,29 +830,21 @@ TutorialApplication::initNetworking()
 void 
 TutorialApplication::initMenu()
 {
-	// Initialize the OverlaySystem (changed for Ogre 1.9)
+	mMenuSystem = new MenuSystem();
 
-    mInputContext.mKeyboard = mKeyboard;
-    mInputContext.mMouse = mMouse;
-    mTrayMgr = new OgreBites::SdkTrayManager("InterfaceName", mWindow, mInputContext, this);
-	mTrayMgr->createLabel(OgreBites::TL_TOP, "GameTitle", "Juicy Checkers", 500);
-	startButton = mTrayMgr->createButton(OgreBites::TL_CENTER, "startBtn", "Start Multiplayer");
-	//mTrayMgr->createButton(OgreBites::TL_CENTER, "tourBtn", "Tournament Mode");
-	exitButton = mTrayMgr->createButton(OgreBites::TL_CENTER, "extBtn", "Exit Game");
-	//mTrayMgr->hideCursor();
+	OgreBites::InputContext mInputContext;
+	mMenuSystem->Initialise(mWindow, mInputContext, mInputManager, mMouse, mKeyboard);
+
+	mMenuSystem->SetMenu(MenuSystem::MENUS::STARTMENU);
 }
 
-void TutorialApplication::buttonHit(OgreBites::Button* hitButton)
+void 
+TutorialApplication::setShutdown()
 {
-	if(hitButton == startButton)
-	{
-		mTrayMgr->hideTrays();
-	}
-	else if(hitButton == exitButton)
-	{
-		 shutdown = true;
-	}
+	shutdown = true;
 }
+
+
 
 
 
