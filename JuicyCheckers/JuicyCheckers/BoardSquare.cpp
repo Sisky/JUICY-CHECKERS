@@ -6,7 +6,6 @@ BoardSquare::BoardSquare(void)
 {
 
 	m_Occupied = false;
-	m_Piece = nullptr;
 }
 
 

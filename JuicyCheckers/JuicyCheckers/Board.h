@@ -5,6 +5,7 @@
 
 #include <vector>
 
+
 // forward declarations
 class BoardSquare;
 
@@ -16,6 +17,9 @@ public:
 
 	void addSquare(int id);
 	BoardSquare* getSquare(int id);
+	Ogre::SceneNode* getSceneNode(int id, Ogre::SceneManager& sManager); 
+	Ogre::SceneNode* getSceneNodeFromPiece(int id, Ogre::SceneManager& sManager);
+
 protected:
 private:
 	// member variables

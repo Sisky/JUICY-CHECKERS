@@ -37,3 +37,23 @@ Board::getSquare(int id)
 		}
 	}
 }
+
+// returns the scenenode of the board square based on the passed square ID
+Ogre::SceneNode* 
+Board::getSceneNode(int id, Ogre::SceneManager& sManager)
+{
+	Ogre::String number = Ogre::StringConverter::toString(id);
+	return sManager.getSceneNode("squareNode" + number);
+}
+
+// find the piece and return the scenenode based on the piece number 
+Ogre::SceneNode* 
+Board::getSceneNodeFromPiece(int id, Ogre::SceneManager& sManager)
+{
+	Ogre::String number = Ogre::StringConverter::toString(id);
+	for(auto& i : m_Board) {
+		if(i->getPieceID() == id) {
+			return sManager.getSceneNode("squareNode" + i->getID());
+		}
+	}
+}

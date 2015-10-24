@@ -6,6 +6,8 @@
 // occupied
 // ID .. this will refer to the ID of the square
 
+// the baord square will contain the ID of the piece that occupies it
+
 // forward declaration
 class Piece;
 
@@ -20,8 +22,8 @@ public:
 	void setOccupied(bool occupied) { m_Occupied = occupied; }
 
 	// piece
-	Piece* getPiece() { return m_Piece; }
-	void setPiece(Piece* piece) { m_Piece = piece; }
+	int getPieceID() { return m_PieceID; }
+	void setPieceID(int id) { m_PieceID = id; }
 
 	// plane
 	void createPlane(int planeNumber);
@@ -40,7 +42,7 @@ public:
 protected:
 	bool m_Occupied;
 	int m_ID;
-	Piece* m_Piece;
+	int m_PieceID;
 	Ogre::Plane m_BoardSquare;
 
 private:
