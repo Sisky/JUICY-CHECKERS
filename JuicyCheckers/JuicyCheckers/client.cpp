@@ -5,6 +5,7 @@
 *					players connecting, lobby joining/creation, and general Client management
 *
 */	
+#include "stdafx.h"
 
 // Includes 
 #include "stdafx.h"

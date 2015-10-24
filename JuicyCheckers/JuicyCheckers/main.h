@@ -2,6 +2,7 @@
 #define __JUICYCHECKERS_H__
 
 
+
 // forward declarations
 class BoardSquare;
 class Board;
