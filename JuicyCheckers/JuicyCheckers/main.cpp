@@ -41,7 +41,8 @@ TutorialApplication::TutorialApplication()
 	pBoard(0),
 	pController(0),
 	client(0),
-	mOverlaySystem(0)
+	mOverlaySystem(0),
+	shutdown(false)
 {
 }
 
@@ -111,6 +112,10 @@ TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 	if(mKeyboard->isKeyDown(OIS::KC_ESCAPE))
 		return false;
+	if(shutdown)
+	{
+		return false;
+	}
 
 	return true;
 }
@@ -829,10 +834,22 @@ TutorialApplication::initMenu()
     mInputContext.mMouse = mMouse;
     mTrayMgr = new OgreBites::SdkTrayManager("InterfaceName", mWindow, mInputContext, this);
 	mTrayMgr->createLabel(OgreBites::TL_TOP, "GameTitle", "Juicy Checkers", 500);
-	button = mTrayMgr->createButton(OgreBites::TL_CENTER, "startBtn", "Start Multiplayer");
-	mTrayMgr->createButton(OgreBites::TL_CENTER, "tourBtn", "Tournament Mode");
-	mTrayMgr->createButton(OgreBites::TL_CENTER, "extBtn", "Exit Game");
-	mTrayMgr->hideCursor();
+	startButton = mTrayMgr->createButton(OgreBites::TL_CENTER, "startBtn", "Start Multiplayer");
+	//mTrayMgr->createButton(OgreBites::TL_CENTER, "tourBtn", "Tournament Mode");
+	exitButton = mTrayMgr->createButton(OgreBites::TL_CENTER, "extBtn", "Exit Game");
+	//mTrayMgr->hideCursor();
+}
+
+void TutorialApplication::buttonHit(OgreBites::Button* hitButton)
+{
+	if(hitButton == startButton)
+	{
+		mTrayMgr->hideTrays();
+	}
+	else if(hitButton == exitButton)
+	{
+		 shutdown = true;
+	}
 }
 
 

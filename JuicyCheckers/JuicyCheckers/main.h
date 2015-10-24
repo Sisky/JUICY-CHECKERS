@@ -20,6 +20,7 @@ http://www.ogre3d.org/wiki/
 
 #include "client.h"
 
+#include <Ogre.h>
 #include <OgreRoot.h>
 #include <OISEvents.h>
 #include <OISInputManager.h>
@@ -28,9 +29,14 @@ http://www.ogre3d.org/wiki/
 #include <OgreWindowEventUtilities.h>
 #include <SdkCameraMan.h>
 #include <SdkTrays.h>
+#include <OgreFontManager.h>
+#include <OgreBorderPanelOverlayElement.h>
+#include <OgreTextAreaOverlayElement.h>
 
 #include "ParticleUniverseSystemManager.h"
 #include "client.h"
+
+
 
 
 // forward declarations
@@ -95,6 +101,9 @@ protected:
 	// Initialise the Menu System
 	void initMenu();
 
+	// Menu Listeners
+	void buttonHit(OgreBites::Button* button);
+
 
 
 	// Process BufferedInput
@@ -105,6 +114,8 @@ protected:
 	virtual bool mouseReleased(const OIS::MouseEvent& me, OIS::MouseButtonID id);
 
 private:
+	bool shutdown;
+
 	Ogre::Root* mRoot;
 	Ogre::String mResourcesCfg;
 	Ogre::String mPluginsCfg;
@@ -145,7 +156,8 @@ private:
 	// Menu Stuff
     // OgreBites
     Ogre::OverlaySystem*        mOverlaySystem;
-	OgreBites::Button*			button;
+	OgreBites::Button*			startButton;
+	OgreBites::Button*			exitButton;
 	OgreBites::TextBox*			textBox;
     OgreBites::InputContext     mInputContext;
     OgreBites::SdkTrayManager*	mTrayMgr;
