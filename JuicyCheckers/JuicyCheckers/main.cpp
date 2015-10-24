@@ -14,12 +14,10 @@ Tutorial Framework (for Ogre 1.9)
 http://www.ogre3d.org/wiki/
 -----------------------------------------------------------------------------
 */
-#include <winsock2.h>
 
 #include "stdafx.h"
 #include "main.h"
 
-// #include "BoardSquare.h"
 #include "Board.h"
 #include "Piece.h"
 #include "PieceController.h"
@@ -806,7 +804,7 @@ TutorialApplication::initNetworking()
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
-#include <winsock2.h>
+// #include <winsock2.h>
 #include "windows.h"
 #endif
 

@@ -18,7 +18,7 @@ http://www.ogre3d.org/wiki/
 #ifndef __TutorialApplication_h_
 #define __TutorialApplication_h_
 
-#include "client.h"
+
 
 #include <OgreRoot.h>
 #include <OISEvents.h>

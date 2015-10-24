@@ -36,6 +36,7 @@ Board::getSquare(int id)
 			return nullptr;
 		}
 	}
+	return nullptr;
 }
 
 // returns the scenenode of the board square based on the passed square ID
@@ -56,4 +57,5 @@ Board::getSceneNodeFromPiece(int id, Ogre::SceneManager& sManager)
 			return sManager.getSceneNode("squareNode" + i->getID());
 		}
 	}
+	return nullptr;
 }

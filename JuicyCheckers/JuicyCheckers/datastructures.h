@@ -5,8 +5,8 @@
  *
  */
 
-#ifndef _DATASTRUCTURES_H__
-#define _DATASTRUCTURES_H__
+#ifndef __DATASTRUCTURES_H__
+#define __DATASTRUCTURES_H__
 
 #include "MessageIdentifiers.h"
 
@@ -134,4 +134,4 @@ struct Error
 };
 #pragma pack(pop)
 
-#endif //_DATASTRUCTURES_H__
+#endif __DATASTRUCTURES_H__
