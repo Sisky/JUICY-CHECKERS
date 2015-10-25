@@ -7,25 +7,13 @@
 */	
 
 // Includes 
+#include "stdafx.h"
+#include "client.h"
 
 #include <tchar.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "RakPeerInterface.h"
-#include "MessageIdentifiers.h"
-#include "NetworkIDObject.h"
-#include "NetworkIDManager.h"
-#include "BitStream.h"
-#include "RakNetTypes.h"  // MessageID
-#include "BitStream.h"
-
-#include "stdafx.h"
-#include "client.h"
-// Menu Stuff
-
-
-#include "datastructures.h"
 
 #include "client.h"
 

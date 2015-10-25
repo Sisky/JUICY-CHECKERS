@@ -1,3 +1,12 @@
+/*
+ *   Author:  Dave Brown <wpv9142@aut.ac.nz>
+ *   Filename: Board.cpp
+ *   Description:  This is the implementation of the board which defines each square on the board, each square is comprised 
+ *				   of a visual planeand also contains an ID, the ID of the piece that occupies it, its occupancy status and 
+ *				   some basic getters and setters
+ *
+ */
+
 #include "stdafx.h"
 #include "Board.h"
 
