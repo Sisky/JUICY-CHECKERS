@@ -28,7 +28,7 @@ public:
 
 	void Process(float _delta);
 
-	void SendMovement(int x1, int y1, int x2, int y2);
+	void SendMovement(int source, int dest);
 	void GetTurn();
 	std::vector<LobbyMsg>* GetLobbies();
 	void JoinLobby();
@@ -58,7 +58,10 @@ protected:
 private:
 	// Hold RakNet Variables
 	RakNet::RakPeerInterface *peer;
+
 	RakNet::RakNetGUID serverGUID;
+
+
 	
 	static const int PORT = 61126;
 	static const bool isServer = false;
