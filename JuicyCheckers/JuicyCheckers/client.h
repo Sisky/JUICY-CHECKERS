@@ -9,10 +9,10 @@
 #ifndef __Client_H__
 #define __Client_H__
 
-#include "RakPeerInterface.h"
-#include "MessageIdentifiers.h"
-#include "BitStream.h"
-#include "RakNetTypes.h"  // MessageID
+//#include "RakPeerInterface.h"
+//#include "MessageIdentifiers.h"
+//#include "BitStream.h"
+//#include "RakNetTypes.h"  // MessageID
 
 class Client
 {

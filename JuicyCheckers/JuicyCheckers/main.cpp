@@ -1,33 +1,22 @@
-/*
------------------------------------------------------------------------------
-Filename:    TutorialApplication.cpp
------------------------------------------------------------------------------
-
-This source file is part of the
-___                 __    __ _ _    _
-/___\__ _ _ __ ___  / / /\ \ (_) | _(_)
-//  // _` | '__/ _ \ \ \/  \/ / | |/ / |
-/ \_// (_| | | |  __/  \  /\  /| |   <| |
-\___/ \__, |_|  \___|   \/  \/ |_|_|\_\_|
-|___/
-Tutorial Framework (for Ogre 1.9)
-http://www.ogre3d.org/wiki/
------------------------------------------------------------------------------
+/***************************************************************************************************************
+*
+*
+*
 */
-#include <winsock2.h>
+
 
 #include "stdafx.h"
 #include "main.h"
 
-// #include "BoardSquare.h"
 #include "Board.h"
 #include "Piece.h"
 #include "PieceController.h"
+#include "MenuSystem.h"
+#include "client.h"
 
 
 
-//---------------------------------------------------------------------------
-TutorialApplication::TutorialApplication()
+JuicyCheckers::JuicyCheckers()
 	: mRoot(0),
 	mResourcesCfg(Ogre::StringUtil::BLANK),
 	mPluginsCfg(Ogre::StringUtil::BLANK),
@@ -47,12 +36,8 @@ TutorialApplication::TutorialApplication()
 {
 }
 
-TutorialApplication::~TutorialApplication()
+JuicyCheckers::~JuicyCheckers()
 {
-	delete client;
-	client = 0;
-	
-		   
 
 	// destroy the ray query upon exit
 	mSceneMgr->destroyQuery(mRayScnQuery);
@@ -61,12 +46,15 @@ TutorialApplication::~TutorialApplication()
 	Ogre::WindowEventUtilities::removeWindowEventListener(mWindow, this);
 	windowClosed(mWindow);
 
+	delete client;
+	client = 0;
+
 	delete mRoot;
 }
 
-//Adjust mouse clipping area
+
 void 
-TutorialApplication::windowResized(Ogre::RenderWindow* rw)
+JuicyCheckers::windowResized(Ogre::RenderWindow* rw)
 {
 	unsigned int width, height, depth;
 	int left, top;
@@ -77,9 +65,9 @@ TutorialApplication::windowResized(Ogre::RenderWindow* rw)
 	ms.height = height;
 }
 
-//Unattach OIS before window shutdown (very important under Linux)
+
 void 
-TutorialApplication::windowClosed(Ogre::RenderWindow* rw)
+JuicyCheckers::windowClosed(Ogre::RenderWindow* rw)
 {
 	//Only close for window that created OIS (the main window in these demos)
 	if(rw == mWindow)
@@ -96,19 +84,19 @@ TutorialApplication::windowClosed(Ogre::RenderWindow* rw)
 }
 
 bool 
-TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
+JuicyCheckers::frameRenderingQueued(const Ogre::FrameEvent& evt)
 {
 	if(mWindow->isClosed())
 		return false;
 
-	//Need to capture/update each device
+	// Need to capture/update each device
 	mKeyboard->capture();
 	mMouse->capture();
 	client->Process(evt.timeSinceLastEvent);
 
 	mMenuSystem->frameRenderingQueued(evt);
 
-	//processInput(evt);
+	// processInput(evt);
 
 	if(mKeyboard->isKeyDown(OIS::KC_ESCAPE))
 		return false;
@@ -121,24 +109,26 @@ TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 }
 
 
-// Input Processing Methods
+
 bool 
-TutorialApplication::keyPressed(const OIS::KeyEvent& ke) 
+JuicyCheckers::keyPressed(const OIS::KeyEvent& ke) 
 { 
 	return true; 
 }
 
 
 bool 
-TutorialApplication::keyReleased(const OIS::KeyEvent& ke) 
+JuicyCheckers::keyReleased(const OIS::KeyEvent& ke) 
 { 
 	return true; 
 }
 
 bool 
-TutorialApplication::mouseMoved(const OIS::MouseEvent& me) 
+JuicyCheckers::mouseMoved(const OIS::MouseEvent& me) 
 { 
+	// pass mouse event to the menu system
 	mMenuSystem->MouseMoved(me);
+
 	// as the mouse moves over each item it it highlighted... each square needs a particle effect
 	Ogre::Vector2 mousePos = Ogre::Vector2(static_cast<Ogre::Real>(me.state.X.abs),static_cast<Ogre::Real>(me.state.Y.abs));
 	// cast a ray into the scene through the camera to viewport matrix
@@ -209,9 +199,10 @@ TutorialApplication::mouseMoved(const OIS::MouseEvent& me)
 	return true; 
 }
 
+
 bool 
-TutorialApplication::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id) 
-{ 
+JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id) 
+{
 	mMenuSystem->MousePressed(me,id);
 
 	// get the x,y position of the mouse
@@ -248,17 +239,24 @@ TutorialApplication::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID 
 			// left mouse button was pressed
 			if(id == OIS::MB_Left)
 			{
-				// test if a source object has been selected
-				//if(pController->getSource() != nullptr) {
-				//	// select a destination square
-				//	pController->setDestination(mCurObject);
-				//	Ogre::LogManager::getSingletonPtr()->logMessage("Target Object Selected : " + mCurObject->getName());
-				//}
+				
+				// ensure that there is a source before being able to select a target
+				
 
 				// determine if the boardsqaure has an attached piece
 				if(mCurObject->numChildren() > 0) {
-					// number of children will be 0 is there is nothing attached to the square
-					Ogre::Node* c = mCurObject->getChild(0);
+
+					// select source piece here
+					
+					// number of children will be 0 if there is nothing attached to the square
+					Ogre::SceneNode* c = static_cast<Ogre::SceneNode*>(mCurObject->getChild(0));
+					Ogre::Entity* e = static_cast<Ogre::Entity*>(c->getAttachedObject(0));
+
+					// can access all the functions of the attached class now which makes like easier
+					
+					Ogre::LogManager::getSingletonPtr()->logMessage("Child Object Entity Name   : " + e->getName());
+
+
 					//Ogre::LogManager::getSingletonPtr()->logMessage("Child Object clicked   : " + c->getName());
 					//Ogre::LogManager::getSingletonPtr()->logMessage("Child Object position (relative to parent) : " + Ogre::StringConverter::toString(c->getPosition()));
 					//Ogre::LogManager::getSingletonPtr()->logMessage("Parent Object position : " + Ogre::StringConverter::toString(mCurObject->getPosition()));
@@ -267,26 +265,38 @@ TutorialApplication::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID 
 					// set the selected child object as the source... this can only happen if there is a child object .. aka a piece on a square
 					pController->setSource(c);
 					Ogre::LogManager::getSingletonPtr()->logMessage("Source Object Selected : " + c->getName());
-					//}
+					
+					// move and start the particle system
+					mSceneMgr->getSceneNode("selectionNode")->setPosition(mCurObject->getPosition());
+					// if the selection effect was not already started.. start it
+					if(pManager->getParticleSystem("psSelection")->getState() != ParticleUniverse::ParticleSystem::ParticleSystemState::PSS_STARTED) {
+						pManager->getParticleSystem("psSelection")->start();
+					}
 				}
 				else {
-					// any square without a piece attached to it is a valid destination
-					pController->setDestination(mCurObject);
-					Ogre::LogManager::getSingletonPtr()->logMessage("Target Object Selected : " + mCurObject->getName());
+					// make sure that a target has been selected already
+					if(pController->getSource() != nullptr) {
+						// any square without a piece attached to it is a valid destination
+						pController->setDestination(mCurObject);
+						Ogre::LogManager::getSingletonPtr()->logMessage("Target Object Selected : " + mCurObject->getName());
+
+						// if the left mouse button was pressed.. set the position of the 'selection particle effect' to be the position of the selected object
+						mSceneMgr->getSceneNode("selectionNode")->setPosition(mCurObject->getPosition());
+						// if the selection effect was not already started.. start it
+						if(pManager->getParticleSystem("psSelection")->getState() != ParticleUniverse::ParticleSystem::ParticleSystemState::PSS_STARTED) {
+							pManager->getParticleSystem("psSelection")->start();
+						}
+					}
 				}
 
 				// test if both source and destination are selected and offload to the PieceController
 				if(pController->getSource() != nullptr && pController->getDest() != nullptr) {
 					pController->movePiece();
+					// stop the particle system
+					pManager->getParticleSystem("psSelection")->stop();
 				}
 
-				// if the left mouse button was pressed.. set the position of the 'selection particle effect' to be the position of the selected object
-				mSceneMgr->getSceneNode("selectionNode")->setPosition(mCurObject->getPosition());
 
-				// if the selection effect was not already started.. start it
-				if(pManager->getParticleSystem("psSelection")->getState() != ParticleUniverse::ParticleSystem::ParticleSystemState::PSS_STARTED) {
-					pManager->getParticleSystem("psSelection")->start();
-				}
 				
 			}
 			break;
@@ -331,84 +341,76 @@ TutorialApplication::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID 
 }
 
 bool 
-TutorialApplication::mouseReleased(const OIS::MouseEvent& me, OIS::MouseButtonID id) 
+JuicyCheckers::mouseReleased(const OIS::MouseEvent& me, OIS::MouseButtonID id) 
 { 
 	mMenuSystem->MouseReleased(me,id);
 	return true; 
 }
 
 void
-TutorialApplication::addPieces()
+JuicyCheckers::addPieces()
 {
 	Ogre::String number;
-
-
-	// populate the vector array
-
-	for(int i = 0; i < 24; i++) {
-		Piece* p = new Piece();
-		// convert the count to a string
-		number = Ogre::StringConverter::toString(i+1);
-
-		// set the piece ID
-		p->setPieceID(i+1);
-		// set visibility
-		p->setVisible(true);
-		p->setPowerup(0);
-
-		// first 12 will be ninjas
-		if(i < 12) {
-			// add the piece
-			p->setMesh("robot.mesh");
-			p->setOwner(1);
-		}
-		else {
-		// next 12 will be robots
-			p->setMesh("ninja.mesh");
-			p->setOwner(2);
-		}	
-
-		// push to the array
-		pPieces.push_back(p);
-	}
-
-	// once all pieces are populated... set their associated board id and position and attach the entity to the board square node
 	int count = 0;
-	for(auto& i : pPieces) {
+	
+	// populate the piece entity vector array
+	for(int i = 1; i < 24 + 1; i++) {
 
+		// convert the count to a string
+		number = Ogre::StringConverter::toString(i);
+		
 		count += 2;
-		i->setBoardSquareID(count);
+		
+		// Piece Entity
+		Piece* p = new Piece();
 
 		// use that board ID to get the scenenode of the boardsquare
 		Ogre::SceneNode* s = pBoard->getSceneNode(count, *mSceneMgr);
-		// create the scene node
-		number = Ogre::StringConverter::toString(i->getPieceID());
+
 		// create child node of the board square
 		Ogre::SceneNode* pieceNode = s->createChildSceneNode("pieceNode" + number);
 
-		// create the piece entity
-		Ogre::Entity* pieceEntity = mSceneMgr->createEntity("piece" + number, i->getMesh());
-		// set the query mask
-		pieceEntity->setQueryFlags(PIECE_MASK); 
 
-		// check which player owns the piece and rotate / scale accordingly
-		if(i->getOwner() == PLAYER_ONE) { // robots... need to be rotated and scaled
+
+		// set the piece ID  1 - 24
+		p->setPieceID(i);
+		// set visibility
+		p->setVisible(true);
+		// set powerup state
+		p->setPowerup(0);
+		// set the board square ID
+		p->setBoardSquareID(count);
+		// store the original position of the board node in the piece class
+		p->setOrigin(s->getPosition());
+
+		// first 12 will be ninjas
+		if(i <= 12) {
+			// add the piece
+			p->setMesh("robot.mesh");
+			p->setOwner(1);	// player 1
 			// rotate
 			pieceNode->yaw(Ogre::Degree(-90));
 			// scale
 			pieceNode->scale(Ogre::Vector3(3,2.5,2));
 		}
+		else {
+		// next 12 will be robots
+			p->setMesh("ninja.mesh");
+			p->setOwner(2); // player 2
+		}	
 
-		// attach the entity to the piece node
-		pieceNode->attachObject(pieceEntity);
+		// create the entity
+		p = static_cast<Piece*>(mSceneMgr->createEntity("piece" + number, p->getMesh()));
 
-		// store the node
-		i->setNode(pieceNode);
-		// store the position of the board node in the piece class
-		i->setPosition(s->getPosition());
-		// store the entity in the piece class
-		i->setEntity(pieceEntity);
+		// set the entity query flag
+		p->setQueryFlags(PIECE_MASK); 
 		
+		// attach the entity to the node
+		pieceNode->attachObject(p);
+
+		// push to the array
+		pPieces.push_back(p);
+
 		// player 1	(robots)
 		if(count == 8) { count--; }
 		if(count == 15) { count++; }
@@ -417,14 +419,12 @@ TutorialApplication::addPieces()
 		// player 2 (ninjas)
 		if(count == 47) { count++; }
 		if(count == 56) { count--; }
-		
-
 	}
 }
 
-// Initialize the particle system
+ 
 void
-TutorialApplication::addParticleSystems() 
+JuicyCheckers::addParticleSystems() 
 {
 	// get the particle manager singleton pointer
 	pManager = ParticleUniverse::ParticleSystemManager::getSingletonPtr();
@@ -541,19 +541,19 @@ TutorialApplication::addParticleSystems()
 }
 
 void
-TutorialApplication::drawPieces()
+JuicyCheckers::drawPieces()
 {
 	// loop through the piece array
 	for(auto& i : pPieces) { 
 		// the piece is visible
-		if(i->isVisible()) {
-			
-		}
+		//if(i->isVisible()) {
+		//	
+		//}
 	}
 }
-// add the assets the game scene here
+
 void
-TutorialApplication::createScene()
+JuicyCheckers::createScene()
 {
 	// populate the board with empty squares with an id of 1 - 64
 	for(int i = 0; i < 64; i++) {
@@ -648,9 +648,9 @@ TutorialApplication::createScene()
 
 }
 
-// Initialize the aspects of the scene... camera, viewport, lighting, skybox and shadows
+
 void
-TutorialApplication::initScene()
+JuicyCheckers::initScene()
 {
 
 	mCamera = mSceneMgr->createCamera("MainCam");
@@ -713,9 +713,9 @@ TutorialApplication::initScene()
     pointLight->setPosition(Ogre::Vector3(0, 150, 250));
 }
 
-// Initialize the input callback
+
 void 
-TutorialApplication::initInput()
+JuicyCheckers::initInput()
 {
 	Ogre::LogManager::getSingletonPtr()->logMessage("*** Initializing OIS ***");
 	OIS::ParamList pl;
@@ -742,9 +742,9 @@ TutorialApplication::initInput()
 	windowResized(mWindow);
 }
 
-// Initialise the Ogre3D rendering system
+
 bool 
-TutorialApplication::go()
+JuicyCheckers::go()
 {
 	#ifdef _DEBUG
 		mResourcesCfg = "resources_d.cfg";
@@ -780,7 +780,7 @@ TutorialApplication::go()
 	mRoot->showConfigDialog();
 
 
-	mWindow = mRoot->initialise(true, "TutorialApplication Render Window");
+	mWindow = mRoot->initialise(true, "JuicyCheckers Render Window");
 
 	Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
@@ -822,13 +822,13 @@ TutorialApplication::go()
 }
 
 void 
-TutorialApplication::initNetworking()
+JuicyCheckers::initNetworking()
 {
 	client = new Client();
 }
 
 void 
-TutorialApplication::initMenu()
+JuicyCheckers::initMenu()
 {
 	mMenuSystem = new MenuSystem();
 
@@ -839,7 +839,7 @@ TutorialApplication::initMenu()
 }
 
 void 
-TutorialApplication::setShutdown()
+JuicyCheckers::setShutdown()
 {
 	shutdown = true;
 }
@@ -852,7 +852,7 @@ TutorialApplication::setShutdown()
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
-#include <winsock2.h>
+// #include <winsock2.h>
 #include "windows.h"
 #endif
 
@@ -866,8 +866,8 @@ extern "C" {
 	int main(int argc, char *argv[])
 #endif
 	{
-		// Create application object
-		TutorialApplication app;
+
+		JuicyCheckers app; 		// Create application object
 
 		try {
 			app.go();
@@ -887,5 +887,5 @@ extern "C" {
 }
 #endif
 
-//---------------------------------------------------------------------------
+
 

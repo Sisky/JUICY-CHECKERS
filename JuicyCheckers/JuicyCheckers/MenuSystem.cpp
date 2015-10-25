@@ -7,6 +7,7 @@
  *					sending messages to the server on actions
  *
  */	
+
 #include "stdafx.h"
 #include "MenuSystem.h"
 
@@ -125,7 +126,7 @@ void MenuSystem::buttonHit(OgreBites::Button* button)
 }
 
 //void 
-//MenuSystem::SetMainRef(TutorialApplication* main)
+//MenuSystem::SetMainRef(JuicyCheckers* main)
 //{
 //	mMain = main;
 //}

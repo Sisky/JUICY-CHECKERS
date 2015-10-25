@@ -11,21 +11,23 @@
 #ifndef __MENUSYSTEM_H__
 #define __MENUSYSTEM_H__
 
-#include <vector>
-#include "stdafx.h"
-#include <OISMouse.h>
-#include <Ogre.h>
-#include <OgreRoot.h>
-#include <OISEvents.h>
-#include <OISInputManager.h>
-#include <OISKeyboard.h>
-#include <OISMouse.h>
-#include <OgreWindowEventUtilities.h>
-#include <SdkCameraMan.h>
-#include <SdkTrays.h>
-#include <OgreFontManager.h>
-#include <OgreBorderPanelOverlayElement.h>
-#include <OgreTextAreaOverlayElement.h>
+//#include "stdafx.h"
+//
+//#include <vector>
+//
+// #include <OISMouse.h>
+// #include <Ogre.h>
+// #include <OgreRoot.h>
+// #include <OISEvents.h>
+// #include <OISInputManager.h>
+// #include <OISKeyboard.h>
+// #include <OISMouse.h>
+// #include <OgreWindowEventUtilities.h>
+// #include <SdkCameraMan.h>
+// #include <SdkTrays.h>
+// #include <OgreFontManager.h>
+// #include <OgreBorderPanelOverlayElement.h>
+// #include <OgreTextAreaOverlayElement.h>
 
 
 class MenuSystem : public OgreBites::SdkTrayListener
@@ -57,7 +59,7 @@ public:
 
 	void SetMenu(MENUS menu);
 
-	//void SetMainRef(TutorialApplication* main);
+	//void SetMainRef(JuicyCheckers* main);
 
 	void frameRenderingQueued(const Ogre::FrameEvent& evt);
 
@@ -81,7 +83,7 @@ private:
 	OgreBites::Button*			exitButton;
 	OgreBites::TextBox*			textBox;
     
-	OgreBites::SdkCameraMan*    mCameraMan;     	// Basic camera controller
+	// OgreBites::SdkCameraMan*    mCameraMan;     	// Basic camera controller
 	OgreBites::ParamsPanel*     mDetailsPanel;   	// Sample details panel
 
 	Ogre::SceneManager* mSceneMgr; 
@@ -94,7 +96,7 @@ private:
 		// The array of SdkMenus
 	std::vector<OgreBites::SdkTrayManager*> mTrays;
 
-	//TutorialApplication* mMain;
+	//JuicyCheckers* mMain;
 };
 
-#endif //__MENUSYSTEM_H__
+#endif __MENUSYSTEM_H__

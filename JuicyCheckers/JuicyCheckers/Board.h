@@ -1,10 +1,14 @@
+/*
+ *   Author:  Dave Brown <wpv9142@aut.ac.nz>
+ *   Filename: Board.h
+ *   Description:  This class holds an array of boardsquares with some access functions
+ *
+ */
+
 #ifndef __BOARD_H__
 #define __BOARD_H__
 
 // this class is used to define the board containing a vector of boardpieces that can be accessed
-
-#include <vector>
-
 
 // forward declarations
 class BoardSquare;
