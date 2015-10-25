@@ -1,20 +1,22 @@
+/*
+ *   Author:  Dave Brown <wpv9142@aut.ac.nz>
+ *   Filename: Piece.h
+ *	 Inherts : Ogre::Entity
+ *   Description:  This class defines the pieces, the mesh, the ID of each piece, its visibility state and various
+ *				   other bits of information pertaining to the piece state.
+ *				   being as this inherits from Ogre::Entity is can be attached to Nodes.
+ *
+ */
+
 #ifndef __PIECE_H__
 #define __PIECE_H__
 
-// each piece with have ....
-// visible
-// position
-// model
-// powerup state
-// each piece contains an int pertaining to the board square that is occupies.
 
-// #include <OgreRoot.h>
-
-class Piece 
+class Piece : public Ogre::Entity
 {
 public:
 	Piece(void);
-	~Piece(void);
+	virtual ~Piece(void);
 	
 	// visibility
 	bool isVisible()				{ return m_Visible; }
@@ -41,25 +43,25 @@ public:
 	int getPieceID() { return m_PieceID; }
 
 	// piece postion
-	void setPosition(Ogre::Vector3 pos) { m_Position = pos; }
-	Ogre::Vector3 getPosition() { return m_Position; }
+	void setOrigin(Ogre::Vector3 pos) { m_Origin = pos; }
+	Ogre::Vector3 getOrigin() { return m_Origin; }
 
-	// entity
-	void createEntity(Ogre::SceneManager& sManager);
-	Ogre::Entity* getEntity()	 { return m_Entity; }
+	// entity .. no longer needed as this IS the entity now
+	// void createEntity(Ogre::SceneManager& sManager);
+	// Ogre::Entity* getEntity()	 { return m_Entity; }
 
-	void setEntity(Ogre::Entity* entity) { m_Entity = entity; }
+	// void setEntity(Ogre::Entity* entity) { m_Entity = entity; }
 
-	// node
-	void setNode(Ogre::SceneNode* node) { m_Node = node; }
-	Ogre::SceneNode* getNode() { return m_Node; }
+	//// node
+	//void setNode(Ogre::SceneNode* node) { m_Node = node; }
+	//Ogre::SceneNode* getNode() { return m_Node; }
 
 	//// attaches the node to the specified node
 	//void attach(Ogre::SceneNode* node);
 	//// detaches the node from the specified node
 	//void detach(Ogre::SceneNode* node);
-
 protected:
+
 private:
 
 // member variables
@@ -67,9 +69,9 @@ public:
 protected:
 	bool			m_Visible;	
 	Ogre::String	m_Mesh;			// e.g. "ninja.mesh"
-	Ogre::Vector3	m_Position;	
-	Ogre::Entity*	m_Entity;		// the entity for the piece
-	Ogre::SceneNode* m_Node;		// the node for the entity... allows rotation, and translation etc
+	Ogre::Vector3	m_Origin;		// original position of the piece
+	// Ogre::Entity*	m_Entity;		// the entity for the piece
+	// Ogre::SceneNode* m_Node;		// the node for the entity... allows rotation, and translation etc
 	int				m_PowerUp;		// 0 - 10 represeting different powerups
 	int				m_Owner;		// piece owner .. player 1 = 1 player 2 = 2
 	int				m_BoardSquareID;// ID of the board square upon which the piece sits

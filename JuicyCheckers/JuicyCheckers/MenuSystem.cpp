@@ -7,6 +7,7 @@
  *					sending messages to the server on actions
  *
  */	
+
 #include "stdafx.h"
 #include "MenuSystem.h"
 
@@ -188,7 +189,7 @@ MenuSystem::itemSelected(OgreBites::SelectMenu* selectMenu)
 
 
 //void 
-//MenuSystem::SetMainRef(TutorialApplication* main)
+//MenuSystem::SetMainRef(JuicyCheckers* main)
 //{
 //	mMain = main;
 //}

@@ -1,3 +1,10 @@
+/*
+ *   Author:  Dave Brown <wpv9142@aut.ac.nz>
+ *   Filename: PieceController.h
+ *   Description:  This class provides some helper functions for moving the pieces on the board
+ *
+ */
+
 #ifndef __PIECECONTROLLER_H__
 #define __PIECECONTROLLER_H__
 

@@ -1,52 +1,13 @@
-/*
------------------------------------------------------------------------------
-Filename:    JuicyCheckers.h
------------------------------------------------------------------------------
-
-This source file is part of the
-___                 __    __ _ _    _
-/___\__ _ _ __ ___  / / /\ \ (_) | _(_)
-//  // _` | '__/ _ \ \ \/  \/ / | |/ / |
-/ \_// (_| | | |  __/  \  /\  /| |   <| |
-\___/ \__, |_|  \___|   \/  \/ |_|_|\_\_|
-|___/
-Tutorial Framework (for Ogre 1.9)
-http://www.ogre3d.org/wiki/
------------------------------------------------------------------------------
-*/
-
-#ifndef __JuicyCheckers_h_
-#define __JuicyCheckers_h_
-
-#include "client.h"
-
-#include <Ogre.h>
-#include <OgreRoot.h>
-#include <OISEvents.h>
-#include <OISInputManager.h>
-#include <OISKeyboard.h>
-#include <OISMouse.h>
-#include <OgreWindowEventUtilities.h>
-#include <SdkCameraMan.h>
-#include <SdkTrays.h>
-#include <OgreFontManager.h>
-#include <OgreBorderPanelOverlayElement.h>
-#include <OgreTextAreaOverlayElement.h>
-
-#include "ParticleUniverseSystemManager.h"
-#include "client.h"
-#include "MenuSystem.h"
-
-
-
+#ifndef __JUICYCHECKERS_H__
+#define __JUICYCHECKERS_H__
 
 // forward declarations
 class BoardSquare;
 class Board;
 class Piece;
 class PieceController;
-
-//---------------------------------------------------------------------------
+class MenuSystem;
+class Client;
 
 class JuicyCheckers : public Ogre::WindowEventListener, public Ogre::FrameListener, public OIS::KeyListener, public OIS::MouseListener
 {
@@ -105,7 +66,8 @@ protected:
 	void initMenu();
 
 
-
+	// testing stuff
+	void testStuff(Ogre::SceneManager& sm);
 
 	// Process BufferedInput
 	virtual bool keyPressed(const OIS::KeyEvent& ke);
@@ -142,13 +104,14 @@ private:
 	// Particle system manager
 	ParticleUniverse::ParticleSystemManager* pManager;
 
-
+	// networking client
 	Client* client;
 
 	// the player boards
 	Board* pBoard;
 
 	// vector array of pieces.. total of 12 per side (24 in total)
+	// std::vector<Piece*> pPieces;
 	std::vector<Piece*> pPieces;
 
 	// Piece Controller
@@ -160,9 +123,7 @@ private:
 
 };
 
-//---------------------------------------------------------------------------
+#endif //__JUICYCHECKERS_H__
 
-#endif // #ifndef __JuicyCheckers_h_
 
-//---------------------------------------------------------------------------
 

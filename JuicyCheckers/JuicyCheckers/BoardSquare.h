@@ -1,3 +1,12 @@
+/*
+ *   Author:  Dave Brown <wpv9142@aut.ac.nz>
+ *   Filename: BoardSquare.h
+ *   Description:  This class defines each square on the board, each square is comprised of a visual plane
+ *				   and also contains an ID, the ID of the piece that occupies it, its occupancy status and 
+ *				   some basic getters and setters
+ *
+ */
+
 #ifndef __BOARDSQUARE_H__
 #define __BOARDSQUARE_H__
 

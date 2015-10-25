@@ -1,3 +1,10 @@
+/*
+ *   Author:  Dave Brown <wpv9142@aut.ac.nz>
+ *   Filename: PieceController.cpp
+ *   Description:  This is the implementation of the Piece which class provides some helper functions for moving the pieces on the board
+ *
+ */
+
 #include "stdafx.h"
 #include "PieceController.h"
 
