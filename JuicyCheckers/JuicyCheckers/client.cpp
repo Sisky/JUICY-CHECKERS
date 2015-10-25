@@ -8,7 +8,6 @@
 #include "stdafx.h"
 
 // Includes 
-#include "stdafx.h"
 #include "client.h"
 
 #include <tchar.h>
