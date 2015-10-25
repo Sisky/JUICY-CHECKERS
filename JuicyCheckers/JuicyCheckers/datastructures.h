@@ -134,4 +134,10 @@ struct Error
 };
 #pragma pack(pop)
 
+	struct LobbyMsg
+	{
+		RakNet::NetworkID networkID;
+		RakNet::RakString name;
+	};
+
 #endif //_DATASTRUCTURES_H__

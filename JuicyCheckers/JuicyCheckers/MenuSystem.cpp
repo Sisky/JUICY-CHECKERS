@@ -10,6 +10,10 @@
 #include "stdafx.h"
 #include "MenuSystem.h"
 
+#include "client.h"
+
+#include "datastructures.h"
+
 MenuSystem::MenuSystem()
 {
 
@@ -122,6 +126,23 @@ void MenuSystem::buttonHit(OgreBites::Button* button)
 		// class and have the main look check to see if we want to quit.
 		// frameRenderingQueued can return a false and quit
 	}
+	else if(button == createLobby)
+	{
+		// Send the server a lobby creation message.
+		// Get the name of the lobby
+		RakNet::RakString name = RakNet::RakString(reinterpret_cast<const char*>((lobbyName->getText().c_str())));
+		clientPtr->CreateLobby(name);
+	}
+	else if(button == createLobbyButton)
+	{
+		// We should transition to the lobby creation menu
+		SetMenu(CREATELOBBYMENU);
+	}
+	else if(button == createLobbyBack)
+	{
+		// We should transition to the lobby creation menu
+		SetMenu(LISTLOBBYMENU);
+	}
 }
 
 void 
@@ -155,7 +176,31 @@ void MenuSystem::frameRenderingQueued(const Ogre::FrameEvent& evt)
 }
 
 void 
-MenuSystem::createMenu(MENUS menu)
+	MenuSystem::updateLobbies()
+{
+	std::vector<LobbyMsg>* lobbyListMsg = clientPtr->GetLobbies();
+
+	lobbyVector.clear();
+
+	for(std::vector<LobbyMsg>::iterator lobby = (*lobbyListMsg).begin();
+		lobby != (*lobbyListMsg).end(); 
+		++lobby)
+	{   
+		lobbyVector.push_back(Ogre::String(lobby->name +"|"+ lobby->networkID));
+	}
+}
+
+void MenuSystem::setClientPtr(Client* ptr)
+{
+	clientPtr = ptr;
+}
+Client* MenuSystem::getClientPtr()
+{
+	return clientPtr;
+}
+
+void 
+	MenuSystem::createMenu(MENUS menu)
 {
 	OgreBites::SdkTrayManager* currentTray = 0;
 	switch(menu)
@@ -187,12 +232,11 @@ MenuSystem::createMenu(MENUS menu)
 			// Have the option to create a new lobby
 
 
-			lobbyVector.push_back(Ogre::String("Jonys Lobby"));
-			lobbyVector.push_back(Ogre::String("Daves Lobby"));
-			lobbyVector.push_back(Ogre::String("Kens Lobby"));
+			//lobbyVector.push_back(Ogre::String("Jonys Lobby"));
+			//lobbyVector.push_back(Ogre::String("Daves Lobby"));
+			//lobbyVector.push_back(Ogre::String("Kens Lobby"));
 			// Below this we will have a listing of lobbys that the user can click on
 			selectLobby = currentTray->createThickSelectMenu(OgreBites::TL_CENTER, "selectLobby", Ogre::DisplayString("Select a Lobby"), Ogre::Real(300.0), 12, lobbyVector); 
-
 			// Add the tray into the tray container.  NOTE: This function is designed to be run from 0 -> MENU.max
 			mTrays.push_back(currentTray);
 		}
@@ -205,6 +249,11 @@ MenuSystem::createMenu(MENUS menu)
 
 			// Design the tray, Save the buttons if you want to check if they are pressed
 			// Label
+			currentTray->createLabel(OgreBites::TL_TOP, "CreateLobby", "Create Lobby", 500);
+			lobbyName = currentTray->createTextBox(OgreBites::TL_CENTER, "lobbyName", "Lobby Name", 500 , 300);
+			createLobby = currentTray->createButton(OgreBites::TL_CENTER, "createLobbyButton", "Create Lobby");
+			createLobbyBack = currentTray->createButton(OgreBites::TL_CENTER, "createLobbyButtonBack", "Back");
+			
 
 			// Text area for the name
 

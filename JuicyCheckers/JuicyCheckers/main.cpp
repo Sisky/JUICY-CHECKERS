@@ -834,6 +834,7 @@ TutorialApplication::initMenu()
 
 	OgreBites::InputContext mInputContext;
 	mMenuSystem->Initialise(mWindow, mInputContext, mInputManager, mMouse, mKeyboard);
+	mMenuSystem->setClientPtr(client);
 
 	mMenuSystem->SetMenu(MenuSystem::MENUS::STARTMENU);
 }

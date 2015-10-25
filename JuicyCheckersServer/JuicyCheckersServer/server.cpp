@@ -249,8 +249,8 @@ Server::handleUserPacket(RakNet::Packet* packet)
 				replyLobby.Write((RakNet::MessageID)ID_USER_CREATE_LOBBY);
 				replyLobby.Write(lob->GetNetworkID());
 
-				// Send the reply to the client		
-				peer->Send(&replyLobby, HIGH_PRIORITY,RELIABLE_ORDERED,0,packet->systemAddress,false);
+				// Send the create lobby message to all the connected peers	
+				peer->Send(&replyLobby, HIGH_PRIORITY,RELIABLE_ORDERED,0,RakNet::UNASSIGNED_RAKNET_GUID,true);
 			}
 			break;
 		case ID_USER_LOBBY_CHAT:

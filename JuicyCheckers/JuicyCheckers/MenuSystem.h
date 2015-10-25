@@ -27,6 +27,8 @@
 #include <OgreBorderPanelOverlayElement.h>
 #include <OgreTextAreaOverlayElement.h>
 
+class Client;
+
 
 class MenuSystem : public OgreBites::SdkTrayListener
 {
@@ -60,7 +62,13 @@ public:
 
 	//void SetMainRef(TutorialApplication* main);
 
+	void setClientPtr(Client* ptr);
+	Client* getClientPtr();
+
 	void frameRenderingQueued(const Ogre::FrameEvent& evt);
+
+	// Methods to update the current lobbies
+	void updateLobbies();
 
 protected:
 	void createMenu(MENUS menu);
@@ -81,11 +89,21 @@ private:
 
 	// We hold these pointers to SDKTrayWidgets so we can
 	// check which widget triggered the listener event
+
+	// Widgets for the Start Game Menu
 	OgreBites::Button*			startButton;
 	OgreBites::Button*			exitButton;
-	OgreBites::Button*			createLobbyButton;
+	
+
+	// Widgets for the Lobby Selection Menu
 	OgreBites::SelectMenu*			selectLobby;
 	Ogre::StringVector lobbyVector;
+	OgreBites::Button*			createLobbyButton;
+
+	// Widgets for the create lobby menu
+	OgreBites::TextBox* lobbyName;
+	OgreBites::Button* createLobby;
+	OgreBites::Button* createLobbyBack;
     
 	OgreBites::SdkCameraMan*    mCameraMan;     	// Basic camera controller
 	OgreBites::ParamsPanel*     mDetailsPanel;   	// Sample details panel
@@ -101,6 +119,8 @@ private:
 	std::vector<OgreBites::SdkTrayManager*> mTrays;
 
 	//TutorialApplication* mMain;
+
+	Client* clientPtr;
 };
 
 #endif //__MENUSYSTEM_H__

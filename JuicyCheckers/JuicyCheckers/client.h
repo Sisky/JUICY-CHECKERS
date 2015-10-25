@@ -13,6 +13,11 @@
 #include "MessageIdentifiers.h"
 #include "BitStream.h"
 #include "RakNetTypes.h"  // MessageID
+#include "NetworkIDObject.h"
+#include "NetworkIDManager.h"
+
+
+#include "datastructures.h"
 
 class Client
 {
@@ -25,9 +30,11 @@ public:
 
 	void SendMovement(int x1, int y1, int x2, int y2);
 	void GetTurn();
-	void GetLobbies();
+	std::vector<LobbyMsg>* GetLobbies();
 	void JoinLobby();
 	void TakePiece();
+
+	void CreateLobby(RakNet::RakString& name);
 
 protected:
 	void Initialize();
@@ -43,14 +50,18 @@ private:
 	// Member Variables
 public:
 
+
 protected:
 
 private:
 	// Hold RakNet Variables
 	RakNet::RakPeerInterface *peer;
+	RakNet::RakNetGUID serverGUID;
 	
 	static const int PORT = 61126;
 	static const bool isServer = false;
+
+	std::vector<LobbyMsg> lobbyNetworkID;
 
 
 	// Hold containers of players
