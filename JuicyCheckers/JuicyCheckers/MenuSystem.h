@@ -27,6 +27,7 @@
 #include <OgreBorderPanelOverlayElement.h>
 #include <OgreTextAreaOverlayElement.h>
 
+#include <string>
 class Client;
 
 
@@ -70,6 +71,12 @@ public:
 	// Methods to update the current lobbies
 	void updateLobbies();
 
+	void processTextEvent(const OIS::KeyEvent& ke);
+	
+	bool isShown();
+
+	void adjustTrays(); 
+
 protected:
 	void createMenu(MENUS menu);
 
@@ -99,6 +106,8 @@ private:
 	OgreBites::SelectMenu*			selectLobby;
 	Ogre::StringVector lobbyVector;
 	OgreBites::Button*			createLobbyButton;
+	OgreBites::Button*			refreshLobbyButton;
+	OgreBites::Button*			lobbyBack;
 
 	// Widgets for the create lobby menu
 	OgreBites::TextBox* lobbyName;
@@ -113,14 +122,17 @@ private:
 	OgreBites::InputContext mInputContext;
 	OIS::InputManager* mInputManager; 
 	OIS::Mouse* mMouse;
-	OIS::Keyboard* mKeyboard;
+	OIS::Keyboard* mKeyboard;	
 
 		// The array of SdkMenus
 	std::vector<OgreBites::SdkTrayManager*> mTrays;
+	OgreBites::SdkTrayManager* currentTray;
+	MENUS currentMenu;
 
 	//TutorialApplication* mMain;
 
 	Client* clientPtr;
+	std::string currentText;
 };
 
 #endif //__MENUSYSTEM_H__

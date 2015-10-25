@@ -14,7 +14,10 @@
 
 #include "datastructures.h"
 
+#include <OISKeyboard.h>
+
 MenuSystem::MenuSystem()
+	: currentTray(0)
 {
 
 }
@@ -65,38 +68,43 @@ bool MenuSystem::Initialise(Ogre::RenderWindow* window, OgreBites::InputContext 
 
 bool MenuSystem::MouseMoved(const OIS::MouseEvent& me)
 {
+	bool hitFlag = false;
 	for(std::vector<OgreBites::SdkTrayManager*>::iterator it = mTrays.begin();
 		it != mTrays.end();
 		++it)
 	{
-		(*it)->injectMouseMove(me);
+		hitFlag = ((*it)->injectMouseMove(me)) || (hitFlag); 
 	}
 
-	return true;
+	return hitFlag;
 }
 
 bool MenuSystem::MousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 {
+	bool hitFlag = false;
 	for(std::vector<OgreBites::SdkTrayManager*>::iterator it = mTrays.begin();
 		it != mTrays.end();
 		++it)
 	{
-		(*it)->injectMouseDown(me,id);
+		hitFlag = ((*it)->injectMouseDown(me,id)) || (hitFlag);
 	}
 
-	return true;
+	return hitFlag;
 }
 
 bool MenuSystem::MouseReleased(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 {
+	bool hitFlag = false;
 	for(std::vector<OgreBites::SdkTrayManager*>::iterator it = mTrays.begin();
 		it != mTrays.end();
 		++it)
 	{
-		(*it)->injectMouseUp(me,id);
+		hitFlag = ((*it)->injectMouseUp(me,id)) || (hitFlag);
+
+		
 	}
 
-	return true;
+	return hitFlag;
 }
 
 void MenuSystem::SetMenu(MENUS menu)
@@ -108,8 +116,10 @@ void MenuSystem::SetMenu(MENUS menu)
 	{
 		(*it)->hideTrays();
 	}
-
+	currentTray = mTrays[menu];
 	mTrays[menu]->showTrays();
+	currentMenu = menu;
+	currentText.clear();
 }
 
 void MenuSystem::buttonHit(OgreBites::Button* button)
@@ -130,19 +140,37 @@ void MenuSystem::buttonHit(OgreBites::Button* button)
 	{
 		// Send the server a lobby creation message.
 		// Get the name of the lobby
-		RakNet::RakString name = RakNet::RakString(reinterpret_cast<const char*>((lobbyName->getText().c_str())));
+
+		Ogre::String str = lobbyName->getText();
+		const char* data = str.c_str();
+
+		RakNet::RakString name = data;
 		clientPtr->CreateLobby(name);
+
+		MenuSystem::updateLobbies();
 	}
 	else if(button == createLobbyButton)
 	{
 		// We should transition to the lobby creation menu
 		SetMenu(CREATELOBBYMENU);
 	}
+	else if(button == refreshLobbyButton)
+	{		
+		updateLobbies();
+
+		// Also instruct the Client interface to request a new listing of lobbies
+		clientPtr->RefreshLobbies();
+	}
+	else if(button == lobbyBack)
+	{
+		SetMenu(STARTMENU);
+	}
 	else if(button == createLobbyBack)
 	{
 		// We should transition to the lobby creation menu
 		SetMenu(LISTLOBBYMENU);
 	}
+
 }
 
 void 
@@ -180,14 +208,25 @@ void
 {
 	std::vector<LobbyMsg>* lobbyListMsg = clientPtr->GetLobbies();
 
+	selectLobby->clearItems();
 	lobbyVector.clear();
 
+	// Add the lobbies to the SelectLobby object
 	for(std::vector<LobbyMsg>::iterator lobby = (*lobbyListMsg).begin();
 		lobby != (*lobbyListMsg).end(); 
 		++lobby)
 	{   
-		lobbyVector.push_back(Ogre::String(lobby->name +"|"+ lobby->networkID));
+		char* str = new char[64];
+		itoa(lobby->networkID, str, 10);
+		selectLobby->addItem(Ogre::String(lobby->name.C_String()));
+		lobbyVector.push_back(Ogre::String(lobby->name.C_String()));		
 	}
+
+	// Make sure the items are set and shown
+	selectLobby->setItems(lobbyVector);
+	selectLobby->show();
+	adjustTrays();
+
 }
 
 void MenuSystem::setClientPtr(Client* ptr)
@@ -199,8 +238,83 @@ Client* MenuSystem::getClientPtr()
 	return clientPtr;
 }
 
+void MenuSystem::processTextEvent(const OIS::KeyEvent& ke)
+{
+	switch(ke.key)
+	{
+	case OIS::KC_BACK:
+		{
+			if(currentText.size() > 0)
+			{
+				currentText.pop_back();
+			}
+		}
+		break;
+	default:
+		{
+			if(ke.text >= 'A' && ke.text <= 'z')
+			{
+				currentText.push_back(ke.text);
+			}
+		}
+	}
+
+	// Depending on which tray is active send the text to different text boxes
+	switch(currentMenu)
+	{
+	case STARTMENU:
+		{
+
+		}
+		break;
+	case LISTLOBBYMENU:
+		{
+
+		}
+		break;
+	case CREATELOBBYMENU:
+		{
+			lobbyName->setText(currentText);
+		}
+		break;
+	case LOBBYMENU:
+		{
+
+		}
+		break;
+	case MATCHMENU:
+		{
+
+		}
+		break;
+	case RESULTMENU:		
+		{
+
+		}
+		break;
+	}
+}
+
+bool 
+MenuSystem::isShown()
+{
+	return currentTray->areTraysVisible();
+}
+
 void 
-	MenuSystem::createMenu(MENUS menu)
+MenuSystem::adjustTrays()
+{
+	for(std::vector<OgreBites::SdkTrayManager*>::iterator it = mTrays.begin();
+		it != mTrays.end();
+		++it)
+	{
+		(*it)->adjustTrays();
+		
+	}
+}
+
+void
+MenuSystem::createMenu(MENUS menu)
 {
 	OgreBites::SdkTrayManager* currentTray = 0;
 	switch(menu)
@@ -231,12 +345,10 @@ void
 			createLobbyButton = currentTray->createButton(OgreBites::TL_CENTER, "createLobby", "Create Lobby");
 			// Have the option to create a new lobby
 
-
-			//lobbyVector.push_back(Ogre::String("Jonys Lobby"));
-			//lobbyVector.push_back(Ogre::String("Daves Lobby"));
-			//lobbyVector.push_back(Ogre::String("Kens Lobby"));
 			// Below this we will have a listing of lobbys that the user can click on
-			selectLobby = currentTray->createThickSelectMenu(OgreBites::TL_CENTER, "selectLobby", Ogre::DisplayString("Select a Lobby"), Ogre::Real(300.0), 12, lobbyVector); 
+			selectLobby = currentTray->createLongSelectMenu(OgreBites::TL_CENTER, "selectLobby", Ogre::DisplayString("Select a Lobby"), Ogre::Real(300.0), 12); 
+			refreshLobbyButton = currentTray->createButton(OgreBites::TL_CENTER, "refreshLobby", "Refresh Lobbies");
+			lobbyBack = currentTray->createButton(OgreBites::TL_CENTER, "lobbyBack", "Back");
 			// Add the tray into the tray container.  NOTE: This function is designed to be run from 0 -> MENU.max
 			mTrays.push_back(currentTray);
 		}
@@ -274,6 +386,7 @@ void
 			// List the current players
 
 			// Have a (ready) button
+			// Have a label that indicates what is currently set ready or unready
 
 			// Have a chat box 
 
@@ -292,6 +405,11 @@ void
 			// Here we will have some elements such as labels in certain positions to indicate 
 			// the current turn,  timers upgrades etc etc.
 
+			// Indicate whos turn it currently is with a label
+
+			// Indicate with a label the current powerup credit level
+
+			// Have a button that opens up the upgrade menu
 
 			// Add the tray into the tray container.  NOTE: This function is designed to be run from 0 -> MENU.max
 			mTrays.push_back(currentTray);

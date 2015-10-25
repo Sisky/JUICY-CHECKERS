@@ -105,9 +105,9 @@ TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 	mKeyboard->capture();
 	mMouse->capture();
 	client->Process(evt.timeSinceLastEvent);
-
+	
 	mMenuSystem->frameRenderingQueued(evt);
-
+	mMenuSystem->updateLobbies();
 	//processInput(evt);
 
 	if(mKeyboard->isKeyDown(OIS::KC_ESCAPE))
@@ -125,6 +125,8 @@ TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 bool 
 TutorialApplication::keyPressed(const OIS::KeyEvent& ke) 
 { 
+	// Send the event to the MenuSystem incase we are on a menu that requires input
+	mMenuSystem->processTextEvent(ke);
 	return true; 
 }
 
@@ -138,7 +140,7 @@ TutorialApplication::keyReleased(const OIS::KeyEvent& ke)
 bool 
 TutorialApplication::mouseMoved(const OIS::MouseEvent& me) 
 { 
-	mMenuSystem->MouseMoved(me);
+	if(mMenuSystem->MouseMoved(me)){ return true; }
 	// as the mouse moves over each item it it highlighted... each square needs a particle effect
 	Ogre::Vector2 mousePos = Ogre::Vector2(static_cast<Ogre::Real>(me.state.X.abs),static_cast<Ogre::Real>(me.state.Y.abs));
 	// cast a ray into the scene through the camera to viewport matrix
@@ -212,7 +214,7 @@ TutorialApplication::mouseMoved(const OIS::MouseEvent& me)
 bool 
 TutorialApplication::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id) 
 { 
-	mMenuSystem->MousePressed(me,id);
+	if(mMenuSystem->MousePressed(me,id)){ return true; }
 
 	// get the x,y position of the mouse
 	Ogre::Vector2 mousePos = Ogre::Vector2(static_cast<Ogre::Real>(me.state.X.abs),static_cast<Ogre::Real>(me.state.Y.abs));
@@ -333,7 +335,7 @@ TutorialApplication::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID 
 bool 
 TutorialApplication::mouseReleased(const OIS::MouseEvent& me, OIS::MouseButtonID id) 
 { 
-	mMenuSystem->MouseReleased(me,id);
+	if(mMenuSystem->MouseReleased(me,id)){ return true; }
 	return true; 
 }
 

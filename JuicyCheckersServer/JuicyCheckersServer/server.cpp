@@ -240,17 +240,37 @@ Server::handleUserPacket(RakNet::Packet* packet)
 				Lobby* lob = new Lobby();
 				lob->SetHostingPlayer(packet->guid);
 				lob->GetNetworkID();
+				lob->SetName(name);
 
 				// Add the lobby to our lobby container
 				mLobbies.push_back(lob);
 
-				// Send the NetworkID of this lobby back to the user
-				RakNet::BitStream replyLobby;
-				replyLobby.Write((RakNet::MessageID)ID_USER_CREATE_LOBBY);
-				replyLobby.Write(lob->GetNetworkID());
+				// Update all the connected peers about the new lobby
+				RakNet::MessageID typeID = ID_USER_GET_LOBBYS;
 
+				// Create the BitStream for the lobby
+				RakNet::BitStream lobbyBitStream;
+				lobbyBitStream.Write(typeID); // Write the type of the network address
+
+				// Write the number of lobbys, and then after that send the NUID of this lobby.
+				int numLobbies = mLobbies.size();
+				lobbyBitStream.Write(numLobbies);
+
+				// Write all the lobby network ids and lobby names to the stream so the client can pick from one
+				for(std::vector<Lobby*>::iterator lobby = mLobbies.begin();
+					lobby != mLobbies.end(); 
+					++lobby)
+				{   
+					lobbyBitStream.Write((*lobby)->GetNetworkID());
+					lobbyBitStream.Write((*lobby)->GetName());
+				}
 				// Send the create lobby message to all the connected peers	
-				peer->Send(&replyLobby, HIGH_PRIORITY,RELIABLE_ORDERED,0,RakNet::UNASSIGNED_RAKNET_GUID,true);
+				for(std::vector<RakNet::RakNetGUID>::iterator connectedPeer = mConnectedUsers.begin();
+					connectedPeer != mConnectedUsers.end(); 
+					++connectedPeer)
+				{   
+					peer->Send(&lobbyBitStream, HIGH_PRIORITY,RELIABLE_ORDERED,0,(*connectedPeer),false);
+				}
 			}
 			break;
 		case ID_USER_LOBBY_CHAT:

@@ -36,6 +36,8 @@ public:
 
 	void CreateLobby(RakNet::RakString& name);
 
+	void RefreshLobbies();
+
 protected:
 	void Initialize();
 	bool handleUserPacket(RakNet::Packet* packet);
