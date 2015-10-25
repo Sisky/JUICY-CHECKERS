@@ -1,6 +1,6 @@
 /*
 -----------------------------------------------------------------------------
-Filename:    TutorialApplication.h
+Filename:    JuicyCheckers.h
 -----------------------------------------------------------------------------
 
 This source file is part of the
@@ -15,8 +15,8 @@ http://www.ogre3d.org/wiki/
 -----------------------------------------------------------------------------
 */
 
-#ifndef __TutorialApplication_h_
-#define __TutorialApplication_h_
+#ifndef __JuicyCheckers_h_
+#define __JuicyCheckers_h_
 
 #include "client.h"
 
@@ -48,11 +48,11 @@ class PieceController;
 
 //---------------------------------------------------------------------------
 
-class TutorialApplication : public Ogre::WindowEventListener, public Ogre::FrameListener, public OIS::KeyListener, public OIS::MouseListener
+class JuicyCheckers : public Ogre::WindowEventListener, public Ogre::FrameListener, public OIS::KeyListener, public OIS::MouseListener
 {
 public:
-	TutorialApplication(void);
-	virtual ~TutorialApplication(void);
+	JuicyCheckers(void);
+	virtual ~JuicyCheckers(void);
 	bool go();
 
 	void setShutdown();
@@ -162,7 +162,7 @@ private:
 
 //---------------------------------------------------------------------------
 
-#endif // #ifndef __TutorialApplication_h_
+#endif // #ifndef __JuicyCheckers_h_
 
 //---------------------------------------------------------------------------
 

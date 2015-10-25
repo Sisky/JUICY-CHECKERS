@@ -1,6 +1,6 @@
 /*
 -----------------------------------------------------------------------------
-Filename:    TutorialApplication.cpp
+Filename:    JuicyCheckers.cpp
 -----------------------------------------------------------------------------
 
 This source file is part of the
@@ -27,7 +27,7 @@ http://www.ogre3d.org/wiki/
 
 
 //---------------------------------------------------------------------------
-TutorialApplication::TutorialApplication()
+JuicyCheckers::JuicyCheckers()
 	: mRoot(0),
 	mResourcesCfg(Ogre::StringUtil::BLANK),
 	mPluginsCfg(Ogre::StringUtil::BLANK),
@@ -47,7 +47,7 @@ TutorialApplication::TutorialApplication()
 {
 }
 
-TutorialApplication::~TutorialApplication()
+JuicyCheckers::~JuicyCheckers()
 {
 	delete client;
 	client = 0;
@@ -66,7 +66,7 @@ TutorialApplication::~TutorialApplication()
 
 //Adjust mouse clipping area
 void 
-TutorialApplication::windowResized(Ogre::RenderWindow* rw)
+JuicyCheckers::windowResized(Ogre::RenderWindow* rw)
 {
 	unsigned int width, height, depth;
 	int left, top;
@@ -79,7 +79,7 @@ TutorialApplication::windowResized(Ogre::RenderWindow* rw)
 
 //Unattach OIS before window shutdown (very important under Linux)
 void 
-TutorialApplication::windowClosed(Ogre::RenderWindow* rw)
+JuicyCheckers::windowClosed(Ogre::RenderWindow* rw)
 {
 	//Only close for window that created OIS (the main window in these demos)
 	if(rw == mWindow)
@@ -96,7 +96,7 @@ TutorialApplication::windowClosed(Ogre::RenderWindow* rw)
 }
 
 bool 
-TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
+JuicyCheckers::frameRenderingQueued(const Ogre::FrameEvent& evt)
 {
 	if(mWindow->isClosed())
 		return false;
@@ -123,7 +123,7 @@ TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 // Input Processing Methods
 bool 
-TutorialApplication::keyPressed(const OIS::KeyEvent& ke) 
+JuicyCheckers::keyPressed(const OIS::KeyEvent& ke) 
 { 
 	// Send the event to the MenuSystem incase we are on a menu that requires input
 	mMenuSystem->processTextEvent(ke);
@@ -132,13 +132,13 @@ TutorialApplication::keyPressed(const OIS::KeyEvent& ke)
 
 
 bool 
-TutorialApplication::keyReleased(const OIS::KeyEvent& ke) 
+JuicyCheckers::keyReleased(const OIS::KeyEvent& ke) 
 { 
 	return true; 
 }
 
 bool 
-TutorialApplication::mouseMoved(const OIS::MouseEvent& me) 
+JuicyCheckers::mouseMoved(const OIS::MouseEvent& me) 
 { 
 	if(mMenuSystem->MouseMoved(me)){ return true; }
 	// as the mouse moves over each item it it highlighted... each square needs a particle effect
@@ -212,7 +212,7 @@ TutorialApplication::mouseMoved(const OIS::MouseEvent& me)
 }
 
 bool 
-TutorialApplication::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id) 
+JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id) 
 { 
 	if(mMenuSystem->MousePressed(me,id)){ return true; }
 
@@ -333,14 +333,14 @@ TutorialApplication::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID 
 }
 
 bool 
-TutorialApplication::mouseReleased(const OIS::MouseEvent& me, OIS::MouseButtonID id) 
+JuicyCheckers::mouseReleased(const OIS::MouseEvent& me, OIS::MouseButtonID id) 
 { 
 	if(mMenuSystem->MouseReleased(me,id)){ return true; }
 	return true; 
 }
 
 void
-TutorialApplication::addPieces()
+JuicyCheckers::addPieces()
 {
 	Ogre::String number;
 
@@ -426,7 +426,7 @@ TutorialApplication::addPieces()
 
 // Initialize the particle system
 void
-TutorialApplication::addParticleSystems() 
+JuicyCheckers::addParticleSystems() 
 {
 	// get the particle manager singleton pointer
 	pManager = ParticleUniverse::ParticleSystemManager::getSingletonPtr();
@@ -543,7 +543,7 @@ TutorialApplication::addParticleSystems()
 }
 
 void
-TutorialApplication::drawPieces()
+JuicyCheckers::drawPieces()
 {
 	// loop through the piece array
 	for(auto& i : pPieces) { 
@@ -555,7 +555,7 @@ TutorialApplication::drawPieces()
 }
 // add the assets the game scene here
 void
-TutorialApplication::createScene()
+JuicyCheckers::createScene()
 {
 	// populate the board with empty squares with an id of 1 - 64
 	for(int i = 0; i < 64; i++) {
@@ -652,7 +652,7 @@ TutorialApplication::createScene()
 
 // Initialize the aspects of the scene... camera, viewport, lighting, skybox and shadows
 void
-TutorialApplication::initScene()
+JuicyCheckers::initScene()
 {
 
 	mCamera = mSceneMgr->createCamera("MainCam");
@@ -717,7 +717,7 @@ TutorialApplication::initScene()
 
 // Initialize the input callback
 void 
-TutorialApplication::initInput()
+JuicyCheckers::initInput()
 {
 	Ogre::LogManager::getSingletonPtr()->logMessage("*** Initializing OIS ***");
 	OIS::ParamList pl;
@@ -746,7 +746,7 @@ TutorialApplication::initInput()
 
 // Initialise the Ogre3D rendering system
 bool 
-TutorialApplication::go()
+JuicyCheckers::go()
 {
 	#ifdef _DEBUG
 		mResourcesCfg = "resources_d.cfg";
@@ -782,7 +782,7 @@ TutorialApplication::go()
 	mRoot->showConfigDialog();
 
 
-	mWindow = mRoot->initialise(true, "TutorialApplication Render Window");
+	mWindow = mRoot->initialise(true, "JuicyCheckers Render Window");
 
 	Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
@@ -824,13 +824,13 @@ TutorialApplication::go()
 }
 
 void 
-TutorialApplication::initNetworking()
+JuicyCheckers::initNetworking()
 {
 	client = new Client();
 }
 
 void 
-TutorialApplication::initMenu()
+JuicyCheckers::initMenu()
 {
 	mMenuSystem = new MenuSystem();
 
@@ -842,7 +842,7 @@ TutorialApplication::initMenu()
 }
 
 void 
-TutorialApplication::setShutdown()
+JuicyCheckers::setShutdown()
 {
 	shutdown = true;
 }
@@ -870,7 +870,7 @@ extern "C" {
 #endif
 	{
 		// Create application object
-		TutorialApplication app;
+		JuicyCheckers app;
 
 		try {
 			app.go();
