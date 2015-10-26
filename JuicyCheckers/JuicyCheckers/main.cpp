@@ -869,6 +869,9 @@ extern "C" {
 	int main(int argc, char *argv[])
 #endif
 	{
+		// Seed the random numb generator
+		srand(time(0));
+		
 		// Create application object
 		JuicyCheckers app;
 

@@ -38,8 +38,17 @@ public:
 
 	void RefreshLobbies();
 
+	void SendMasterChat(const char* _chat);
+	void SendLobbyChat(const char* _chat);
+	void SendMatchChat(const char* _chat);
+
+	std::deque<RakNet::RakString>* GetMasterChatLog();
+	std::deque<RakNet::RakString>* GetLobbyChatLog();
+	std::deque<RakNet::RakString>* GetMatchChatLog();
+
+	void Initialize(const char* ip);
 protected:
-	void Initialize();
+	
 	bool handleUserPacket(RakNet::Packet* packet);
 
 	// Will need some kind of method to call to update the current gamestate
@@ -61,12 +70,18 @@ private:
 
 	RakNet::RakNetGUID serverGUID;
 
+	RakNet::NetworkID lobbyID;
+
 
 	
 	static const int PORT = 61126;
 	static const bool isServer = false;
 
 	std::vector<LobbyMsg> lobbyNetworkID;
+
+	std::deque<RakNet::RakString> raknetMasterChat;
+	std::deque<RakNet::RakString> raknetLobbyChat;
+	std::deque<RakNet::RakString> raknetMatchChat;
 
 
 	// Hold containers of players

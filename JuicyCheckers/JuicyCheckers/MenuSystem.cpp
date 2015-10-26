@@ -17,6 +17,8 @@
 
 #include <OISKeyboard.h>
 
+#include <deque>
+
 MenuSystem::MenuSystem()
 	: currentTray(0)
 {
@@ -75,8 +77,10 @@ bool MenuSystem::MouseMoved(const OIS::MouseEvent& me)
 		++it)
 	{
 		hitFlag = ((*it)->injectMouseMove(me)) || (hitFlag); 
+		//if(hitFlag){break;}
 	}
 
+	//hitFlag = currentTray->injectMouseMove(me);
 	return hitFlag;
 }
 
@@ -88,7 +92,10 @@ bool MenuSystem::MousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 		++it)
 	{
 		hitFlag = ((*it)->injectMouseDown(me,id)) || (hitFlag);
+		//if(hitFlag){break;}
 	}
+
+	//hitFlag = currentTray->injectMouseDown(me, id);
 
 	return hitFlag;
 }
@@ -100,10 +107,11 @@ bool MenuSystem::MouseReleased(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 		it != mTrays.end();
 		++it)
 	{
-		hitFlag = ((*it)->injectMouseUp(me,id)) || (hitFlag);
-
-		
+		hitFlag = ((*it)->injectMouseUp(me,id)) || (hitFlag);	
+		//if(hitFlag){break;}
 	}
+
+	hitFlag = currentTray->injectMouseUp(me,id);
 
 	return hitFlag;
 }
@@ -116,9 +124,11 @@ void MenuSystem::SetMenu(MENUS menu)
 		++it)
 	{
 		(*it)->hideTrays();
+		(*it)->hideCursor();
 	}
 	currentTray = mTrays[menu];
 	mTrays[menu]->showTrays();
+	mTrays[menu]->showCursor();
 	currentMenu = menu;
 	currentText.clear();
 }
@@ -127,6 +137,11 @@ void MenuSystem::buttonHit(OgreBites::Button* button)
 {
 	if(button == startButton)
 	{
+		ipStr = ip->getText();
+		name = pName->getText();
+
+
+		clientPtr->Initialize(ipStr.c_str());
 		SetMenu(LISTLOBBYMENU);
 	}
 	else if(button == exitButton)
@@ -212,6 +227,8 @@ void MenuSystem::frameRenderingQueued(const Ogre::FrameEvent& evt)
 	{
 		(*it)->frameRenderingQueued(evt);
 	}
+
+	updateChats();
 }
 
 void 
@@ -232,6 +249,8 @@ void
 		selectLobby->addItem(Ogre::String(lobby->name.C_String()));
 		lobbyVector.push_back(Ogre::String(lobby->name.C_String()));		
 	}
+
+	// Update the lobby chat box
 
 	// Make sure the items are set and shown
 	selectLobby->setItems(lobbyVector);
@@ -261,9 +280,37 @@ void MenuSystem::processTextEvent(const OIS::KeyEvent& ke)
 			}
 		}
 		break;
+	case OIS::KC_RETURN:
+		{
+			// Send the current text over the network to either lobby or master
+			// depending on which we are in.
+			switch(currentMenu)
+			{
+			case LISTLOBBYMENU:
+				{
+					// Send the chat to the master
+					clientPtr->SendMasterChat(currentText.c_str());
+				}
+				break;
+			case LOBBYMENU:
+				{
+					// Send the chat the lobby
+					clientPtr->SendLobbyChat(currentText.c_str());
+					currentText.clear();
+				}
+				break;
+			case MATCHMENU:
+				{
+					// Send the chat to the match
+					clientPtr->SendMatchChat(currentText.c_str());
+				}
+				break;
+			}
+		}
+		break;
 	default:
 		{
-			if(ke.text >= 'A' && ke.text <= 'z')
+			if(ke.text >= ' ' && ke.text <= 'z')
 			{
 				currentText.push_back(ke.text);
 			}
@@ -275,7 +322,7 @@ void MenuSystem::processTextEvent(const OIS::KeyEvent& ke)
 	{
 	case STARTMENU:
 		{
-
+			ip->setText(currentText);
 		}
 		break;
 	case LISTLOBBYMENU:
@@ -290,7 +337,7 @@ void MenuSystem::processTextEvent(const OIS::KeyEvent& ke)
 		break;
 	case LOBBYMENU:
 		{
-
+			lobbyChatTextField->setText(currentText); 
 		}
 		break;
 	case MATCHMENU:
@@ -324,6 +371,41 @@ MenuSystem::adjustTrays()
 	}
 }
 
+void MenuSystem::updateChats()
+{
+	switch(currentMenu)
+	{
+	case LISTLOBBYMENU:
+		{
+			// Send the chat to the master
+			std::deque<RakNet::RakString>* vec = clientPtr->GetMasterChatLog();			
+			//while(!(vec->empty()))
+			//{
+				//masterChatBox->appendText(vec->begin()->C_String());
+			//}			
+		}
+		break;
+	case LOBBYMENU:
+		{
+			// Send the chat to the master
+			std::deque<RakNet::RakString>* vec = clientPtr->GetLobbyChatLog();			
+			while(!(vec->empty()))
+			{
+				lobbyChatBox->appendText(Ogre::DisplayString(vec->begin()->C_String()) + "\n");		
+				Ogre::Real scroll = lobbyChatTextField->getScrollPercentage();
+				vec->pop_front();
+			}		
+		}
+		break;
+	case MATCHMENU:
+		{
+			// Send the chat to the match
+			clientPtr->SendMatchChat(currentText.c_str());
+		}
+		break;
+	}
+}
+
 void
 MenuSystem::createMenu(MENUS menu)
 {
@@ -337,6 +419,10 @@ MenuSystem::createMenu(MENUS menu)
 
 			// Design the tray, Save the buttons if you want to check if they are pressed
 			currentTray->createLabel(OgreBites::TL_TOP, "GameTitle", "Juicy Checkers", 500);
+			pName = currentTray->createTextBox(OgreBites::TL_CENTER, "pName", "Enter Your Name",300,75);
+			pName->setText("Bill"+(rand()%900)+100);
+			ip = currentTray->createTextBox(OgreBites::TL_CENTER, "ip", "Enter the Server IP",300,75);
+			ip->setText("127.0.0.1");
 			startButton = currentTray->createButton(OgreBites::TL_CENTER, "startBtn", "Start Multiplayer");
 			exitButton = currentTray->createButton(OgreBites::TL_CENTER, "extBtn", "Exit Game");
 
@@ -392,15 +478,18 @@ MenuSystem::createMenu(MENUS menu)
 		{
 			// Create the Tray Manager
 			currentTray = new OgreBites::SdkTrayManager("LobbyMenu", mWindow, mInputContext, this);
-
-			// Design the tray, Save the buttons if you want to check if they are pressed
-			// Label
+			currentTray->createLabel(OgreBites::TL_TOP, "lobbyMenuTitle", "Lobby Menu", 500);
+									
 			// List the current players
+			currentTray->createLabel(OgreBites::TL_CENTER, "lobbyMenuPlayers", "Players", 300);
+			lobbyPlayersTextBox = currentTray->createTextBox(OgreBites::TL_CENTER, "lobbyPlayers", "Players",400,100);
 
-			// Have a (ready) button
-			// Have a label that indicates what is currently set ready or unready
+			// Have a (ready) toggle button
+			lobbyReadyButton = currentTray->createButton(OgreBites::TL_CENTER, "readyButton", "READY");						
 
 			// Have a chat box 
+			lobbyChatBox = currentTray->createTextBox(OgreBites::TL_CENTER, "chatBox", "",500,150);
+			lobbyChatTextField = currentTray->createTextBox(OgreBites::TL_CENTER, "chatTextField", "",500,100);
 
 
 			// Add the tray into the tray container.  NOTE: This function is designed to be run from 0 -> MENU.max

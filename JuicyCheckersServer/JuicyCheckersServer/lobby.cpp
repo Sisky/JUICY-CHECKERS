@@ -72,10 +72,11 @@ void
 
 	}
 
-	// Display the lobby message
+	// Display the lobby message 
 	RakNet::BitStream myBitStream(packet->data, packet->length, false);
 	printf("User Sent Master Chat Message\n");
 	myBitStream.IgnoreBytes(sizeof(RakNet::MessageID));
+	myBitStream.IgnoreBytes(sizeof(RakNet::NetworkID));
 	RakNet::RakString msg;
 	myBitStream.Read(msg);
 

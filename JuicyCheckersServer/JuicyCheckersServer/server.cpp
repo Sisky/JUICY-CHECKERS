@@ -190,6 +190,7 @@ Server::handleUserPacket(RakNet::Packet* packet)
 
 				// Make sure this lobby exists and if so add the user, if the lobby does not exist return the user
 				// an error
+				Lobby* curLobby = 0;
 				bool doesLobbyExist = false;
 				for(std::vector<Lobby*>::iterator lobby = mLobbies.begin();
 					lobby != mLobbies.end(); 
@@ -199,6 +200,7 @@ Server::handleUserPacket(RakNet::Packet* packet)
 					{
 						// This lobby does exist
 						doesLobbyExist = true;
+						curLobby = (*lobby);
 						break;
 					}
 				}
@@ -210,6 +212,8 @@ Server::handleUserPacket(RakNet::Packet* packet)
 					RakNet::MessageID typeId = ID_USER_JOIN_LOBBY;
 					myBitStream.Write(typeId);
 					printf("|: NetworkID: "+lobbyID);
+
+					curLobby->AddClient(packet->guid);
 				}
 				else
 				{
@@ -292,6 +296,7 @@ Server::handleUserPacket(RakNet::Packet* packet)
 					{
 						// This lobby does exist
 						doesLobbyExist = true;
+						curLobby = (*lobby);
 						break;
 					}
 				}

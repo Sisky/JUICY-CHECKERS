@@ -79,6 +79,8 @@ public:
 
 	void adjustTrays(); 
 
+	void updateChats();
+
 protected:
 	void createMenu(MENUS menu);
 
@@ -101,7 +103,12 @@ private:
 
 	// Widgets for the Start Game Menu
 	OgreBites::Button*			startButton;
+	OgreBites::TextBox* pName;
+	OgreBites::TextBox* ip;
 	OgreBites::Button*			exitButton;
+
+	Ogre::String name;
+	Ogre::String ipStr;
 	
 
 	// Widgets for the Lobby Selection Menu
@@ -116,6 +123,12 @@ private:
 	OgreBites::TextBox* lobbyName;
 	OgreBites::Button* createLobby;
 	OgreBites::Button* createLobbyBack;
+
+	// Widgets for the lobby menu
+	OgreBites::TextBox* lobbyPlayersTextBox;
+	OgreBites::Button* lobbyReadyButton;
+	OgreBites::TextBox* lobbyChatBox;
+	OgreBites::TextBox* lobbyChatTextField;
     
 	// OgreBites::SdkCameraMan*    mCameraMan;     	// Basic camera controller
 	OgreBites::ParamsPanel*     mDetailsPanel;   	// Sample details panel
