@@ -23,28 +23,37 @@ enum GameMessages
 	//ID_GAME_MESSAGE_1=ID_USER_PACKET_ENUM+1
 };
 
+void printWelcome()
+{
+	printf("|-----------------------------------------------------------|\n");
+	printf("|-----------------------------------------------------------|\n");
+	printf("|----------@@@ JUICY CHECKERS DEDICATED SERVER @@@----------|\n");
+	printf("|-----------------------------------------------------------|\n");
+	printf("|-----------------------------------------------------------|\n");
+	printf("\n");
+	printf("|:  Starting Server Up\n");
+	printf("|:  Listening for new clients....\n");
+	printf("\n");
+}
+
 int main(int argc, TCHAR *argv[])
 {
-	char str[512];
+	// Print the welcome
+	printWelcome();	
 
-	RakNet::RakPeerInterface *peer = RakNet::RakPeerInterface::GetInstance();
-	bool isServer;
-	RakNet::Packet *packet;
-
-	printf("(C) or (S)erver?\n");
-	gets(str);
-
+	// Create the Server object
 	Server* s = new Server();
 	
-
+	// While the server is running process input 
 	while (s->isRunning())
 	{
 		s->Process(0.0f);
 	}
 
-
+	// Clean up
 	delete s;
 	s = 0;
 
 	return 0;
 }
+

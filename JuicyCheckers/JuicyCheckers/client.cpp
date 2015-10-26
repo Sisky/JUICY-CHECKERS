@@ -180,6 +180,7 @@ Client::handleUserPacket(RakNet::Packet* packet)
 			{
 				// The Server has responded to our request to join a lobby
 				// We should change the gamestate here to the lobby screen
+				
 
 				
 			}
@@ -288,7 +289,7 @@ Client::SendMovement(int source, int dest)
 	command.Write(source);
 	command.Write(dest);
 
-	peer->Send(&command, HIGH_PRIORITY,RELIABLE_ORDERED,0,server,false);
+	peer->Send(&command, HIGH_PRIORITY,RELIABLE_ORDERED,0,serverGUID,false);
 }
 
 void 
@@ -319,9 +320,18 @@ Client::RefreshLobbies()
 }
 
 void 
-Client::JoinLobby()
+Client::JoinLobby(int lobbyIndex)
 {
+	// Ask the server to join us to the lobby
+	RakNet::BitStream bitstreamLobby;
+	RakNet::MessageID typeID = ID_USER_JOIN_LOBBY;
+	bitstreamLobby.Write(typeID);
 
+	// Write the networkID of the lobby that we want to join
+	bitstreamLobby.Write(lobbyNetworkID[lobbyIndex].networkID);
+
+	// Send the bitsteam to the server
+	peer->Send(&bitstreamLobby, HIGH_PRIORITY,RELIABLE_ORDERED,0,serverGUID,false);	
 }
 
 void 

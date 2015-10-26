@@ -155,6 +155,16 @@ void MenuSystem::buttonHit(OgreBites::Button* button)
 		// We should transition to the lobby creation menu
 		SetMenu(CREATELOBBYMENU);
 	}
+	else if(button == joinLobby)
+	{
+		// Send a message to the server to add us to the lobby we selected
+		// We will wait until we get the reply from the server to transisition into
+		// the lobby screen though
+		// Pass the index of the selected item since the clients
+		// lobby vector is in the same order.
+		clientPtr->JoinLobby(selectLobby->getSelectionIndex());
+		SetMenu(LOBBYMENU);
+	}
 	else if(button == refreshLobbyButton)
 	{		
 		updateLobbies();
@@ -348,6 +358,7 @@ MenuSystem::createMenu(MENUS menu)
 
 			// Below this we will have a listing of lobbys that the user can click on
 			selectLobby = currentTray->createLongSelectMenu(OgreBites::TL_CENTER, "selectLobby", Ogre::DisplayString("Select a Lobby"), Ogre::Real(300.0), 12); 
+			joinLobby = currentTray->createButton(OgreBites::TL_CENTER, "joinLobby", "Join Lobby");
 			refreshLobbyButton = currentTray->createButton(OgreBites::TL_CENTER, "refreshLobby", "Refresh Lobbies");
 			lobbyBack = currentTray->createButton(OgreBites::TL_CENTER, "lobbyBack", "Back");
 			// Add the tray into the tray container.  NOTE: This function is designed to be run from 0 -> MENU.max

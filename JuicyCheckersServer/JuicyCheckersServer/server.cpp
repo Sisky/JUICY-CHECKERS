@@ -54,8 +54,7 @@ void
 {
 	// Start the RakNet server
 	RakNet::SocketDescriptor sd(PORT,0);
-	peer->Startup(MAX_CLIENTS, &sd, 1);
-	printf("Starting up Server\n");
+	peer->Startup(MAX_CLIENTS, &sd, 1);	
 
 	// We need to let the server accept incoming connections from the clients
 	peer->SetMaximumIncomingConnections(MAX_CLIENTS);
@@ -83,13 +82,13 @@ void
 		switch (packet->data[0])
 		{
 		case ID_REMOTE_DISCONNECTION_NOTIFICATION:
-			printf("Another client has disconnected.\n");
+			printf("|: Another client has disconnected.\n");
 			break;
 		case ID_REMOTE_CONNECTION_LOST:
-			printf("Another client has lost the connection.\n");
+			printf("|: Another client has lost the connection.\n");
 			break;
 		case ID_REMOTE_NEW_INCOMING_CONNECTION:
-			printf("Another client has connected.\n");
+			printf("|: Another client has connected.\n");
 			break;
 		case ID_CONNECTION_REQUEST_ACCEPTED:
 			{
@@ -97,23 +96,23 @@ void
 			}
 			break;
 		case ID_NEW_INCOMING_CONNECTION:
-			printf("A connection is incoming.\n");
+			printf("|: A connection is incoming.\n");
 			break;
 		case ID_NO_FREE_INCOMING_CONNECTIONS:
-			printf("The server is full.\n");
+			printf("|: The server is full.\n");
 			break;
 		case ID_DISCONNECTION_NOTIFICATION:
 			if (isServer){
-				printf("A client has disconnected.\n");
+				printf("|: A client has disconnected.\n");
 			} else {
-				printf("We have been disconnected.\n");
+				printf("|: We have been disconnected.\n");
 			}
 			break;
 		case ID_CONNECTION_LOST:
 			if (isServer){
-				printf("A client lost the connection.\n");
+				printf("|: A client lost the connection.\n");
 			} else {
-				printf("Connection lost.\n");
+				printf("|: Connection lost.\n");
 			}
 			break;
 
@@ -121,7 +120,7 @@ void
 			if(!handleUserPacket(packet))
 			{
 				// Unhandled Packet
-				printf("Message with identifier %i has arrived.\n", packet->data[0]);
+				printf("|: Message with identifier %i has arrived.\n", packet->data[0]);
 			}
 			break;
 		}
@@ -139,26 +138,23 @@ Server::handleUserPacket(RakNet::Packet* packet)
 		case ID_USER_JOIN_SERVER:
 			{
 				// The user has joined the server 
-				printf("New Player Requesting to join the server\n");
-				printf("System Address: "); printf(packet->systemAddress.ToString());; printf("\n");
-				printf("RakNet GUID: "); printf(packet->guid.ToString());; printf("\n");
+				printf("|: New Player Requesting to join the server\n");
+				printf("|: System Address: "); printf(packet->systemAddress.ToString());; printf("\n");
+				printf("|: RakNet GUID: "); printf(packet->guid.ToString());; printf("\n");
 				mConnectedUsers.push_back(packet->guid);
 
 				// Pass the user a success message back
-				RakNet::MessageID typeId = ID_USER_JOIN_SERVER;
-				RakNet::RakString rakString("Name: Hello prepare to be checked");	
+				RakNet::MessageID typeId = ID_USER_JOIN_SERVER;				
 
 				RakNet::BitStream myBitStream;			
-				myBitStream.Write(typeId);
-				myBitStream.Write(rakString);
-
+				myBitStream.Write(typeId);				
 				peer->Send(&myBitStream, HIGH_PRIORITY,RELIABLE_ORDERED,0,packet->systemAddress,false);
 				
 			}
 			break;
 		case ID_USER_GET_LOBBYS:
 			{
-				printf("User Getting Lobbies\n");
+				printf("|: User Getting Lobbies\n");
 				// The user is attempting to request a listing of all the lobbys
 				RakNet::MessageID typeID = ID_USER_GET_LOBBYS;
 
@@ -184,7 +180,7 @@ Server::handleUserPacket(RakNet::Packet* packet)
 			break;
 		case ID_USER_JOIN_LOBBY:
 			{
-				printf("New User Joining Lobby\n");
+				printf("|: New User Joining Lobby\n");
 				// The user is attmepting to join a lobby.  First get the NetworkID of the lobby the player
 				// is wishing to join
 				RakNet::BitStream lobbyStream(packet->data, packet->length, false);
@@ -213,6 +209,7 @@ Server::handleUserPacket(RakNet::Packet* packet)
 				{
 					RakNet::MessageID typeId = ID_USER_JOIN_LOBBY;
 					myBitStream.Write(typeId);
+					printf("|: NetworkID: "+lobbyID);
 				}
 				else
 				{
@@ -227,7 +224,7 @@ Server::handleUserPacket(RakNet::Packet* packet)
 		case ID_USER_CREATE_LOBBY:
 			{
 				// A user wants to create their own lobby
-				printf("A user is creating their own lobby\n");
+				printf("|: A user is creating their own lobby\n");
 
 				// Get the data out from the packet
 				RakNet::BitStream createLobby(packet->data, packet->length, false);
@@ -331,12 +328,12 @@ Server::handleUserPacket(RakNet::Packet* packet)
 
 				}
 					RakNet::BitStream myBitStream(packet->data, packet->length, false);
-					printf("User Sent Master Chat Message\n");
+					printf("|: User Sent Master Chat Message\n");
 					myBitStream.IgnoreBytes(sizeof(RakNet::MessageID));
 					RakNet::RakString msg;
 					myBitStream.Read(msg);
 
-					printf("Message: "); printf(msg.C_String()); printf("\n");				
+					printf("|: Message: "); printf(msg.C_String()); printf("\n");				
 			}
 			break;
 

@@ -109,6 +109,7 @@ private:
 	Ogre::StringVector lobbyVector;
 	OgreBites::Button*			createLobbyButton;
 	OgreBites::Button*			refreshLobbyButton;
+	OgreBites::Button*			joinLobby;
 	OgreBites::Button*			lobbyBack;
 
 	// Widgets for the create lobby menu

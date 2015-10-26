@@ -31,7 +31,7 @@ public:
 	void SendMovement(int source, int dest);
 	void GetTurn();
 	std::vector<LobbyMsg>* GetLobbies();
-	void JoinLobby();
+	void JoinLobby(int lobbyIndex);
 	void TakePiece();
 
 	void CreateLobby(RakNet::RakString& name);
