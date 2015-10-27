@@ -249,12 +249,13 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 					
 					// number of children will be 0 if there is nothing attached to the square
 					Ogre::SceneNode* c = static_cast<Ogre::SceneNode*>(mCurObject->getChild(0));
-					Ogre::Entity* e = static_cast<Ogre::Entity*>(c->getAttachedObject(0));
+					Piece* e = static_cast<Piece*>(c->getAttachedObject(0));
+
 
 					// can access all the functions of the attached class now which makes like easier
 					
 					Ogre::LogManager::getSingletonPtr()->logMessage("Child Object Entity Name   : " + e->getName());
-
+					
 
 					//Ogre::LogManager::getSingletonPtr()->logMessage("Child Object clicked   : " + c->getName());
 					//Ogre::LogManager::getSingletonPtr()->logMessage("Child Object position (relative to parent) : " + Ogre::StringConverter::toString(c->getPosition()));
@@ -419,6 +420,8 @@ JuicyCheckers::addPieces()
 		if(count == 47) { count++; }
 		if(count == 56) { count--; }
 	}
+
+	testStuff(*mSceneMgr);
 }
 
  
