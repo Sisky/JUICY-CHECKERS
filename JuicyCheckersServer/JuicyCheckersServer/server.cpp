@@ -83,9 +83,11 @@ void
 		{
 		case ID_REMOTE_DISCONNECTION_NOTIFICATION:
 			printf("|: Another client has disconnected.\n");
+			ProcessDisconnect(packet);
 			break;
 		case ID_REMOTE_CONNECTION_LOST:
 			printf("|: Another client has lost the connection.\n");
+			ProcessDisconnect(packet);
 			break;
 		case ID_REMOTE_NEW_INCOMING_CONNECTION:
 			printf("|: Another client has connected.\n");
@@ -104,6 +106,7 @@ void
 		case ID_DISCONNECTION_NOTIFICATION:
 			if (isServer){
 				printf("|: A client has disconnected.\n");
+				ProcessDisconnect(packet);
 			} else {
 				printf("|: We have been disconnected.\n");
 			}
@@ -111,6 +114,7 @@ void
 		case ID_CONNECTION_LOST:
 			if (isServer){
 				printf("|: A client lost the connection.\n");
+				ProcessDisconnect(packet);
 			} else {
 				printf("|: Connection lost.\n");
 			}
@@ -188,6 +192,12 @@ Server::handleUserPacket(RakNet::Packet* packet)
 				RakNet::NetworkID lobbyID = RakNet::UNASSIGNED_NETWORK_ID;
 				lobbyStream.Read(lobbyID);
 
+				// Get the username of the user by the string
+				RakNet::RakString name;
+				lobbyStream.Read(name);
+
+				
+
 				// Make sure this lobby exists and if so add the user, if the lobby does not exist return the user
 				// an error
 				Lobby* curLobby = 0;
@@ -200,7 +210,7 @@ Server::handleUserPacket(RakNet::Packet* packet)
 					{
 						// This lobby does exist
 						doesLobbyExist = true;
-						curLobby = (*lobby);
+						curLobby = (*lobby);						
 						break;
 					}
 				}
@@ -209,20 +219,17 @@ Server::handleUserPacket(RakNet::Packet* packet)
 				RakNet::BitStream myBitStream;	
 				if(doesLobbyExist)
 				{
-					RakNet::MessageID typeId = ID_USER_JOIN_LOBBY;
-					myBitStream.Write(typeId);
-					printf("|: NetworkID: "+lobbyID);
-
-					curLobby->AddClient(packet->guid);
+					curLobby->AddClient(packet->guid, name);
+					curLobby->SendPlayerUpdate(peer);
 				}
 				else
 				{
-					RakNet::MessageID typeId = ID_USER_ERROR;
+		/*			RakNet::MessageID typeId = ID_USER_ERROR;
 					myBitStream.Write(typeId);
-					myBitStream.Write(ERROR_ID_NO_LOBBY);
+					myBitStream.Write(ERROR_ID_NO_LOBBY);*/
 				}
 																																		
-				peer->Send(&myBitStream, HIGH_PRIORITY,RELIABLE_ORDERED,0,packet->systemAddress,false);
+				
 			}
 			break;
 		case ID_USER_CREATE_LOBBY:
@@ -272,6 +279,44 @@ Server::handleUserPacket(RakNet::Packet* packet)
 				{   
 					peer->Send(&lobbyBitStream, HIGH_PRIORITY,RELIABLE_ORDERED,0,(*connectedPeer),false);
 				}
+			}
+			break;
+		case ID_USER_LOBBY_READY:
+			{
+				RakNet::BitStream lobbyStream(packet->data, packet->length, false);
+				lobbyStream.IgnoreBytes(sizeof(RakNet::MessageID));
+				RakNet::NetworkID lobbyID = RakNet::UNASSIGNED_NETWORK_ID;
+				lobbyStream.Read(lobbyID);
+
+				// Make sure this lobby exists and if so add the user, if the lobby does not exist return the user
+				// an error
+				Lobby* curLobby = 0;
+				bool doesLobbyExist = false;
+				for(std::vector<Lobby*>::iterator lobby = mLobbies.begin();
+					lobby != mLobbies.end(); 
+					++lobby)
+				{   
+					if((*lobby)->GetNetworkID() == lobbyID)
+					{
+						// This lobby does exist
+						doesLobbyExist = true;
+						curLobby = (*lobby);						
+						break;
+					}
+				}
+
+				if(doesLobbyExist)
+				{
+					if(curLobby->SetReady(packet))
+					{
+						curLobby->SendPlayerUpdate(peer);
+					}
+				}
+				else
+				{
+					// Return the user an error
+				}
+
 			}
 			break;
 		case ID_USER_LOBBY_CHAT:
@@ -350,7 +395,7 @@ Server::handleUserPacket(RakNet::Packet* packet)
 		case ID_USER_KING_PIECE:
 		case ID_USER_TAKE_PIECE:
 		case ID_USER_SPEND_UPGRADE:
-		case ID_USER_GET_UPGRADES:
+		case ID_USER_GET_UPGRADES:		
 			{
 				// The user is attempting to move a piece filter the packet up through the lobby to the
 				// match that is resonsible for the move
@@ -418,4 +463,15 @@ Server::CreateLobby(RakNet::RakNetGUID playerGUID)
 	mLobbies.push_back(newLobby);
 
 	return newLobby->GetNetworkID();
+}
+
+void
+	Server::ProcessDisconnect(RakNet::Packet* packet)
+{
+	for(std::vector<Lobby*>::iterator lobby = mLobbies.begin();
+		lobby != mLobbies.end(); 
+		++lobby)
+	{   
+		(*lobby)->ProcessDisconnect(peer, packet);
+	}
 }

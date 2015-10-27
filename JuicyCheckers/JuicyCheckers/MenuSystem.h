@@ -129,6 +129,7 @@ private:
 	OgreBites::Button* lobbyReadyButton;
 	OgreBites::TextBox* lobbyChatBox;
 	OgreBites::TextBox* lobbyChatTextField;
+	bool isReady;
     
 	// OgreBites::SdkCameraMan*    mCameraMan;     	// Basic camera controller
 	OgreBites::ParamsPanel*     mDetailsPanel;   	// Sample details panel

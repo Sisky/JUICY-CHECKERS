@@ -21,6 +21,7 @@
 
 MenuSystem::MenuSystem()
 	: currentTray(0)
+	, isReady(false)
 {
 
 }
@@ -141,8 +142,8 @@ void MenuSystem::buttonHit(OgreBites::Button* button)
 		name = pName->getText();
 
 
-		clientPtr->Initialize(ipStr.c_str());
-		SetMenu(LISTLOBBYMENU);
+		clientPtr->Initialize(ipStr.c_str(), name.c_str());
+		//SetMenu(LISTLOBBYMENU);
 	}
 	else if(button == exitButton)
 	{
@@ -164,6 +165,8 @@ void MenuSystem::buttonHit(OgreBites::Button* button)
 		clientPtr->CreateLobby(name);
 
 		MenuSystem::updateLobbies();
+
+		SetMenu(LISTLOBBYMENU);
 	}
 	else if(button == createLobbyButton)
 	{
@@ -195,6 +198,21 @@ void MenuSystem::buttonHit(OgreBites::Button* button)
 	{
 		// We should transition to the lobby creation menu
 		SetMenu(LISTLOBBYMENU);
+	}
+	else if(button == lobbyReadyButton)
+	{
+		if(isReady)
+		{
+			lobbyReadyButton->setCaption("NOT READY");
+			isReady = !isReady;
+			clientPtr->sendReady();
+		}
+		else
+		{
+			lobbyReadyButton->setCaption("READY");
+			isReady = !isReady;
+			clientPtr->sendReady();
+		}
 	}
 
 }
@@ -229,6 +247,41 @@ void MenuSystem::frameRenderingQueued(const Ogre::FrameEvent& evt)
 	}
 
 	updateChats();
+	if(currentMenu == STARTMENU)
+	{
+		// Check if the network connects
+		if(clientPtr->getIsConnected())
+		{
+			SetMenu(LISTLOBBYMENU);
+		}
+	}
+
+	if(currentMenu == LOBBYMENU)
+	{
+		std::vector<RakNet::RakString>* vec = clientPtr->GetLobbyUsers();
+		lobbyPlayersTextBox->clearText();
+
+		int index = 1;
+		for(std::vector<RakNet::RakString>::iterator it = vec->begin();
+			it != vec->end();
+			++it)
+		{
+			Ogre::String str = Ogre::String((*it).C_String());
+			if(index % 3 == 0)
+			{ 
+				str.append("\n");
+			}
+			else
+			{
+				str.append(" ");
+			}
+
+			lobbyPlayersTextBox->appendText(str);
+
+
+			++index;
+		}
+	}
 }
 
 void 
@@ -289,13 +342,16 @@ void MenuSystem::processTextEvent(const OIS::KeyEvent& ke)
 			case LISTLOBBYMENU:
 				{
 					// Send the chat to the master
-					clientPtr->SendMasterChat(currentText.c_str());
+					Ogre::String builder = Ogre::String(name + ": " + currentText.c_str()); 
+					clientPtr->SendMasterChat(builder.c_str());
+					currentText.clear();
 				}
 				break;
 			case LOBBYMENU:
 				{
 					// Send the chat the lobby
-					clientPtr->SendLobbyChat(currentText.c_str());
+					Ogre::String builder = Ogre::String(name + ": " + currentText.c_str()); 
+					clientPtr->SendLobbyChat(builder.c_str());
 					currentText.clear();
 				}
 				break;
@@ -420,7 +476,10 @@ MenuSystem::createMenu(MENUS menu)
 			// Design the tray, Save the buttons if you want to check if they are pressed
 			currentTray->createLabel(OgreBites::TL_TOP, "GameTitle", "Juicy Checkers", 500);
 			pName = currentTray->createTextBox(OgreBites::TL_CENTER, "pName", "Enter Your Name",300,75);
-			pName->setText("Bill"+(rand()%900)+100);
+			int randomNumbers = rand() % 1000;
+			char bfr[256];
+			char* iden = itoa(randomNumbers, bfr, 10);
+			pName->setText(Ogre::String("Player")+iden);
 			ip = currentTray->createTextBox(OgreBites::TL_CENTER, "ip", "Enter the Server IP",300,75);
 			ip->setText("127.0.0.1");
 			startButton = currentTray->createButton(OgreBites::TL_CENTER, "startBtn", "Start Multiplayer");
@@ -482,14 +541,23 @@ MenuSystem::createMenu(MENUS menu)
 									
 			// List the current players
 			currentTray->createLabel(OgreBites::TL_CENTER, "lobbyMenuPlayers", "Players", 300);
-			lobbyPlayersTextBox = currentTray->createTextBox(OgreBites::TL_CENTER, "lobbyPlayers", "Players",400,100);
+			lobbyPlayersTextBox = currentTray->createTextBox(OgreBites::TL_CENTER, "lobbyPlayers", "Players",400,150);
 
 			// Have a (ready) toggle button
-			lobbyReadyButton = currentTray->createButton(OgreBites::TL_CENTER, "readyButton", "READY");						
+			if(isReady)
+			{
+				lobbyReadyButton = currentTray->createButton(OgreBites::TL_CENTER, "readyButton", "READY");				
+				//isReady = !isReady;
+			}
+			else
+			{
+				lobbyReadyButton = currentTray->createButton(OgreBites::TL_CENTER, "readyButton", "NOT READY");	
+				//isReady = !isReady;
+			}
 
 			// Have a chat box 
-			lobbyChatBox = currentTray->createTextBox(OgreBites::TL_CENTER, "chatBox", "",500,150);
-			lobbyChatTextField = currentTray->createTextBox(OgreBites::TL_CENTER, "chatTextField", "",500,100);
+			lobbyChatBox = currentTray->createTextBox(OgreBites::TL_CENTER, "chatBox", "Chat Window",500,250);
+			lobbyChatTextField = currentTray->createTextBox(OgreBites::TL_CENTER, "chatTextField", "Enter Chat Here",500,80);
 
 
 			// Add the tray into the tray container.  NOTE: This function is designed to be run from 0 -> MENU.max

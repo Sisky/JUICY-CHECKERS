@@ -20,6 +20,7 @@
 Client::Client()
 	: peer(0)
 	, lobbyID(RakNet::UNASSIGNED_NETWORK_ID)
+	, isConnected(false)
 {
 	// Create the reference to the rakpeer interface
 	peer = RakNet::RakPeerInterface::GetInstance();
@@ -37,12 +38,14 @@ Client::~Client()
 }
 
 void
-	Client::Initialize(const char* ip)
+	Client::Initialize(const char* ip, const char* _name)
 {
 	// Start the RakNet Client
 	RakNet::SocketDescriptor sd;
 	peer->Startup(1, &sd, 1);
-	peer->Connect("127.0.0.1", PORT, 0, 0);	
+	peer->Connect(ip, PORT, 0, 0);	
+
+	name = _name;
 }
 
 void 
@@ -141,6 +144,7 @@ Client::handleUserPacket(RakNet::Packet* packet)
 				
 				// Keep a copy of the serversGUID
 				serverGUID = packet->guid;
+				isConnected = true;
 
 
 				// Transistion the Menu system
@@ -179,11 +183,29 @@ Client::handleUserPacket(RakNet::Packet* packet)
 			break;
 		case ID_USER_JOIN_LOBBY:
 			{
-				// The Server has responded to our request to join a lobby
-				// We should change the gamestate here to the lobby screen
-				
+				// The server uses this enum constant whenever a new user joins to update all
+				// players
+				// Get the bitstream
+				RakNet::BitStream playersStream(packet->data, packet->length, false);
 
-				
+				// Ignore the message header
+				playersStream.IgnoreBytes(sizeof(RakNet::MessageID));
+
+				// Get the number of players in this message
+				int numPlayers = 0;
+				playersStream.Read(numPlayers);
+
+				// Clear the players vector
+				LobbyUsers.clear();
+
+				// Copy all the players into the vector
+				for(int i = 0; i < numPlayers; ++i)
+				{
+					RakNet::RakString cur;
+					playersStream.Read(cur);
+
+					LobbyUsers.push_back(cur);
+				}												
 			}
 			break;
 		case ID_USER_CREATE_LOBBY:
@@ -331,6 +353,7 @@ Client::JoinLobby(int lobbyIndex)
 
 	// Write the networkID of the lobby that we want to join
 	bitstreamLobby.Write(lobbyNetworkID[lobbyIndex].networkID);
+	bitstreamLobby.Write(name);
 
 	lobbyID = lobbyNetworkID[lobbyIndex].networkID;
 
@@ -440,4 +463,35 @@ std::deque<RakNet::RakString>*
 Client::GetMatchChatLog()
 {
 	return 0;
+}
+
+bool 
+Client::getIsConnected()
+{
+	return isConnected;
+}
+
+std::vector<RakNet::RakString>* 
+Client::GetLobbyUsers()
+{
+	return &LobbyUsers;
+}
+
+void 
+Client::sendReady()
+{
+	RakNet::BitStream createMsgStream;
+
+	// Write the message id into the bitstream
+	// Note we don't specify the network ID as the server owns
+	// the actual object
+	RakNet::MessageID typeID = ID_USER_LOBBY_READY;
+
+	// Write the type id and our lobby id
+	createMsgStream.Write(typeID);
+	createMsgStream.Write(lobbyID);
+
+
+	// Send the bitsteam to the server
+	peer->Send(&createMsgStream, MEDIUM_PRIORITY,RELIABLE_ORDERED,0,serverGUID,false);
 }

@@ -35,6 +35,8 @@ protected:
 	// This function creates a new lobby
 	RakNet::NetworkID CreateLobby(RakNet::RakNetGUID playerGUID);
 
+	void ProcessDisconnect(RakNet::Packet* packet);
+
 
 	
 private:

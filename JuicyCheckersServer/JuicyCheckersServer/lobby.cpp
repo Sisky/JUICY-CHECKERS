@@ -58,12 +58,12 @@ void
 	// If we get a message from other user pass the message onto all connected clients
 	// Iterate over the RakNet GUID's and send a message to all of them.
 
-	for(std::vector<RakNet::RakNetGUID>::iterator connectedPeer = mPlayerContainer.begin();
+	for(std::vector<player>::iterator connectedPeer = mPlayerContainer.begin();
 		connectedPeer != mPlayerContainer.end(); 
 		++connectedPeer)
 	{   
 		//if((packet->guid) == (*connectedPeer)) { continue; } // Don't forward the message back to the sending peer			
-		RakNet::SystemAddress sa = peer->GetSystemAddressFromGuid(*connectedPeer);
+		RakNet::SystemAddress sa = peer->GetSystemAddressFromGuid((*connectedPeer).guid);
 
 		// Get the bitstream out of the packet and forward it on to all connected peers
 		RakNet::BitStream myBitStream(packet->data, packet->length, false); // The false is for efficiency so we don't make a copy of the passed data		
@@ -87,19 +87,37 @@ void
 	Lobby::SetHostingPlayer(RakNet::RakNetGUID hostingPlayer)
 {
 	mHostingPlayer = hostingPlayer;
-	AddClient(hostingPlayer);
+	//AddClient(hostingPlayer);
 }
 
 void 
-	Lobby::AddClient(RakNet::RakNetGUID guid)
+	Lobby::AddClient(RakNet::RakNetGUID guid, RakNet::RakString& name)
 {
-	mPlayerContainer.push_back(guid);
+	player p;
+	p.guid = guid;
+	p.name = name;
+	mPlayerContainer.push_back(p);
 }
 
-void 
+bool 
 	Lobby::RemoveClient(RakNet::RakNetGUID guid)
 {
-	mPlayerContainer.erase(std::remove(mPlayerContainer.begin(), mPlayerContainer.end(), guid), mPlayerContainer.end());
+	bool didRemove = false;
+	//mPlayerContainer.erase(std::remove(mPlayerContainer.begin(), mPlayerContainer.end(), guid), mPlayerContainer.end());
+	for(std::vector<player>::iterator players = mPlayerContainer.begin();
+		players != mPlayerContainer.end(); 
+		++players)
+	{   
+		if((*players).guid == guid)
+		{
+			// This lobby does exist
+			players = mPlayerContainer.erase(players);
+			didRemove = true;
+			break;
+		}
+	}
+
+	return didRemove;
 }
 
 void 
@@ -143,4 +161,66 @@ void
 		replyLobby.Write(ERROR_ID_MATCHID);
 	}
 
+}
+
+void 
+Lobby::SendPlayerUpdate(RakNet::RakPeerInterface* peer)
+{
+	// Prepare the packet
+	RakNet::BitStream playerUpdate;
+	playerUpdate.Write((RakNet::MessageID)ID_USER_JOIN_LOBBY);
+	playerUpdate.Write((int)(mPlayerContainer.size()));
+
+	for(std::vector<player>::iterator connectedPeer = mPlayerContainer.begin();
+		connectedPeer != mPlayerContainer.end(); 
+		++connectedPeer)
+	{   
+		//if((packet->guid) == (*connectedPeer)) { continue; } // Don't forward the message back to the sending peer			
+		if(connectedPeer->ready)
+		{
+			playerUpdate.Write(RakNet::RakString(connectedPeer->name + ":READY"));
+		}
+		else
+		{
+			playerUpdate.Write(RakNet::RakString(connectedPeer->name + ":UNREADY"));
+		}
+	}
+
+	// Send the packet to all peers
+	for(std::vector<player>::iterator connectedPeer = mPlayerContainer.begin();
+		connectedPeer != mPlayerContainer.end(); 
+		++connectedPeer)
+	{   
+		//if((packet->guid) == (*connectedPeer)) { continue; } // Don't forward the message back to the sending peer			
+		RakNet::SystemAddress sa = peer->GetSystemAddressFromGuid((*connectedPeer).guid);
+
+		peer->Send(&playerUpdate, LOW_PRIORITY,RELIABLE_ORDERED,0,sa,false);
+
+	}
+}
+
+void Lobby::ProcessDisconnect(RakNet::RakPeerInterface* peer, RakNet::Packet* packet)
+{
+	if(RemoveClient(packet->guid))
+	{
+		SendPlayerUpdate(peer);
+	}
+}
+
+bool 
+Lobby::SetReady(RakNet::Packet* packet)
+{
+	bool changed = false;
+	for(std::vector<player>::iterator players = mPlayerContainer.begin();
+		players != mPlayerContainer.end(); 
+		++players)
+	{   
+		if((*players).guid == packet->guid)
+		{
+			(*players).ready = !((*players).ready);
+			changed = true;
+		}
+	}
+
+	return changed;
 }

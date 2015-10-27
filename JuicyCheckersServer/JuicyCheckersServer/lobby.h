@@ -29,8 +29,8 @@ public:
 
 	void SetHostingPlayer(RakNet::RakNetGUID hostingPlayer);
 
-	void AddClient(RakNet::RakNetGUID guid);
-	void RemoveClient(RakNet::RakNetGUID guid);
+	void AddClient(RakNet::RakNetGUID guid, RakNet::RakString& name);
+	bool RemoveClient(RakNet::RakNetGUID guid);
 
 	// This method will create all the games and assign two players to each game.
 	void StartGames();
@@ -40,7 +40,11 @@ public:
 
 	void ProcessNetworkMessage(RakNet::RakPeerInterface* peer, RakNet::Packet* packet);
 
+	void SendPlayerUpdate(RakNet::RakPeerInterface* peer);
 
+	void ProcessDisconnect(RakNet::RakPeerInterface* peer,RakNet::Packet* packet);
+
+	bool SetReady(RakNet::Packet* packet);
 	
 
 protected:
@@ -58,7 +62,17 @@ private:
 	
 	// Hold a container of RakNetGUID's that are part of this
 	// lobby
-	std::vector<RakNet::RakNetGUID> mPlayerContainer;
+	struct player
+	{
+		RakNet::RakNetGUID guid;
+		RakNet::RakString name;
+		bool ready;
+		player()
+		{			
+			ready = false;
+		}
+	};
+	std::vector<player> mPlayerContainer;
 
 	// Hold the GUID of the player that created this lobby
 	// as only this player should have authorative control

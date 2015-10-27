@@ -46,7 +46,13 @@ public:
 	std::deque<RakNet::RakString>* GetLobbyChatLog();
 	std::deque<RakNet::RakString>* GetMatchChatLog();
 
-	void Initialize(const char* ip);
+	void Initialize(const char* ip, const char* name);
+
+	bool getIsConnected();
+
+	void sendReady();
+
+	std::vector<RakNet::RakString>* GetLobbyUsers();
 protected:
 	
 	bool handleUserPacket(RakNet::Packet* packet);
@@ -72,6 +78,10 @@ private:
 
 	RakNet::NetworkID lobbyID;
 
+	bool isConnected;
+
+	RakNet::RakString name;
+
 
 	
 	static const int PORT = 61126;
@@ -82,6 +92,8 @@ private:
 	std::deque<RakNet::RakString> raknetMasterChat;
 	std::deque<RakNet::RakString> raknetLobbyChat;
 	std::deque<RakNet::RakString> raknetMatchChat;
+
+	std::vector<RakNet::RakString> LobbyUsers;
 
 
 	// Hold containers of players
