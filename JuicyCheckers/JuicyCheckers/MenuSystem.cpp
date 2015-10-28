@@ -524,9 +524,6 @@ MenuSystem::createMenu(MENUS menu)
 			startButton = currentTray->createButton(OgreBites::TL_CENTER, "startBtn", "Start Multiplayer");
 			exitButton = currentTray->createButton(OgreBites::TL_CENTER, "extBtn", "Exit Game");
 
-			upgradeProgress = currentTray->createProgressBar(OgreBites::TL_TOPRIGHT, "upgradesprog", "Upgrade Counter", 200, 200);
-			upgradeProgress->setProgress(0.9);
-
 			// Add the tray into the tray container.  NOTE: This function is designed to be run from 0 -> MENU.max
 			mTrays.push_back(currentTray);
 		}
