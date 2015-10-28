@@ -243,7 +243,7 @@ Lobby::SetReady(RakNet::Packet* packet)
 		}
 	}
 
-	if(numReady == mPlayerContainer.size())
+	if(numReady == mPlayerContainer.size() && mPlayerContainer.size() >= 2)
 	{
 		// All the players are ready launch the game(s)
 		StartChamps();
@@ -265,6 +265,7 @@ Lobby::StartChamps()
 	bool playersEven = (numPlayers % 2) == 0;
 	int numMatches = numPlayers/2;
 
+	// We should have atleast two players ready
 	for(int i = 0; i < numMatches; ++i)
 	{
 		Match* currentMatch = 0;

@@ -171,6 +171,7 @@ void Match::SetPlayers(RakNet::RakNetGUID p1, RakNet::RakNetGUID p2)
 
 	// PLAYER ONE
 	noticationStream.Write(playerOne);
+
 	// PLAYER TWO
 	noticationStream.Write(playerTwo);
 
