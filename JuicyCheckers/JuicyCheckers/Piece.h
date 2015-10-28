@@ -11,11 +11,12 @@
 #ifndef __PIECE_H__
 #define __PIECE_H__
 
+class Powerup;
 
 class Piece : public Ogre::Entity
 {
 public:
-	Piece(void);
+	Piece(Ogre::SceneManager& sm);
 	virtual ~Piece(void);
 	
 	// visibility
@@ -23,12 +24,12 @@ public:
 	void setVisible(bool visible)	{ m_Visible = visible; }
 
 	// mesh
-	void setMesh(Ogre::String meshName) { m_Mesh = meshName; }
-	Ogre::String getMesh()		{ return m_Mesh; }
+	//void setMesh(Ogre::String meshName) { m_Mesh = meshName; }
+	//Ogre::String getMesh()		{ return m_Mesh; }
 
 	// powerups
-	void setPowerup(int powerUp) { m_PowerUp = powerUp; }
-	int getPowerup()			{ return m_PowerUp; }
+	void setPowerUps(Powerup* powerUp);
+	Powerup* getPowerUps()			{ return m_PowerUp; }
 
 	// owner
 	void setOwner(int playerNum) { m_Owner = playerNum; }
@@ -40,26 +41,13 @@ public:
 
 	// piece ID
 	void setPieceID(int pieceID) { m_PieceID = pieceID; }
-	int getPieceID() { return m_PieceID; }
+	int getPieceID() const { return m_PieceID; }
 
 	// piece postion
 	void setOrigin(Ogre::Vector3 pos) { m_Origin = pos; }
 	Ogre::Vector3 getOrigin() { return m_Origin; }
 
-	// entity .. no longer needed as this IS the entity now
-	// void createEntity(Ogre::SceneManager& sManager);
-	// Ogre::Entity* getEntity()	 { return m_Entity; }
 
-	// void setEntity(Ogre::Entity* entity) { m_Entity = entity; }
-
-	//// node
-	//void setNode(Ogre::SceneNode* node) { m_Node = node; }
-	//Ogre::SceneNode* getNode() { return m_Node; }
-
-	//// attaches the node to the specified node
-	//void attach(Ogre::SceneNode* node);
-	//// detaches the node from the specified node
-	//void detach(Ogre::SceneNode* node);
 protected:
 
 private:
@@ -68,14 +56,21 @@ private:
 public:
 protected:
 	bool			m_Visible;	
-	Ogre::String	m_Mesh;			// e.g. "ninja.mesh"
+	// Ogre::String	m_Mesh;			// e.g. "ninja.mesh"
 	Ogre::Vector3	m_Origin;		// original position of the piece
-	// Ogre::Entity*	m_Entity;		// the entity for the piece
-	// Ogre::SceneNode* m_Node;		// the node for the entity... allows rotation, and translation etc
-	int				m_PowerUp;		// 0 - 10 represeting different powerups
+	Powerup*		m_PowerUp;		// instace of the powerup class that tracks the powerups associated with the piece
 	int				m_Owner;		// piece owner .. player 1 = 1 player 2 = 2
 	int				m_BoardSquareID;// ID of the board square upon which the piece sits
 	int				m_PieceID;		// ID of the piece
+	bool			m_Movable;		// sets the ability for a piece to move
+
+	// powerup variables
+	Ogre::SceneNode* m_PowerUpNode;	// a node that the powerup effects can be attached to
+	
+	Ogre::Entity*	m_puKing;		// entity that contains the King mesh and effects
+	ParticleUniverse::ParticleSystem*	m_puLock;		// particle effect of the Locked effects
+	ParticleUniverse::ParticleSystem*	m_puShield;		// particle effect of the Shield effects
+	ParticleUniverse::ParticleSystem*   m_puSwap;		// particle effect of the Swap effect
 	
 private:
 };

@@ -11,7 +11,7 @@ class PieceController;
 class MenuSystem;
 class Client;
 class LineDrawing;
-
+class PowerUpManager;
 
 
 class JuicyCheckers : public Ogre::WindowEventListener, public Ogre::FrameListener, public OIS::KeyListener, public OIS::MouseListener
@@ -107,7 +107,7 @@ private:
 	Ogre::RaySceneQuery* mRayScnQuery;
 
 	// Particle system manager
-	ParticleUniverse::ParticleSystemManager* pManager;
+	ParticleUniverse::ParticleSystemManager* mParticleManager;
 
 	// networking client
 	Client* client;
@@ -116,7 +116,6 @@ private:
 	Board* pBoard;
 
 	// vector array of pieces.. total of 12 per side (24 in total)
-	// std::vector<Piece*> pPieces;
 	std::vector<Piece*> pPieces;
 
 	// Piece Controller
@@ -125,7 +124,11 @@ private:
 	// MenuSystem
 	MenuSystem* mMenuSystem;
 
+	// Basic Line Drawing Class
 	LineDrawing* mSelector;
+
+	// Powerup Manager
+	PowerUpManager* mPowerUpManager;
 
 };
 

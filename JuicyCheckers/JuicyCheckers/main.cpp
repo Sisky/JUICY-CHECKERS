@@ -13,6 +13,8 @@
 #include "MenuSystem.h"
 #include "client.h"
 #include "LineDrawing.h"
+#include "PowerUpManager.h"
+#include "Powerup.h"
 
 
 
@@ -26,11 +28,11 @@ JuicyCheckers::JuicyCheckers()
 	maxDegree(500),
 	minDegree(340),
 	mRayScnQuery(0),
-	pManager(0),
+	mParticleManager(0),
 	pBoard(0),
 	pController(0),
 	client(0),
-	
+	mPowerUpManager(0),
 	shutdown(false),
 	mMenuSystem(0)
 {
@@ -257,6 +259,7 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 					// number of children will be 0 if there is nothing attached to the square
 					Ogre::SceneNode* c = static_cast<Ogre::SceneNode*>(mCurObject->getChild(0));
 					Piece* e = static_cast<Piece*>(c->getAttachedObject(0));
+					Ogre::LogManager::getSingletonPtr()->logMessage("Child Object Piece ID   : " + Ogre::StringConverter::toString(e->getPieceID()));
 
 
 					// can access all the functions of the attached class now which makes like easier
@@ -276,8 +279,8 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 					// move and start the particle system
 					mSceneMgr->getSceneNode("selectionNode")->setPosition(mCurObject->getPosition());
 					// if the selection effect was not already started.. start it
-					if(pManager->getParticleSystem("psSelection")->getState() != ParticleUniverse::ParticleSystem::ParticleSystemState::PSS_STARTED) {
-						pManager->getParticleSystem("psSelection")->start();
+					if(mParticleManager->getParticleSystem("psSelection")->getState() != ParticleUniverse::ParticleSystem::ParticleSystemState::PSS_STARTED) {
+						mParticleManager->getParticleSystem("psSelection")->start();
 					}
 				}
 				else {
@@ -290,8 +293,8 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 						// if the left mouse button was pressed.. set the position of the 'selection particle effect' to be the position of the selected object
 						mSceneMgr->getSceneNode("selectionNode")->setPosition(mCurObject->getPosition());
 						// if the selection effect was not already started.. start it
-						if(pManager->getParticleSystem("psSelection")->getState() != ParticleUniverse::ParticleSystem::ParticleSystemState::PSS_STARTED) {
-							pManager->getParticleSystem("psSelection")->start();
+						if(mParticleManager->getParticleSystem("psSelection")->getState() != ParticleUniverse::ParticleSystem::ParticleSystemState::PSS_STARTED) {
+							mParticleManager->getParticleSystem("psSelection")->start();
 						}
 					}
 				}
@@ -300,7 +303,7 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 				if(pController->getSource() != nullptr && pController->getDest() != nullptr) {
 					pController->movePiece();
 					// stop the particle system
-					pManager->getParticleSystem("psSelection")->stop();
+					mParticleManager->getParticleSystem("psSelection")->stop();
 				}
 
 
@@ -369,7 +372,25 @@ JuicyCheckers::addPieces()
 		count += 2;
 		
 		// Piece Entity
-		Piece* p = new Piece();
+		Piece* p = new Piece(*mSceneMgr);
+		if (i <= 12) {
+			// create the entity
+			p = static_cast<Piece*>(mSceneMgr->createEntity("piece" + number, "robot.mesh"));
+		}
+		else {
+			// create the entity
+			p = static_cast<Piece*>(mSceneMgr->createEntity("piece" + number, "ninja.mesh"));
+		}
+		// set the entity query flag
+		p->setQueryFlags(PIECE_MASK);
+
+		// powerups
+		Powerup* pu = new Powerup();
+	
+		p->setPowerUps(pu);
+		//// set powerup state to a blank mask
+		mPowerUpManager->setPowerUpMask(p, mPowerUpManager->BLANK, true);
+
 
 		// use that board ID to get the scenenode of the boardsquare
 		Ogre::SceneNode* s = pBoard->getSceneNode(count, *mSceneMgr);
@@ -383,8 +404,6 @@ JuicyCheckers::addPieces()
 		p->setPieceID(i);
 		// set visibility
 		p->setVisible(true);
-		// set powerup state
-		p->setPowerup(0);
 		// set the board square ID
 		p->setBoardSquareID(count);
 		// store the original position of the board node in the piece class
@@ -393,7 +412,7 @@ JuicyCheckers::addPieces()
 		// first 12 will be ninjas
 		if(i <= 12) {
 			// add the piece
-			p->setMesh("robot.mesh");
+			// p->setMesh("robot.mesh");
 			p->setOwner(1);	// player 1
 			// rotate
 			pieceNode->yaw(Ogre::Degree(-90));
@@ -402,15 +421,11 @@ JuicyCheckers::addPieces()
 		}
 		else {
 		// next 12 will be robots
-			p->setMesh("ninja.mesh");
+			// p->setMesh("ninja.mesh");
 			p->setOwner(2); // player 2
 		}	
 
-		// create the entity
-		p = static_cast<Piece*>(mSceneMgr->createEntity("piece" + number, p->getMesh()));
 
-		// set the entity query flag
-		p->setQueryFlags(PIECE_MASK); 
 		
 		// attach the entity to the node
 		pieceNode->attachObject(p);
@@ -436,10 +451,10 @@ void
 JuicyCheckers::addParticleSystems() 
 {
 	// get the particle manager singleton pointer
-	pManager = ParticleUniverse::ParticleSystemManager::getSingletonPtr();
+	mParticleManager = ParticleUniverse::ParticleSystemManager::getSingletonPtr();
 
 	// circle particle that is triggered when an object is clicked
-	ParticleUniverse::ParticleSystem* psSelection = pManager->createParticleSystem("psSelection", "example_010", mSceneMgr);
+	ParticleUniverse::ParticleSystem* psSelection = mParticleManager->createParticleSystem("psSelection", "example_010", mSceneMgr);
 		
 	// set the query mask
 	psSelection->setQueryFlags(PARTICLE_MASK);
@@ -453,10 +468,10 @@ JuicyCheckers::addParticleSystems()
 
 	// define the particle system
 	// torches
-	ParticleUniverse::ParticleSystem* psTorch1 = pManager->createParticleSystem("psTorch1", "mp_torch", mSceneMgr);
-	ParticleUniverse::ParticleSystem* psTorch2 = pManager->createParticleSystem("psTorch2", "mp_torch", mSceneMgr);
-	ParticleUniverse::ParticleSystem* psTorch3 = pManager->createParticleSystem("psTorch3", "mp_torch", mSceneMgr);
-	ParticleUniverse::ParticleSystem* psTorch4 = pManager->createParticleSystem("psTorch4", "mp_torch", mSceneMgr);
+	ParticleUniverse::ParticleSystem* psTorch1 = mParticleManager->createParticleSystem("psTorch1", "mp_torch", mSceneMgr);
+	ParticleUniverse::ParticleSystem* psTorch2 = mParticleManager->createParticleSystem("psTorch2", "mp_torch", mSceneMgr);
+	ParticleUniverse::ParticleSystem* psTorch3 = mParticleManager->createParticleSystem("psTorch3", "mp_torch", mSceneMgr);
+	ParticleUniverse::ParticleSystem* psTorch4 = mParticleManager->createParticleSystem("psTorch4", "mp_torch", mSceneMgr);
 
 	// create a node for the torches to attach
 	Ogre::SceneNode* psTorchNode1 = mSceneMgr->getRootSceneNode()->createChildSceneNode("torchNode1");
@@ -623,6 +638,9 @@ JuicyCheckers::initScene()
 
 	// initialize the piece controller
 	pController = new PieceController();
+
+	// initialize the powerup manager
+	mPowerUpManager = new PowerUpManager();
 
 	// We want to create a scene node that we can rotate the camera around at the origin
 	Ogre::SceneNode* cameraParent = mSceneMgr->getRootSceneNode()->createChildSceneNode("CAMERA_ROTATION");;
