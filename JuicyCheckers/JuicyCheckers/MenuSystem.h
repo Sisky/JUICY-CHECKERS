@@ -43,6 +43,7 @@ public:
 		CREATELOBBYMENU,
 		LOBBYMENU,
 		MATCHMENU,
+		UPGRADEMENU,
 		RESULTMENU,
 		MENU_MAX
 	};
@@ -131,6 +132,18 @@ private:
 	OgreBites::TextBox* lobbyChatTextField;
 	bool isReady;
     
+	// Widgets for the match menu
+	OgreBites::Label* matchTurn;
+	OgreBites::Label* matchCredits;
+	OgreBites::Button*	matchUpgrade;
+	OgreBites::ProgressBar* upgradeProgress;
+
+	// Widgets for the upgrade menu
+	OgreBites::Button*	powerupOne;
+	OgreBites::Button*	powerupTwo;
+	OgreBites::Button*	powerupThree;
+	OgreBites::Button*	powerupBack;
+
 	// OgreBites::SdkCameraMan*    mCameraMan;     	// Basic camera controller
 	OgreBites::ParamsPanel*     mDetailsPanel;   	// Sample details panel
 

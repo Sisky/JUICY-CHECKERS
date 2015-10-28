@@ -214,6 +214,26 @@ void MenuSystem::buttonHit(OgreBites::Button* button)
 			clientPtr->sendReady();
 		}
 	}
+	else if(button == matchUpgrade)
+	{
+		SetMenu(UPGRADEMENU);
+	}
+	else if(button == powerupBack)
+	{
+		SetMenu(MATCHMENU);
+	}
+	else if(button == powerupOne)
+	{
+		
+	}
+	else if(button == powerupTwo)
+	{
+		
+	}
+	else if(button == powerupThree)
+	{
+		
+	}
 
 }
 
@@ -504,6 +524,9 @@ MenuSystem::createMenu(MENUS menu)
 			startButton = currentTray->createButton(OgreBites::TL_CENTER, "startBtn", "Start Multiplayer");
 			exitButton = currentTray->createButton(OgreBites::TL_CENTER, "extBtn", "Exit Game");
 
+			upgradeProgress = currentTray->createProgressBar(OgreBites::TL_TOPRIGHT, "upgradesprog", "Upgrade Counter", 200, 200);
+			upgradeProgress->setProgress(0.9);
+
 			// Add the tray into the tray container.  NOTE: This function is designed to be run from 0 -> MENU.max
 			mTrays.push_back(currentTray);
 		}
@@ -594,16 +617,38 @@ MenuSystem::createMenu(MENUS menu)
 			// the current turn,  timers upgrades etc etc.
 
 			// Indicate whos turn it currently is with a label
+			matchTurn = currentTray->createLabel(OgreBites::TL_TOPLEFT, "turnLabel", "Your Turn");
 
 			// Indicate with a label the current powerup credit level
-
+			matchCredits = currentTray->createLabel(OgreBites::TL_TOPLEFT, "powerupLabel", "Powerup Credits:0");
 			// Have a button that opens up the upgrade menu
+
+			matchUpgrade = currentTray->createButton(OgreBites::TL_TOPLEFT, "upgradeButton", "Open Upgrades");
+
+			
 
 			// Add the tray into the tray container.  NOTE: This function is designed to be run from 0 -> MENU.max
 			mTrays.push_back(currentTray);
 		}
 		break;
+	case UPGRADEMENU:
+		{
+			// Create the Tray Manager
+			currentTray = new OgreBites::SdkTrayManager("UpgradeMenu", mWindow, mInputContext, this);
 
+			matchTurn = currentTray->createLabel(OgreBites::TL_CENTER, "nameLabel", "Powerup Menu");
+			matchCredits = currentTray->createLabel(OgreBites::TL_CENTER, "credits", "Credits: 0");
+			powerupOne = currentTray->createButton(OgreBites::TL_CENTER, "buyPU1", "Powerup One");
+			powerupTwo = currentTray->createButton(OgreBites::TL_CENTER, "buyPU2", "Powerup Two");
+			powerupThree = currentTray->createButton(OgreBites::TL_CENTER, "buyPU3", "Powerup Three");
+			powerupBack = currentTray->createButton(OgreBites::TL_CENTER, "powerupBack", "Back");
+
+			
+
+			// Add the tray into the tray container.  NOTE: This function is designed to be run from 0 -> MENU.max
+			mTrays.push_back(currentTray);
+		}
+		break;
 	case RESULTMENU:
 		{
 			// Create the Tray Manager

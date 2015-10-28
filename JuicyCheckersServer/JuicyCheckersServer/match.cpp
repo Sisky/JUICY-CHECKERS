@@ -67,10 +67,9 @@ void Match::ProcessPacket(RakNet::RakPeerInterface* peer, RakNet::Packet* packet
 				// Make sure its this clients turn
 				if(currentPlayer == packet->guid)
 				{
-
-
-
 					// If the move was successful send the update to all the 
+
+
 				}
 				else
 				{
@@ -159,6 +158,27 @@ void Match::SetPlayers(RakNet::RakNetGUID p1, RakNet::RakNetGUID p2)
 	playerTwo = p2;
 
 	currentPlayer = p1;
+
+	// We will want to send a game update to both players now that the game is setup
+	RakNet::BitStream noticationStream;
+
+		// TYPE ID
+	RakNet::MessageID typeID = ID_USER_GAME_UPDATE;
+	noticationStream.Write(typeID);
+
+	// CURRENT PLAYER
+	noticationStream.Write(currentPlayer);
+
+	// PLAYER ONE
+	noticationStream.Write(playerOne);
+	// PLAYER TWO
+	noticationStream.Write(playerTwo);
+
+
+	RakNet::SystemAddress sa1 = peer->GetSystemAddressFromGuid(p1);
+	RakNet::SystemAddress sa2 = peer->GetSystemAddressFromGuid(p2);
+	peer->Send(&noticationStream, HIGH_PRIORITY,RELIABLE_ORDERED,0,sa1,false);
+	peer->Send(&noticationStream, HIGH_PRIORITY,RELIABLE_ORDERED,0,sa2,false);
 }
 
 bool 
