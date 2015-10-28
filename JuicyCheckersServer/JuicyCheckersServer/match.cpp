@@ -52,11 +52,19 @@ void Match::ProcessPacket(RakNet::RakPeerInterface* peer, RakNet::Packet* packet
 			{
 				// The client is asking for an entire update of the game state
 				// The structure of the game update is
-				
+				RakNet::BitStream updateStream;
+
 				// TYPE ID
+				updateStream.Write((RakNet::MessageID)ID_USER_GAME_UPDATE);
+
 				// CURRENT PLAYER
+				updateStream.Write(currentPlayer);
+
 				// PLAYER ONE
+				updateStream.Write(playerOne);
+
 				// PLAYER TWO
+				updateStream.Write(playerTwo);
 
 				// Then we enter the locations of all the current pieses
 			}

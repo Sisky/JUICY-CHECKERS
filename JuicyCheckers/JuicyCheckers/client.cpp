@@ -228,6 +228,11 @@ Client::handleUserPacket(RakNet::Packet* packet)
 
 				// Set a flag so the menu system can transition to the match menu
 				transitionMatch = true;
+
+				// Ask the server to send us an update of all the game objects
+				RakNet::BitStream request;
+				request.Write((RakNet::MessageID)ID_USER_GAME_UPDATE);
+				peer->Send(&request, MEDIUM_PRIORITY,RELIABLE_ORDERED,0,serverGUID,false);
 			}
 			break;
 		case ID_USER_CREATE_LOBBY:
@@ -276,6 +281,22 @@ Client::handleUserPacket(RakNet::Packet* packet)
 				// The user has joined the Client 
 				// The server has sent data that contains the entire current state of the game
 				// recompile this information from the bitstream
+				RakNet::BitStream updateBitstream(packet->data, packet->length, false); // The false is for efficiency so we don't make a copy of the passed data
+
+				// Ignore the message id
+				updateBitstream.IgnoreBytes(sizeof(RakNet::MessageID));
+
+				// CURRENT PLAYER
+				RakNet::NetworkID currentPlayer; updateBitstream.Read(currentPlayer);
+
+				// PLAYER ONE
+				RakNet::NetworkID p1; updateBitstream.Read(p1);
+
+				// PLAYER TWO
+				RakNet::NetworkID p2; updateBitstream.Read(p2);
+
+				// Now we get the position of all the pieses
+
 			}
 			break;
 		case ID_USER_MOVE_PIECE:
