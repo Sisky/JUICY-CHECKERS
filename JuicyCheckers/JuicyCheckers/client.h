@@ -53,6 +53,9 @@ public:
 	void sendReady();
 
 	std::vector<RakNet::RakString>* GetLobbyUsers();
+
+	bool getTransitionMatch();
+	void setTransitionMatch(bool doTransition);
 protected:
 	
 	bool handleUserPacket(RakNet::Packet* packet);
@@ -77,6 +80,9 @@ private:
 	RakNet::RakNetGUID serverGUID;
 
 	RakNet::NetworkID lobbyID;
+
+	RakNet::NetworkID currentMatchID;
+	bool transitionMatch;
 
 	bool isConnected;
 

@@ -97,7 +97,7 @@ bool MenuSystem::MousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 	}
 
 	//hitFlag = currentTray->injectMouseDown(me, id);
-
+	
 	return hitFlag;
 }
 
@@ -239,6 +239,7 @@ MenuSystem::itemSelected(OgreBites::SelectMenu* selectMenu)
 
 void MenuSystem::frameRenderingQueued(const Ogre::FrameEvent& evt)
 {
+	// Process all the sdk tray managers
 	for(std::vector<OgreBites::SdkTrayManager*>::iterator it = mTrays.begin();
 		it != mTrays.end();
 		++it)
@@ -246,7 +247,10 @@ void MenuSystem::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		(*it)->frameRenderingQueued(evt);
 	}
 
+	// Update the chat windows
 	updateChats();
+
+	// Check for when to change state when we are connected
 	if(currentMenu == STARTMENU)
 	{
 		// Check if the network connects
@@ -256,6 +260,8 @@ void MenuSystem::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		}
 	}
 
+
+	// Update the players that are in the lobby
 	if(currentMenu == LOBBYMENU)
 	{
 		std::vector<RakNet::RakString>* vec = clientPtr->GetLobbyUsers();
@@ -280,6 +286,19 @@ void MenuSystem::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 
 			++index;
+		}
+	}
+
+
+	// Process for when we get the signal to transition into the match menu state
+	if(currentMenu == LOBBYMENU)
+	{
+		// If we are to transition set the flag back to flase
+		if(clientPtr->getTransitionMatch())
+		{
+			clientPtr->setTransitionMatch(false);
+
+			SetMenu(MATCHMENU);
 		}
 	}
 }

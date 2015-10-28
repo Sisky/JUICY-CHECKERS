@@ -23,7 +23,14 @@
 
 // Local Includes
 
+Lobby::Lobby(RakNet::RakPeerInterface *_peer)
+	: isRunning(false)
+{
+	peer = _peer;
+}
+
 Lobby::Lobby()
+	: isRunning(false)
 {
 
 }
@@ -219,8 +226,80 @@ Lobby::SetReady(RakNet::Packet* packet)
 		{
 			(*players).ready = !((*players).ready);
 			changed = true;
+			break;
 		}
 	}
 
+	// Check to make sure how many players have set their ready
+	// if all players in the lobby are ready.
+	int numReady = 0;
+	for(std::vector<player>::iterator players = mPlayerContainer.begin();
+		players != mPlayerContainer.end(); 
+		++players)
+	{   
+		if((*players).ready == true)
+		{
+			++numReady;
+		}
+	}
+
+	if(numReady == mPlayerContainer.size())
+	{
+		// All the players are ready launch the game(s)
+		StartChamps();
+	}
+
+
 	return changed;
+}
+
+void 
+Lobby::StartChamps()
+{
+	// Should should notify the server to not allow new connections
+
+	isRunning = true;
+
+	// Start the championship by splitting every two players into match objects
+	int numPlayers = mPlayerContainer.size();
+	bool playersEven = (numPlayers % 2) == 0;
+	int numMatches = numPlayers/2;
+
+	for(int i = 0; i < numMatches; ++i)
+	{
+		Match* currentMatch = 0;
+		currentMatch = new Match();
+		RakNet::NetworkID matchID = currentMatch->GetNetworkID();
+		currentMatch->SetPlayers(mPlayerContainer[(i*2)].guid,mPlayerContainer[(i*2)+1].guid);
+
+		// We need to send a packet to these players indicating the match network id
+		RakNet::BitStream noticationStream;
+		RakNet::MessageID typeID = ID_USER_JOIN_MATCH;
+		noticationStream.Write(typeID);
+
+		// Send the NetworkID of the match
+		noticationStream.Write(matchID);
+				
+
+		RakNet::SystemAddress sa1 = peer->GetSystemAddressFromGuid((mPlayerContainer[(i*2)].guid));
+		RakNet::SystemAddress sa2 = peer->GetSystemAddressFromGuid((mPlayerContainer[(i*2)+1].guid));
+		peer->Send(&noticationStream, HIGH_PRIORITY,RELIABLE_ORDERED,0,sa1,false);
+		peer->Send(&noticationStream, HIGH_PRIORITY,RELIABLE_ORDERED,0,sa2,false);
+		printf("Sending A match notification to two players\n");
+
+		// Push the match onto the container for matches
+		mMatches.push_back(currentMatch);
+	}
+
+	if(!playersEven)
+	{
+		// There is one player that is left over in the championship forward them to the next round
+		mWinnerPlayers.push_back(*(mPlayerContainer.end()));
+	}	
+}
+
+bool 
+Lobby::getIsRunning()
+{
+	return isRunning;
 }

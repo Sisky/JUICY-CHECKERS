@@ -167,7 +167,16 @@ Server::handleUserPacket(RakNet::Packet* packet)
 				lobbyBitStream.Write(typeID); // Write the type of the network address
 
 				// Write the number of lobbys, and then after that send the NUID of this lobby.
-				int numLobbies = mLobbies.size();
+				int numLobbies = 0;
+				for(std::vector<Lobby*>::iterator lobby = mLobbies.begin();
+					lobby != mLobbies.end(); 
+					++lobby)
+				{   
+					if((*lobby)->getIsRunning() == false)
+					{
+						++numLobbies;
+					}
+				}
 				lobbyBitStream.Write(numLobbies);
 
 				// Write all the lobby network ids and lobby names to the stream so the client can pick from one
@@ -175,8 +184,11 @@ Server::handleUserPacket(RakNet::Packet* packet)
 					lobby != mLobbies.end(); 
 					++lobby)
 				{   
-					lobbyBitStream.Write((*lobby)->GetNetworkID());
-					lobbyBitStream.Write((*lobby)->GetName());
+					if((*lobby)->getIsRunning() == false)
+					{
+						lobbyBitStream.Write((*lobby)->GetNetworkID());
+						lobbyBitStream.Write((*lobby)->GetName());
+					}
 				}
 
 				peer->Send(&lobbyBitStream, LOW_PRIORITY,RELIABLE_ORDERED,0,packet->systemAddress,false);
@@ -245,7 +257,7 @@ Server::handleUserPacket(RakNet::Packet* packet)
 				createLobby.Read(name);
 
 				// Create a new lobby object
-				Lobby* lob = new Lobby();
+				Lobby* lob = new Lobby(peer);
 				lob->SetHostingPlayer(packet->guid);
 				lob->GetNetworkID();
 				lob->SetName(name);
@@ -317,6 +329,11 @@ Server::handleUserPacket(RakNet::Packet* packet)
 					// Return the user an error
 				}
 
+			}
+			break;
+		case ID_USER_JOIN_MATCH:
+			{
+				// We shouldn't get a packet here anyway
 			}
 			break;
 		case ID_USER_LOBBY_CHAT:

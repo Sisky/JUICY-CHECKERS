@@ -22,6 +22,7 @@ class Lobby : public RakNet::NetworkIDObject
 	// Member Functions
 public:
 	Lobby();
+	Lobby(RakNet::RakPeerInterface *_peer);
 	~Lobby();
 
 	void Process(float _delta);
@@ -45,9 +46,12 @@ public:
 	void ProcessDisconnect(RakNet::RakPeerInterface* peer,RakNet::Packet* packet);
 
 	bool SetReady(RakNet::Packet* packet);
+
+	bool getIsRunning();
 	
 
 protected:
+	void StartChamps();
 
 private:
 
@@ -59,6 +63,9 @@ protected:
 private:
 	// Store what the name of this lobby is
 	RakNet::RakString name;
+
+	// Hold a pointer to the RakPeerInterface
+	RakNet::RakPeerInterface *peer;
 	
 	// Hold a container of RakNetGUID's that are part of this
 	// lobby
@@ -73,6 +80,7 @@ private:
 		}
 	};
 	std::vector<player> mPlayerContainer;
+	std::vector<player> mWinnerPlayers;
 
 	// Hold the GUID of the player that created this lobby
 	// as only this player should have authorative control
@@ -80,6 +88,8 @@ private:
 
 	// Hold a container of Games that are part of this lobby/championship
 	std::vector<Match*> mMatches;
+
+	bool isRunning;
 	
 };
 

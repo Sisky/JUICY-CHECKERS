@@ -20,7 +20,9 @@
 Client::Client()
 	: peer(0)
 	, lobbyID(RakNet::UNASSIGNED_NETWORK_ID)
+	, currentMatchID(RakNet::UNASSIGNED_NETWORK_ID)
 	, isConnected(false)
+	, transitionMatch(false)
 {
 	// Create the reference to the rakpeer interface
 	peer = RakNet::RakPeerInterface::GetInstance();
@@ -206,6 +208,26 @@ Client::handleUserPacket(RakNet::Packet* packet)
 
 					LobbyUsers.push_back(cur);
 				}												
+			}
+			break;
+		case ID_USER_JOIN_MATCH:
+			{
+				// The server has started the championship and has sent us the matchID
+				// of the game we are playing
+				RakNet::BitStream matchStream(packet->data, packet->length, false);
+
+				// Ignore the message header
+				matchStream.IgnoreBytes(sizeof(RakNet::MessageID));
+
+				// Get the network ID
+				RakNet::NetworkID matchID; 
+				matchStream.Read(matchID);
+
+				// Save the network ID of the match we are in
+				currentMatchID = matchID;
+
+				// Set a flag so the menu system can transition to the match menu
+				transitionMatch = true;
 			}
 			break;
 		case ID_USER_CREATE_LOBBY:
@@ -494,4 +516,14 @@ Client::sendReady()
 
 	// Send the bitsteam to the server
 	peer->Send(&createMsgStream, MEDIUM_PRIORITY,RELIABLE_ORDERED,0,serverGUID,false);
+}
+
+bool Client::getTransitionMatch()
+{
+	return transitionMatch;
+}
+
+void Client::setTransitionMatch(bool doTransition)
+{
+	transitionMatch = doTransition;
 }
