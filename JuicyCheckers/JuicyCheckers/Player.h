@@ -18,6 +18,8 @@ public:
 
 	Powerup* getPowerUps() { return mPowerUp; }
 	void setPowerUps(Powerup* pu) { mPowerUp = pu; }
+	void setPlayerTurn(bool isTurn) { mTurn = isTurn; }
+	bool getPlayerTurn() { return mTurn; }
 
 protected:
 private:
@@ -26,6 +28,7 @@ private:
 public:
 protected:
 	Powerup* mPowerUp;	// defines the powerups associated with the player class
+	bool mTurn; // is players turn t/f
 private:
 };
 

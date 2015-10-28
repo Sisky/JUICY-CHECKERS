@@ -12,6 +12,7 @@ class MenuSystem;
 class Client;
 class LineDrawing;
 class PowerUpManager;
+class Player;
 
 
 class JuicyCheckers : public Ogre::WindowEventListener, public Ogre::FrameListener, public OIS::KeyListener, public OIS::MouseListener
@@ -35,11 +36,8 @@ public:
 		PIECE_MASK = 1 << 5
 	};
 
-	enum Player
-	{
-		PLAYER_ONE = 1,
-		PLAYER_TWO = 2
-	};
+	Player* playerOne;
+	Player* playerTwo;
 
 protected:
 	// Ogre::WindowEventListener
@@ -73,6 +71,11 @@ protected:
 
 	// testing stuff
 	void testStuff(Ogre::SceneManager& sm);
+
+	//check for legal move
+	bool isLegalMove(int sourceID, Ogre::String destName);
+
+	int stringToInt(Ogre::String string);
 
 	// Process BufferedInput
 	virtual bool keyPressed(const OIS::KeyEvent& ke);
@@ -129,6 +132,9 @@ private:
 
 	// Powerup Manager
 	PowerUpManager* mPowerUpManager;
+
+	//Piece id for checking
+	int mPieceID;
 
 };
 

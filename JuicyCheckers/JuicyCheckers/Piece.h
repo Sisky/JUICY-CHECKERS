@@ -7,6 +7,7 @@
  *				   being as this inherits from Ogre::Entity is can be attached to Nodes.
  *
  */
+#include "Player.h"
 
 #ifndef __PIECE_H__
 #define __PIECE_H__
@@ -32,8 +33,8 @@ public:
 	Powerup* getPowerUps()			{ return m_PowerUp; }
 
 	// owner
-	void setOwner(int playerNum) { m_Owner = playerNum; }
-	int getOwner() { return m_Owner; }
+	void setOwner(Player* player) { m_Owner = player; }
+	Player* getOwner() { return m_Owner; }
 
 	// board ID
 	void setBoardSquareID(int boardSquareID) { m_BoardSquareID = boardSquareID; }
@@ -59,7 +60,7 @@ protected:
 	// Ogre::String	m_Mesh;			// e.g. "ninja.mesh"
 	Ogre::Vector3	m_Origin;		// original position of the piece
 	Powerup*		m_PowerUp;		// instace of the powerup class that tracks the powerups associated with the piece
-	int				m_Owner;		// piece owner .. player 1 = 1 player 2 = 2
+	Player*				m_Owner;		// piece owner .. player 1 = 1 player 2 = 2
 	int				m_BoardSquareID;// ID of the board square upon which the piece sits
 	int				m_PieceID;		// ID of the piece
 	bool			m_Movable;		// sets the ability for a piece to move

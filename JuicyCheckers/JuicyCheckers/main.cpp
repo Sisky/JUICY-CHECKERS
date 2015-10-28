@@ -15,6 +15,7 @@
 #include "LineDrawing.h"
 #include "PowerUpManager.h"
 #include "Powerup.h"
+#include "Player.h"
 
 
 
@@ -34,7 +35,10 @@ JuicyCheckers::JuicyCheckers()
 	client(0),
 	mPowerUpManager(0),
 	shutdown(false),
-	mMenuSystem(0)
+	mMenuSystem(0),
+	playerOne(0),
+	playerTwo(0),
+	mPieceID(0)
 {
 }
 
@@ -267,14 +271,24 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 					Ogre::LogManager::getSingletonPtr()->logMessage("Child Object Entity Name   : " + e->getName());
 					
 
-					//Ogre::LogManager::getSingletonPtr()->logMessage("Child Object clicked   : " + c->getName());
-					//Ogre::LogManager::getSingletonPtr()->logMessage("Child Object position (relative to parent) : " + Ogre::StringConverter::toString(c->getPosition()));
-					//Ogre::LogManager::getSingletonPtr()->logMessage("Parent Object position : " + Ogre::StringConverter::toString(mCurObject->getPosition()));
-					// check if there is a selected item already or not
-					// if(pController->getSource() == nullptr) {
 					// set the selected child object as the source... this can only happen if there is a child object .. aka a piece on a square
-					pController->setSource(c);
-					Ogre::LogManager::getSingletonPtr()->logMessage("Source Object Selected : " + c->getName());
+					
+					if (playerOne->getPlayerTurn() == true && e->getOwner() == playerOne)
+					{
+						pController->setSource(c);
+						Ogre::LogManager::getSingletonPtr()->logMessage("Source Object Selected : " + c->getName());
+						//save piece id for check
+						mPieceID = e->getBoardSquareID();
+						
+					}
+					else if (playerTwo->getPlayerTurn() == true && e->getOwner() == playerTwo)
+					{
+						pController->setSource(c);
+						Ogre::LogManager::getSingletonPtr()->logMessage("Source Object Selected : " + c->getName());
+						//save piece id for check
+						mPieceID = e->getBoardSquareID();
+						
+					}
 					
 					// move and start the particle system
 					mSceneMgr->getSceneNode("selectionNode")->setPosition(mCurObject->getPosition());
@@ -287,8 +301,12 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 					// make sure that a target has been selected already
 					if(pController->getSource() != nullptr) {
 						// any square without a piece attached to it is a valid destination
-						pController->setDestination(mCurObject);
-						Ogre::LogManager::getSingletonPtr()->logMessage("Target Object Selected : " + mCurObject->getName());
+						//check if it is a valid dest before saving
+						if (isLegalMove(mPieceID, mCurObject->getName()))
+						{
+							pController->setDestination(mCurObject);
+							Ogre::LogManager::getSingletonPtr()->logMessage("Target Object Selected : " + mCurObject->getName());
+						}
 
 						// if the left mouse button was pressed.. set the position of the 'selection particle effect' to be the position of the selected object
 						mSceneMgr->getSceneNode("selectionNode")->setPosition(mCurObject->getPosition());
@@ -302,7 +320,13 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 				// test if both source and destination are selected and offload to the PieceController
 				if(pController->getSource() != nullptr && pController->getDest() != nullptr) {
 					pController->movePiece();
+					//set new boardsquare position on piece
+					
 					// stop the particle system
+					//swap turns after a move
+					playerOne->setPlayerTurn(playerTwo->getPlayerTurn());
+					playerTwo->setPlayerTurn(!playerOne->getPlayerTurn());
+					
 					mParticleManager->getParticleSystem("psSelection")->stop();
 				}
 
@@ -312,42 +336,54 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 			break;
 		}
 
-		//// sets a list of things to ignore on the query
-		//mMovableFound =
-		//	it->movable &&
-		//	it->movable->getName() != "" &&
-		//	it->movable->getName() != "MainCam" &&
-		//	it->movable->getName() != "selectionNode";
-		//	//it->movable->getName() != "boardBase" && 
-		//	//it->movable->getName() != "ground";
-
-		//if (mMovableFound)
-		//{
-		//	//Ogre::Vector3 intersect = it->worldFragment->singleIntersection;
-		//	mCurObject = it->movable->getParentSceneNode();
-		//	
-		//	Ogre::LogManager::getSingletonPtr()->logMessage("Object found: " + mCurObject->getName());
-		//	// Ogre::LogManager::getSingletonPtr()->logMessage("Position: "+Ogre::StringConverter::toString(intersect));
-		//	Ogre::Vector3 entityPos = mCurObject->getPosition();
-		//	
-		//	// If the user pressed the MMB center the camera on this SceneNode
-		//	if(id == OIS::MB_Middle)
-		//	{
-		//		mSceneMgr->getSceneNode("CAMERA_ROTATION")->setPosition(entityPos);
-		//	}
-
-
-		//}
+		
 	}
 
-	//if(mMovableFound)
-	//{
-	//	// We have selected an entity
-	//	std::cout << "Moveable object found" << std::endl;
-	//	Ogre::LogManager::getSingletonPtr()->logMessage("Moveable object found");
-	//}
-
+	
 	return true; 
+}
+
+bool 
+JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
+{
+	int destID = stringToInt(destName);
+	Ogre::LogManager::getSingletonPtr()->logMessage("destname: " + destID);
+	bool valid = false;
+	//check whose turn
+	if (playerOne->getPlayerTurn() == true)
+	{
+		if (sourceID + 9 == destID || sourceID + 7 == destID)
+		{
+			valid = true;
+		}
+	}
+	else //player twos turn
+	{
+		if (sourceID - 9 == destID || sourceID - 7 == destID)
+		{
+			valid = true;
+		}
+	}
+	
+	
+	return valid;
+
+}
+
+int 
+JuicyCheckers::stringToInt(Ogre::String string)
+{
+	
+	for (int i = 0; i < (int)string.size() - 1; ++i)
+	{
+		if (!isdigit(string[i]))
+		{
+			string.erase(string.begin() + i);
+			--i;
+		}
+	}
+		int num = atoi(string.c_str());
+		return num;
 }
 
 bool 
@@ -413,7 +449,7 @@ JuicyCheckers::addPieces()
 		if(i <= 12) {
 			// add the piece
 			// p->setMesh("robot.mesh");
-			p->setOwner(1);	// player 1
+			p->setOwner(playerOne);	// player 1
 			// rotate
 			pieceNode->yaw(Ogre::Degree(-90));
 			// scale
@@ -422,7 +458,7 @@ JuicyCheckers::addPieces()
 		else {
 		// next 12 will be robots
 			// p->setMesh("ninja.mesh");
-			p->setOwner(2); // player 2
+			p->setOwner(playerTwo); // player 2
 		}	
 
 
@@ -632,6 +668,11 @@ JuicyCheckers::initScene()
 {
 
 	mCamera = mSceneMgr->createCamera("MainCam");
+	//set up players
+	playerOne = new Player();
+	playerTwo = new Player();
+	playerOne->setPlayerTurn(true);
+	playerTwo->setPlayerTurn(false);
 
 	// initialize the playing board
 	pBoard = new Board();
