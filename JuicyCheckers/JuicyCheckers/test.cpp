@@ -18,9 +18,10 @@ JuicyCheckers::testStuff(Ogre::SceneManager& sm)
 	// create an outline of the currently selected tile for mouseover
 
 	// manual object?
-	Ogre::ManualObject* mSquare = sm.createManualObject("square1");
+	Ogre::ManualObject* mSquare = sm.createManualObject("selectionSquare");
 	// attach this to sqaure 25
 	Ogre::SceneNode* s = sm.getSceneNode("squareNode25");
+
 	Ogre::MaterialPtr mSquareMaterial = Ogre::MaterialManager::getSingleton().create("squareMaterial","General");
 	mSquareMaterial->setReceiveShadows(false);
 	mSquareMaterial->getTechnique(0)->setLightingEnabled(true);
@@ -28,20 +29,60 @@ JuicyCheckers::testStuff(Ogre::SceneManager& sm)
 	mSquareMaterial->getTechnique(0)->getPass(0)->setAmbient(0,1,0);
 	mSquareMaterial->getTechnique(0)->getPass(0)->setSelfIllumination(0,1,0);
 
-	mSquareMaterial->getTechnique(0)->getPass(0)->setPointSize(5);
 	
-	mSquare->begin("squareMaterial", Ogre::RenderOperation::OT_LINE_LIST);
-	mSquare->position(100,5,100);
-	mSquare->position(100,5,-100);
 
-	mSquare->position(-100,5,-100);
-	mSquare->position(-100,5,100);
 
-	mSquare->position(100,5,100);
-	mSquare->position(-100,5,100);
+	mSquare->begin("squareMaterial", Ogre::RenderOperation::OT_TRIANGLE_LIST);
 
-	mSquare->position(100,5,-100);
-	mSquare->position(-100,5,-100);
+		// outer points  .. index 0 - 3
+		mSquare->position(-110, 5, 110); // 0
+		mSquare->position(-110, 5, -110); // 1
+		mSquare->position(110, 5, -110); // 2
+		mSquare->position(110, 5, 110); // 3
+
+		// inner points .. index 4 - 7
+		mSquare->position(-100, 5, 100);
+		mSquare->position(-100, 5, -100);
+		mSquare->position(100, 5, -100);
+		mSquare->position(100, 5, 100);
+
+		// set points using indexes
+
+		// left side
+		mSquare->index(0);
+		mSquare->index(4);
+		mSquare->index(1);
+	
+		mSquare->index(4);
+		mSquare->index(5);
+		mSquare->index(1);
+
+		// bottom side
+		mSquare->index(1);
+		mSquare->index(5);
+		mSquare->index(2);
+
+		mSquare->index(2);
+		mSquare->index(5);
+		mSquare->index(6);
+
+		// right side
+		mSquare->index(2);
+		mSquare->index(6);
+		mSquare->index(3);
+
+		mSquare->index(3);
+		mSquare->index(6);
+		mSquare->index(7);
+
+		// top side
+		mSquare->index(3);
+		mSquare->index(7);
+		mSquare->index(0);
+
+		mSquare->index(0);
+		mSquare->index(7);
+		mSquare->index(4);
 
 	mSquare->end();
 

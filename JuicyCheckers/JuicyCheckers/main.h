@@ -10,6 +10,7 @@ class Piece;
 class PieceController;
 class MenuSystem;
 class Client;
+class LineDrawing;
 
 
 
@@ -26,12 +27,12 @@ public:
 	// 00000001 << 1 = 00000010 = 2 in binary etc
 	enum QueryFlags
 	{
-	  ROBOT_MASK = 1 << 0,
-	  NINJA_MASK = 1 << 1,
-	  BOARD_BLACK = 1 << 2,
-	  BOARD_WHITE = 1 << 3,
-	  PARTICLE_MASK = 1 << 4,
-	  PIECE_MASK = 1 << 5
+		ROBOT_MASK = 1 << 0,
+		NINJA_MASK = 1 << 1,
+		BOARD_BLACK = 1 << 2,
+		BOARD_WHITE = 1 << 3,
+		PARTICLE_MASK = 1 << 4,
+		PIECE_MASK = 1 << 5
 	};
 
 	enum Player
@@ -124,6 +125,7 @@ private:
 	// MenuSystem
 	MenuSystem* mMenuSystem;
 
+	LineDrawing* mSelector;
 
 };
 

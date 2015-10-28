@@ -12,6 +12,7 @@
 #include "PieceController.h"
 #include "MenuSystem.h"
 #include "client.h"
+#include "LineDrawing.h"
 
 
 
@@ -50,6 +51,8 @@ JuicyCheckers::~JuicyCheckers()
 
 	delete mRoot;
 }
+
+
 
 
 void 
@@ -150,8 +153,12 @@ JuicyCheckers::mouseMoved(const OIS::MouseEvent& me)
 		// exclude the board base
 		movableFound = it->movable && it->movable->getName() != "boardBase";
 
+
 		if(movableFound) {
+			Ogre::SceneNode* mCurObject = it->movable->getParentSceneNode();
 			// SHOW GENERIC MOUSEOVER HIGHLIGHT HERE
+			mSceneMgr->getSceneNode("selectionNodeHighlight")->setPosition(mCurObject->getPosition());
+			
 			break;
 		}
 	}
@@ -421,7 +428,7 @@ JuicyCheckers::addPieces()
 		if(count == 56) { count--; }
 	}
 
-	testStuff(*mSceneMgr);
+	// testStuff(*mSceneMgr);
 }
 
  
@@ -486,52 +493,6 @@ JuicyCheckers::addParticleSystems()
 	psTorchNode2->attachObject(psTorch2);
 	psTorchNode3->attachObject(psTorch3);
 	psTorchNode4->attachObject(psTorch4);
-
-	
-	
-	// cool shield thing
-	//ParticleUniverse::ParticleSystem* pSys3 = pManager->createParticleSystem("pSys3", "flareShield", mSceneMgr);
-	// cool round thing system
-	//ParticleUniverse::ParticleSystem* pSys4 = pManager->createParticleSystem("pSys4", "example_010", mSceneMgr);
-	
-	// attach the particle systems to the scene
-
-	// using the root scene node as these will remain static
-	// add to the torches node
-
-
-	//mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(psTorch1); // torch 1
-	//mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(psTorch2); // torch 2
-	//mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(psTorch3); // torch 2
-	//mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(psTorch4); // torch 2
-
-	//mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pSys3); // sheild
-	//mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pSys4); // cool round thing
-
-	
-
-	// Scale the particle systems
-	//pSys0->setScaleVelocity(10);
-	//pSys0->setScale(Ogre::Vector3(10, 10, 10));
-
-
-	
-	// sheild
-	//pSys3->setScaleVelocity(10);
-	//pSys3->setScale(Ogre::Vector3(15, 15, 15));
-	// cool round thing
-	//pSys4->setScaleVelocity(10);
-	//pSys4->setScale(Ogre::Vector3(10, 10, 10));
-
-
-	// Adjust the position of the particle systems a bit by repositioning their ParticleTechnique (there is only one technique in mp_torch)
-	// Normally you would do that by setting the position of the SceneNode to which the Particle System is attached, but in this
-	// demo they are both attached to the same rootnode.
-
-	// placing these at the 4 corners of the board
-	
-	//pSys3->getTechnique(0)->position = Ogre::Vector3(0,0,0);
-	//pSys4->getTechnique(0)->position = Ogre::Vector3(0,0,0);
 
 	// Start the particle systems
 	psTorch1->start();
@@ -713,6 +674,10 @@ JuicyCheckers::initScene()
     pointLight->setDiffuseColour(.3, .3, .3);
     pointLight->setSpecularColour(.3, .3, .3);
     pointLight->setPosition(Ogre::Vector3(0, 150, 250));
+
+	// selection square
+	mSelector = new LineDrawing();
+	mSelector->initSelectionSquare(*mSceneMgr);
 }
 
 
