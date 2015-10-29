@@ -12,12 +12,16 @@
 #include <BitStream.h>
 #include "RakNetTypes.h"  // MessageID
 #include <RakPeerInterface.h>
+#include "Board.h"
+#include "Piece.h"
+#include "BoardSquare.h"
+#include "Player.h"
 
 Match::Match()
 	: winningPlayer(RakNet::UNASSIGNED_NETWORK_ID)
 	, isRunning(true)
 {
-
+	Initialise();
 }
 
 Match::Match(RakNet::RakPeerInterface *_peer)
@@ -33,6 +37,107 @@ Match::~Match()
 
 // There is certain game data that the server keeps a track of for checking of rules and such
 // this is identical to the setup on the client except for no gui.
+void 
+Match::Initialise()
+{
+	pBoard = new Board();
+	// populate the board with empty squares with an id of 1 - 64
+	for(int i = 0; i < 64; i++) {
+		pBoard->addSquare(i+1);
+	}
+
+
+
+
+	int count = 0;
+	
+	// populate the piece entity vector array
+	for(int i = 1; i < 24 + 1; i++) {
+
+		//// convert the count to a string
+		//number = Ogre::StringConverter::toString(i);
+		
+		count += 2;
+		
+		//// Piece Entity
+		Piece* p = new Piece();
+		//if (i <= 12) {
+		//	// create the entity
+		//	p = static_cast<Piece*>(mSceneMgr->createEntity("piece" + number, "robot.mesh"));
+		//}
+		//else {
+		//	// create the entity
+		//	p = static_cast<Piece*>(mSceneMgr->createEntity("piece" + number, "ninja.mesh"));
+		//}
+		//// set the entity query flag
+		//p->setQueryFlags(PIECE_MASK);
+
+		//// powerups
+		//Powerup* pu = new Powerup();
+	
+		//p->setPowerUps(pu);
+		////// set powerup state to a blank mask
+		//mPowerUpManager->setPowerUpMask(p, mPowerUpManager->BLANK, true);
+
+
+		//// use that board ID to get the scenenode of the boardsquare
+		//Ogre::SceneNode* s = pBoard->getSceneNode(count, *mSceneMgr);
+		//
+
+		//// create child node of the board square
+		//Ogre::SceneNode* pieceNode = s->createChildSceneNode("pieceNode" + number);
+
+
+
+		// set the piece ID  1 - 24
+		p->setPieceID(i);
+		// set visibility
+		p->setVisible(true);
+		// set the board square ID
+		p->setBoardSquareID(count);
+		
+		// store the original position of the board node in the piece class
+		//p->setOrigin(s->getPosition());
+		//set up boardsquare
+		
+
+
+
+		// first 12 will be ninjas
+		if(i <= 12) {
+			// add the piece
+			// p->setMesh("robot.mesh");
+			p->setOwner(playerOne);	// player 1
+			// rotate
+			//pieceNode->yaw(Ogre::Degree(-90));
+			//// scale
+			//pieceNode->scale(Ogre::Vector3(3,2.5,2));
+		}
+		else {
+		// next 12 will be robots
+			// p->setMesh("ninja.mesh");
+			p->setOwner(playerTwo); // player 2
+		}	
+
+
+		
+		// attach the entity to the node
+		//pieceNode->attachObject(p);
+
+		// push to the array
+		pPieces.push_back(p);
+
+		// player 1	(robots)
+		if(count == 8) { count--; }
+		if(count == 15) { count++; }
+		// center of board
+		if(count == 24) { count = 39; }
+		// player 2 (ninjas)
+		if(count == 47) { count++; }
+		if(count == 56) { count--; }
+	}
+}
+
 
 // Do a general process on this match
 void Match::Process(float _delta)
@@ -69,7 +174,22 @@ void Match::ProcessPacket(RakNet::RakPeerInterface* peer, RakNet::Packet* packet
 				// PLAYER TWO
 				updateStream.Write(playerTwo);
 
-				// Then we enter the locations of all the current pieses
+				// Send through the pieces, send the number of
+				int pieces = pPieces.size();
+				updateStream.Write(pieces);
+
+				// Send the data of each piece
+				for(std::vector<Piece*>::iterator pi = pPieces.begin();
+					pi != pPieces.end(); 
+					++pi)
+				{   
+					// Write the fields in this order
+					updateStream.Write((*pi)->isVisible());	
+					//Powerup*		m_PowerUp;		// instace of the powerup class that tracks the powerups associated with the piece
+					//Player*				m_Owner;		// piece owner .. player 1 = 1 player 2 = 2
+					updateStream.Write((*pi)->getBoardSquareID());// ID of the board square upon which the piece sits
+					updateStream.Write((*pi)->getPieceID());		// ID of the piece					
+				}
 			}
 			break;
 		case ID_USER_MOVE_PIECE:
@@ -78,7 +198,59 @@ void Match::ProcessPacket(RakNet::RakPeerInterface* peer, RakNet::Packet* packet
 				// Make sure its this clients turn
 				if(currentPlayer == packet->guid)
 				{
-					// If the move was successful send the update to all the 
+					// Create the bitstream object, read the packet from the bitstream
+					RakNet::BitStream moveBitstream(packet->data, packet->length, false);
+					moveBitstream.IgnoreBytes(sizeof(RakNet::MessageID));
+					int positionSrc = 0; int positionDest = 0;
+					moveBitstream.Read(positionSrc); moveBitstream.Read(positionDest);
+
+
+					// Determine that the source boardsquare has an attached piece
+					if(pBoard->getSquare(positionSrc)->getAttachedPiece() != 0)
+					{
+						// Determine that the destination boardsquare is empty
+						if(pBoard->getSquare(positionDest)->getAttachedPiece() == 0)
+						{
+							if (isLegalMove(positionSrc, positionDest))
+							{	
+								if(currentPlayer == playerOneGUID)
+								{
+									currentPlayer = playerTwoGUID;
+								} 
+								else 
+								{
+									currentPlayer = playerOneGUID;
+								}
+								// The move is legal we can forward it to all the peers
+								RakNet::BitStream movePacket;
+								movePacket.Write((RakNet::MessageID)ID_USER_MOVE_PIECE);
+								movePacket.Write(positionSrc);
+								movePacket.Write(positionDest);
+
+								// Also write who's turn it is now
+								movePacket.Write(currentPlayer);
+
+								RakNet::SystemAddress sa1 = peer->GetSystemAddressFromGuid(playerOneGUID);
+								RakNet::SystemAddress sa2 = peer->GetSystemAddressFromGuid(playerTwoGUID);
+								peer->Send(&movePacket, HIGH_PRIORITY,RELIABLE_ORDERED,0,sa1,false);
+								peer->Send(&movePacket, HIGH_PRIORITY,RELIABLE_ORDERED,0,sa2,false);
+
+
+							}
+						}
+						else
+						{
+							// Checky client this destination square has a checker
+							setTurnError = true;
+							break;
+						}
+					}
+					else
+					{
+						// Checky client this source square has no checker
+						setTurnError = true;
+						break;
+					}
 
 
 				}
@@ -165,8 +337,8 @@ void Match::ProcessPacket(RakNet::RakPeerInterface* peer, RakNet::Packet* packet
 
 void Match::SetPlayers(RakNet::RakNetGUID p1, RakNet::RakNetGUID p2)
 {
-	playerOne = p1;
-	playerTwo = p2;
+	playerOneGUID = p1;
+	playerTwoGUID = p2;
 
 	currentPlayer = p1;
 
@@ -203,4 +375,242 @@ RakNet::RakNetGUID
 Match::GetWinner()
 {
 	return winningPlayer;
+}
+
+bool
+Match::canJump(Player* player)
+{
+	bool jumpPossible = false;
+
+	if (player == playerOne) //check all player ones pieces
+	{
+		for (int i = 0; i < 12; i++)
+		{
+			int pSqId = pPieces[i]->getBoardSquareID(); // check from current piece position for potential jumps
+		
+			for (int j = 0; j < pPieces.size(); j++)
+			{
+				if (pSqId % 8 < 7) //if it isnt right on the edge
+				{
+					if (pSqId + 9 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerTwo) // there is an opponent piece 
+					{
+						//check there is no pieces in spot
+						for (int k = 0; k < pPieces.size(); k++)
+						{
+							if (pSqId + 18 == pPieces[k]->getBoardSquareID())
+							{
+								//found a match
+								break;
+							}
+							else //cant find match
+							{
+								jumpPossible = true;
+							}
+							
+						}
+						if (jumpPossible = true)
+							return jumpPossible;
+
+						
+
+					}
+				}
+				
+				if (pSqId % 8 > 2) //isnt right on edge
+				{
+					if (pSqId + 7 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerTwo) // there is an opponent piece 
+					{
+						//check there is no pieces in spot
+						for (int k = 0; k < pPieces.size(); k++)
+						{
+							if (pSqId + 14 == pPieces[k]->getBoardSquareID())
+							{
+								//found a match
+								break;
+							}
+							else //cant find match
+							{
+								jumpPossible = true;
+							}
+
+						}
+						if (jumpPossible)
+							return jumpPossible;
+					}
+				}
+				
+			}
+			
+		}
+	}
+	else //check all player 2s pieces
+	{
+		for (int i = 12; i < pPieces.size(); i++)
+		{
+			int pSqId = pPieces[i]->getBoardSquareID(); // check from current piece position for potential jumps
+			
+			
+				for (int j = 0; j < pPieces.size(); j++)
+				{
+					if (pSqId % 8 > 2) //if it isnt right on the edge
+					{
+						if (pSqId - 9 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerOne) // there is an opponent piece 
+						{
+							//check there is no pieces in spot
+							for (int k = 0; k < pPieces.size(); k++)
+							{
+								if (pSqId - 18 == pPieces[k]->getBoardSquareID())
+								{
+									//found a match
+									break;
+								}
+								else //cant find match
+								{
+									jumpPossible = true;
+								}
+							}
+							if (jumpPossible = true)
+								return jumpPossible;
+						}
+					}
+					if (pSqId % 8 < 7) //isnt right on edge
+					{
+						if (pSqId - 7 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerOne) // there is an opponent piece 
+						{
+							//check there is no pieces in spot
+							for (int k = 0; k < pPieces.size(); k++)
+							{
+								if (pSqId - 14 == pPieces[k]->getBoardSquareID())
+								{
+									//found a match
+									break;
+								}
+								else //cant find match
+								{
+									jumpPossible =  true;
+								}
+							}
+							if (jumpPossible = true)
+								return jumpPossible;
+						}
+					}
+				}
+			
+		}
+	}
+
+	return jumpPossible;
+}
+
+bool 
+Match::isLegalMove(int srcID, int destID)
+{	
+	//Ogre::LogManager::getSingletonPtr()->logMessage("destname: " + destID);
+	//Ogre::SceneNode* node;
+	bool valid = false;
+	//check whose turn
+	if (playerOne->getPlayerTurn() == true)
+	{
+		if (srcID + 9 == destID && canJump(playerOne) != true || srcID + 7 == destID && canJump(playerOne) != true)//simple one space move, cant if a jump is possible
+		{
+			valid = true;
+		}
+		else if (srcID + 18 == destID) //trying to jump right
+		{
+			
+			for (int i = 0; i < pPieces.size(); i++) //check through piece vector
+			{
+				if (srcID + 9 == pPieces[i]->getBoardSquareID()) //there is a piece
+				{
+					if (pPieces[i]->getOwner() == playerTwo) //is opponent piece
+					{
+						// Move has removed a opponets piece
+						pPieces[i]->setVisible(false);
+
+						//node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
+						//node->getParentSceneNode()->removeChild(node);
+						pPieces[i]->setBoardSquareID(500);
+						
+
+						valid = true;
+					}
+				}
+
+			}	
+		}
+		else if (srcID + 14 == destID) //trying to jump left
+		{
+
+			for (int i = 0; i < pPieces.size(); i++) //check through piece vector
+			{
+				if (srcID + 7 == pPieces[i]->getBoardSquareID()) //there is a piece
+				{
+					if (pPieces[i]->getOwner() == playerTwo) //is opponent piece
+					{
+
+						// Move has removed a opponets piece
+						pPieces[i]->setVisible(false);
+	/*					node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
+						node->getParentSceneNode()->removeChild(node);*/
+						pPieces[i]->setBoardSquareID(500);
+					
+						valid = true;
+					}
+				}
+
+			}
+		}
+
+	}
+	else //player twos turn
+	{
+		if (srcID - 9 == destID && canJump(playerTwo) != true || srcID - 7 == destID && canJump(playerTwo) != true) //simple one space move
+		{
+			valid = true;
+		}
+		else if (srcID - 18 == destID) //trying to jump right
+		{
+
+			for (int i = 0; i < pPieces.size(); i++) //check through piece vector
+			{
+				if (srcID - 9 == pPieces[i]->getBoardSquareID()) //there is a piece
+				{
+					if (pPieces[i]->getOwner() == playerOne) //is opponent piece
+					{
+						// Move has removed a opponets piece
+						pPieces[i]->setVisible(false);
+						//node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
+						//node->getParentSceneNode()->removeChild(node);
+						pPieces[i]->setBoardSquareID(500);
+						valid = true;
+					}
+				}
+
+			}
+		}
+		else if (srcID - 14 == destID) //trying to jump left
+		{
+
+			for (int i = 0; i < pPieces.size(); i++) //check through piece vector
+			{
+				if (srcID - 7 == pPieces[i]->getBoardSquareID()) //there is a piece
+				{
+					if (pPieces[i]->getOwner() == playerOne) //is opponent piece
+					{
+						// Move has removed a opponets piece
+						pPieces[i]->setVisible(false);
+		/*				node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
+						node->getParentSceneNode()->removeChild(node);*/
+						pPieces[i]->setBoardSquareID(500);
+						valid = true;
+					}
+				}
+
+			}
+		}
+	}
+	
+	
+	return valid;
+
 }
