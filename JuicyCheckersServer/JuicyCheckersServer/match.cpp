@@ -31,6 +31,9 @@ Match::~Match()
 
 }
 
+// There is certain game data that the server keeps a track of for checking of rules and such
+// this is identical to the setup on the client except for no gui.
+
 // Do a general process on this match
 void Match::Process(float _delta)
 {
