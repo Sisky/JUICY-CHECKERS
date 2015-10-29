@@ -42,6 +42,10 @@ public:
 	void setID(int id) { m_ID = id; }
 	int getID() { return m_ID; }
 	
+	// name
+	Ogre::String getName() { return m_SquareName; }
+	void setName(Ogre::String name) { m_SquareName = name; }
+
 protected:
 private:
 
@@ -53,6 +57,7 @@ protected:
 	int m_ID;
 	int m_PieceID;
 	Ogre::Plane m_BoardSquare;
+	Ogre::String m_SquareName;
 
 private:
 };

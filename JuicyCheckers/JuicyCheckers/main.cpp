@@ -8,6 +8,7 @@
 #include "main.h"
 
 #include "Board.h"
+#include "BoardSquare.h"
 #include "Piece.h"
 #include "PieceController.h"
 #include "MenuSystem.h"
@@ -249,6 +250,16 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 			{
 				
 				// ensure that there is a source before being able to select a target
+				// debug requests here
+
+				// this is already the boardsquare node
+				Ogre::LogManager::getSingletonPtr()->logMessage("Selected Node Name		  : " + mCurObject->getName());
+				if (pBoard->getSquare(mCurObject) != nullptr) {
+					Ogre::LogManager::getSingletonPtr()->logMessage("BoardSquare Name	      : " + pBoard->getSquare(mCurObject)->getName());
+					Ogre::LogManager::getSingletonPtr()->logMessage("BoardSquare ID		      : " + Ogre::StringConverter::toString(pBoard->getSquare(mCurObject)->getID()));
+					Ogre::LogManager::getSingletonPtr()->logMessage("BoardSquare Occupied?    : " + Ogre::StringConverter::toString(pBoard->getSquare(mCurObject)->isOccupied()));
+
+				}
 				
 
 				// determine if the boardsqaure has an attached piece
@@ -259,12 +270,12 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 					// number of children will be 0 if there is nothing attached to the square
 					Ogre::SceneNode* c = static_cast<Ogre::SceneNode*>(mCurObject->getChild(0));
 					Piece* e = static_cast<Piece*>(c->getAttachedObject(0));
-					Ogre::LogManager::getSingletonPtr()->logMessage("Child Object Piece ID   : " + Ogre::StringConverter::toString(e->getPieceID()));
+					// Ogre::LogManager::getSingletonPtr()->logMessage("Child Object Piece ID   : " + Ogre::StringConverter::toString(e->getPieceID()));
 
 
 					// can access all the functions of the attached class now which makes like easier
 					
-					Ogre::LogManager::getSingletonPtr()->logMessage("Child Object Entity Name   : " + e->getName());
+					// Ogre::LogManager::getSingletonPtr()->logMessage("Child Object Entity Name   : " + e->getName());
 					
 
 					//Ogre::LogManager::getSingletonPtr()->logMessage("Child Object clicked   : " + c->getName());
@@ -274,7 +285,7 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 					// if(pController->getSource() == nullptr) {
 					// set the selected child object as the source... this can only happen if there is a child object .. aka a piece on a square
 					pController->setSource(c);
-					Ogre::LogManager::getSingletonPtr()->logMessage("Source Object Selected : " + c->getName());
+					// Ogre::LogManager::getSingletonPtr()->logMessage("Source Object Selected : " + c->getName());
 					
 					// move and start the particle system
 					mSceneMgr->getSceneNode("selectionNode")->setPosition(mCurObject->getPosition());
@@ -288,7 +299,7 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 					if(pController->getSource() != nullptr) {
 						// any square without a piece attached to it is a valid destination
 						pController->setDestination(mCurObject);
-						Ogre::LogManager::getSingletonPtr()->logMessage("Target Object Selected : " + mCurObject->getName());
+						// Ogre::LogManager::getSingletonPtr()->logMessage("Target Object Selected : " + mCurObject->getName());
 
 						// if the left mouse button was pressed.. set the position of the 'selection particle effect' to be the position of the selected object
 						mSceneMgr->getSceneNode("selectionNode")->setPosition(mCurObject->getPosition());
@@ -384,19 +395,27 @@ JuicyCheckers::addPieces()
 		// set the entity query flag
 		p->setQueryFlags(PIECE_MASK);
 
-		// powerups
-		Powerup* pu = new Powerup();
-	
-		p->setPowerUps(pu);
-		//// set powerup state to a blank mask
-		mPowerUpManager->setPowerUpMask(p, mPowerUpManager->BLANK, true);
-
-
 		// use that board ID to get the scenenode of the boardsquare
 		Ogre::SceneNode* s = pBoard->getSceneNode(count, *mSceneMgr);
 
 		// create child node of the board square
 		Ogre::SceneNode* pieceNode = s->createChildSceneNode("pieceNode" + number);
+
+
+		// powerups
+		Powerup* pu = new Powerup();
+		p->setPowerUps(pu);
+		//// set powerup state to a blank mask
+		mPowerUpManager->setPowerUpMask(p, mPowerUpManager->BLANK, true);
+
+		// create the powerup Node as a child of the pieceNode
+		p->m_PowerUpNode = pieceNode->createChildSceneNode("powerUpNode" + number);
+
+		// create the entity that will be attached to the powerupnode
+		// p->m_puKing = mSceneMgr->createEntity(;
+
+
+
 
 
 
@@ -443,7 +462,7 @@ JuicyCheckers::addPieces()
 		if(count == 56) { count--; }
 	}
 
-	// testStuff(*mSceneMgr);
+	testStuff(*mSceneMgr);
 }
 
  
@@ -518,17 +537,6 @@ JuicyCheckers::addParticleSystems()
 
 }
 
-void
-JuicyCheckers::drawPieces()
-{
-	// loop through the piece array
-	for(auto& i : pPieces) { 
-		// the piece is visible
-		//if(i->isVisible()) {
-		//	
-		//}
-	}
-}
 
 void
 JuicyCheckers::createScene()
@@ -549,9 +557,10 @@ JuicyCheckers::createScene()
 			 // array iteration
 			 int it = (i + (j * 8)) + 1;
 
-			 Ogre::String number= Ogre::StringConverter::toString(it);
-			 // obtain the plane from the boardsquare class
-			 Ogre::Entity* squareEntity = mSceneMgr->createEntity("boardSquare" + number); 
+			 Ogre::String number = Ogre::StringConverter::toString(it);
+			 // create an entity using the plane object created 
+			 
+			 Ogre::Entity* squareEntity = mSceneMgr->createEntity("boardSquarePlane" + number);
 			 
 			 squareEntity->setCastShadows(false);			 
 			 // set the material
@@ -590,12 +599,12 @@ JuicyCheckers::createScene()
 			 //boardSceneNode->createChildSceneNode("squareNode" + number);
 			 // boardSceneNode->getChild("squareNode" + number)->setPosition(pos);
 			 // boardSceneNode->getChild("squareNode" + number)->attachObject(squareEntity);
-			 mSceneMgr->getSceneNode("BOARD_NODE")->createChildSceneNode("squareNode" + number);
+			 mSceneMgr->getSceneNode("BOARD_NODE")->createChildSceneNode("boardSquareNode" + number);
 			 //mSceneMgr->getRootSceneNode()->createChildSceneNode("squareNode" + number);
 			 // positon the node ... board is -800 to 800, each square is 200, 200
-			 mSceneMgr->getSceneNode("squareNode" + number)->setPosition(pos);
+			 mSceneMgr->getSceneNode("boardSquareNode" + number)->setPosition(pos);
 			 // attach the entity to the node
-			 mSceneMgr->getSceneNode("squareNode" + number)->attachObject(squareEntity);
+			 mSceneMgr->getSceneNode("boardSquareNode" + number)->attachObject(squareEntity);
 			 
 
 		} 

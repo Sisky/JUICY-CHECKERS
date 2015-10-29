@@ -21,6 +21,8 @@ public:
 
 	void addSquare(int id);
 	BoardSquare* getSquare(int id);
+	BoardSquare* getSquare(Ogre::SceneNode* node);
+	int getSquareID(Ogre::SceneNode* node);
 	Ogre::SceneNode* getSceneNode(int id, Ogre::SceneManager& sManager); 
 	Ogre::SceneNode* getSceneNodeFromPiece(int id, Ogre::SceneManager& sManager);
 

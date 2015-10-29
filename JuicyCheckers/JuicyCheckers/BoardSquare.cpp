@@ -32,5 +32,7 @@ BoardSquare::createPlane(int planeNumber)
 	// define the plane object
 	m_BoardSquare = Ogre::Plane(Ogre::Vector3::UNIT_Y, 0);
 	// define the plane as 200 x 200
-	Ogre::MeshManager::getSingleton().createPlane("boardSquare" + number, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,m_BoardSquare, 200, 200, 1, 1,true,1, 2, 2,Ogre::Vector3::UNIT_Z);
+	Ogre::MeshManager::getSingleton().createPlane("boardSquarePlane" + number, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,m_BoardSquare, 200, 200, 1, 1,true,1, 2, 2,Ogre::Vector3::UNIT_Z);
+	// set the name of the boardsquare
+	setName("boardSquarePlane" + number);
 }

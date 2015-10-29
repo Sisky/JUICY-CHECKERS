@@ -31,6 +31,17 @@ Piece::~Piece(void)
 {
 }
 
+
+// initialize the Piece... prime the powerups for each piece
+void Piece::init()
+{
+	// setup the Crown entity
+
+	// setup the shiled effect
+
+	// setup the swap effect
+}
+
 void Piece::setPowerUps(Powerup * powerUp)
 {
 	// assign the powerup to the class

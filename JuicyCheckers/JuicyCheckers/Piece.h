@@ -19,13 +19,14 @@ public:
 	Piece(Ogre::SceneManager& sm);
 	virtual ~Piece(void);
 	
+	// initialize
+	void init();
+
 	// visibility
 	bool isVisible()				{ return m_Visible; }
 	void setVisible(bool visible)	{ m_Visible = visible; }
 
-	// mesh
-	//void setMesh(Ogre::String meshName) { m_Mesh = meshName; }
-	//Ogre::String getMesh()		{ return m_Mesh; }
+
 
 	// powerups
 	void setPowerUps(Powerup* powerUp);
@@ -54,9 +55,17 @@ private:
 
 // member variables
 public:
+	// powerup variables
+	Ogre::SceneNode* m_PowerUpNode;	// a node that the powerup effects can be attached to
+
+	Ogre::Entity*	m_puKing;		// entity that contains the King mesh and effects
+	ParticleUniverse::ParticleSystem*	m_puLock;		// particle effect of the Locked effects
+	ParticleUniverse::ParticleSystem*	m_puShield;		// particle effect of the Shield effects
+	ParticleUniverse::ParticleSystem*   m_puSwap;		// particle effect of the Swap effect
+
 protected:
 	bool			m_Visible;	
-	// Ogre::String	m_Mesh;			// e.g. "ninja.mesh"
+	// Ogre::String	m_Mesh;			// e.g. "ninja.mesh"  // deprecated.. no longer required
 	Ogre::Vector3	m_Origin;		// original position of the piece
 	Powerup*		m_PowerUp;		// instace of the powerup class that tracks the powerups associated with the piece
 	int				m_Owner;		// piece owner .. player 1 = 1 player 2 = 2
@@ -64,13 +73,7 @@ protected:
 	int				m_PieceID;		// ID of the piece
 	bool			m_Movable;		// sets the ability for a piece to move
 
-	// powerup variables
-	Ogre::SceneNode* m_PowerUpNode;	// a node that the powerup effects can be attached to
-	
-	Ogre::Entity*	m_puKing;		// entity that contains the King mesh and effects
-	ParticleUniverse::ParticleSystem*	m_puLock;		// particle effect of the Locked effects
-	ParticleUniverse::ParticleSystem*	m_puShield;		// particle effect of the Shield effects
-	ParticleUniverse::ParticleSystem*   m_puSwap;		// particle effect of the Swap effect
+
 	
 private:
 };

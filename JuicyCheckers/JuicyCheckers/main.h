@@ -32,7 +32,8 @@ public:
 		BOARD_BLACK = 1 << 2,
 		BOARD_WHITE = 1 << 3,
 		PARTICLE_MASK = 1 << 4,
-		PIECE_MASK = 1 << 5
+		PIECE_MASK = 1 << 5,
+		POWERUP_MASK = 1 << 6
 	};
 
 	enum Player
