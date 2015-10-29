@@ -62,10 +62,37 @@ PowerUpManager::setPowerUpMask(Player * p, PowerUpMask mask, bool overwrite)
 	}
 }
 
+// activates the powerups of the passed piece
+void 
+PowerUpManager::applyPowerUps(Piece * p)
+{
+	// process the powerups
+	if (hasKing(p)) {
+		p->toggleKing();
+	}
+
+	if (hasShield(p)) {
+		p->toggleShield();
+	}
+
+	if (hasLock(p)) {
+		p->toggleLock();
+	}
+
+}
+
+// activates the powerups of the passed player
+void 
+PowerUpManager::applyPowerUps(Player * p)
+{
+
+}
+
 // returns true if the piece has the associated powerup in their bitmask
-bool PowerUpManager::hasShield(Piece & p)
+bool 
+PowerUpManager::hasShield(Piece * p)
 {
-	if (p.getPowerUps()->getPowerUpMask() & SHIELD) {
+	if (p->getPowerUps()->getPowerUpMask() & SHIELD) {
 		return true;
 	}
 	else {
@@ -73,9 +100,10 @@ bool PowerUpManager::hasShield(Piece & p)
 	}
 }
 
-bool PowerUpManager::hasLock(Piece & p)
+bool 
+PowerUpManager::hasLock(Piece * p)
 {
-	if (p.getPowerUps()->getPowerUpMask() & LOCK) {
+	if (p->getPowerUps()->getPowerUpMask() & LOCK) {
 		return true;
 	}
 	else {
@@ -83,9 +111,10 @@ bool PowerUpManager::hasLock(Piece & p)
 	}
 }
 
-bool PowerUpManager::hasKing(Piece & p)
+bool 
+PowerUpManager::hasKing(Piece * p)
 {
-	if (p.getPowerUps()->getPowerUpMask() & KING) {
+	if (p->getPowerUps()->getPowerUpMask() & KING) {
 		return true;
 	}
 	else {
@@ -93,9 +122,10 @@ bool PowerUpManager::hasKing(Piece & p)
 	}
 }
 
-bool PowerUpManager::hasForce(Player & p)
+bool 
+PowerUpManager::hasForce(Player * p)
 {
-	if (p.getPowerUps()->getPowerUpMask() & FORCE) {
+	if (p->getPowerUps()->getPowerUpMask() & FORCE) {
 		return true;
 	}
 	else {
@@ -103,9 +133,10 @@ bool PowerUpManager::hasForce(Player & p)
 	}
 }
 
-bool PowerUpManager::hasSwap(Player & p)
+bool 
+PowerUpManager::hasSwap(Player * p)
 {
-	if (p.getPowerUps()->getPowerUpMask() & SWAP) {
+	if (p->getPowerUps()->getPowerUpMask() & SWAP) {
 		return true;
 	}
 	else {
@@ -113,9 +144,10 @@ bool PowerUpManager::hasSwap(Player & p)
 	}
 }
 
-bool PowerUpManager::hasDethrone(Player & p)
+bool 
+PowerUpManager::hasDethrone(Player * p)
 {
-	if (p.getPowerUps()->getPowerUpMask() & DETHRONE) {
+	if (p->getPowerUps()->getPowerUpMask() & DETHRONE) {
 		return true;
 	}
 	else {

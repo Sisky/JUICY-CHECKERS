@@ -323,32 +323,7 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 			break;
 		}
 
-		//// sets a list of things to ignore on the query
-		//mMovableFound =
-		//	it->movable &&
-		//	it->movable->getName() != "" &&
-		//	it->movable->getName() != "MainCam" &&
-		//	it->movable->getName() != "selectionNode";
-		//	//it->movable->getName() != "boardBase" && 
-		//	//it->movable->getName() != "ground";
-
-		//if (mMovableFound)
-		//{
-		//	//Ogre::Vector3 intersect = it->worldFragment->singleIntersection;
-		//	mCurObject = it->movable->getParentSceneNode();
-		//	
-		//	Ogre::LogManager::getSingletonPtr()->logMessage("Object found: " + mCurObject->getName());
-		//	// Ogre::LogManager::getSingletonPtr()->logMessage("Position: "+Ogre::StringConverter::toString(intersect));
-		//	Ogre::Vector3 entityPos = mCurObject->getPosition();
-		//	
-		//	// If the user pressed the MMB center the camera on this SceneNode
-		//	if(id == OIS::MB_Middle)
-		//	{
-		//		mSceneMgr->getSceneNode("CAMERA_ROTATION")->setPosition(entityPos);
-		//	}
-
-
-		//}
+		
 	}
 
 	//if(mMovableFound)
@@ -395,6 +370,7 @@ JuicyCheckers::addPieces()
 		// set the entity query flag
 		p->setQueryFlags(PIECE_MASK);
 
+		
 		// use that board ID to get the scenenode of the boardsquare
 		Ogre::SceneNode* s = pBoard->getSceneNode(count, *mSceneMgr);
 
@@ -411,16 +387,12 @@ JuicyCheckers::addPieces()
 		// create the powerup Node as a child of the pieceNode
 		p->m_PowerUpNode = pieceNode->createChildSceneNode("powerUpNode" + number);
 
-		// create the entity that will be attached to the powerupnode
-		// p->m_puKing = mSceneMgr->createEntity(;
-
-
-
-
 
 
 		// set the piece ID  1 - 24
 		p->setPieceID(i);
+		// initialize the powerups ready to be used by the piece
+		p->initPowerups(mSceneMgr, mParticleManager);
 		// set visibility
 		p->setVisible(true);
 		// set the board square ID
@@ -469,8 +441,7 @@ JuicyCheckers::addPieces()
 void
 JuicyCheckers::addParticleSystems() 
 {
-	// get the particle manager singleton pointer
-	mParticleManager = ParticleUniverse::ParticleSystemManager::getSingletonPtr();
+	
 
 	// circle particle that is triggered when an object is clicked
 	ParticleUniverse::ParticleSystem* psSelection = mParticleManager->createParticleSystem("psSelection", "example_010", mSceneMgr);
@@ -650,6 +621,9 @@ JuicyCheckers::initScene()
 
 	// initialize the powerup manager
 	mPowerUpManager = new PowerUpManager();
+
+	// get the particle manager singleton pointer
+	mParticleManager = ParticleUniverse::ParticleSystemManager::getSingletonPtr();
 
 	// We want to create a scene node that we can rotate the camera around at the origin
 	Ogre::SceneNode* cameraParent = mSceneMgr->getRootSceneNode()->createChildSceneNode("CAMERA_ROTATION");;

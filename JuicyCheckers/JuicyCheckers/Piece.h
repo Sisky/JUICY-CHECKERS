@@ -19,8 +19,8 @@ public:
 	Piece(Ogre::SceneManager& sm);
 	virtual ~Piece(void);
 	
-	// initialize
-	void init();
+	// initialize the powerups
+	void initPowerups(Ogre::SceneManager* sm, ParticleUniverse::ParticleSystemManager* pm);
 
 	// visibility
 	bool isVisible()				{ return m_Visible; }
@@ -48,6 +48,11 @@ public:
 	void setOrigin(Ogre::Vector3 pos) { m_Origin = pos; }
 	Ogre::Vector3 getOrigin() { return m_Origin; }
 
+	// toggle the powerups
+	void toggleKing();
+	void toggleLock();
+	void toggleShield();
+	void toggleSwap();
 
 protected:
 
@@ -65,9 +70,8 @@ public:
 
 protected:
 	bool			m_Visible;	
-	// Ogre::String	m_Mesh;			// e.g. "ninja.mesh"  // deprecated.. no longer required
 	Ogre::Vector3	m_Origin;		// original position of the piece
-	Powerup*		m_PowerUp;		// instace of the powerup class that tracks the powerups associated with the piece
+	Powerup*		m_PowerUp;		// instance of the powerup class that tracks the powerups associated with the piece
 	int				m_Owner;		// piece owner .. player 1 = 1 player 2 = 2
 	int				m_BoardSquareID;// ID of the board square upon which the piece sits
 	int				m_PieceID;		// ID of the piece
