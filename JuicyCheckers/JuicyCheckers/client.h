@@ -6,8 +6,8 @@
  *
  */
 
-#ifndef __Client_H__
-#define __Client_H__
+#ifndef __CLIENT_H__
+#define __CLIENT_H__
 
 #include "NetworkIDObject.h"
 #include "NetworkIDManager.h"
@@ -109,4 +109,5 @@ private:
 	// Hold games
 };
 
-#endif //__Client_H__
+#endif __CLIENT_H__
+

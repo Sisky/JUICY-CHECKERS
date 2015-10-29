@@ -4,15 +4,19 @@
 *
 */
 
-
 #include "stdafx.h"
 #include "main.h"
 
 #include "Board.h"
+#include "BoardSquare.h"
 #include "Piece.h"
 #include "PieceController.h"
 #include "MenuSystem.h"
 #include "client.h"
+#include "LineDrawing.h"
+#include "PowerUpManager.h"
+#include "Powerup.h"
+#include "Player.h"
 
 
 
@@ -26,13 +30,16 @@ JuicyCheckers::JuicyCheckers()
 	maxDegree(500),
 	minDegree(340),
 	mRayScnQuery(0),
-	pManager(0),
+	mParticleManager(0),
 	pBoard(0),
 	pController(0),
 	client(0),
-	
+	mPowerUpManager(0),
 	shutdown(false),
-	mMenuSystem(0)
+	mMenuSystem(0),
+	playerOne(0),
+	playerTwo(0),
+	mPieceID(0)
 {
 }
 
@@ -51,6 +58,8 @@ JuicyCheckers::~JuicyCheckers()
 
 	delete mRoot;
 }
+
+
 
 
 void 
@@ -153,8 +162,12 @@ JuicyCheckers::mouseMoved(const OIS::MouseEvent& me)
 		// exclude the board base
 		movableFound = it->movable && it->movable->getName() != "boardBase";
 
+
 		if(movableFound) {
+			Ogre::SceneNode* mCurObject = it->movable->getParentSceneNode();
 			// SHOW GENERIC MOUSEOVER HIGHLIGHT HERE
+			mSceneMgr->getSceneNode("selectionNodeHighlight")->setPosition(mCurObject->getPosition());
+			
 			break;
 		}
 	}
@@ -252,41 +265,57 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 					
 					// number of children will be 0 if there is nothing attached to the square
 					Ogre::SceneNode* c = static_cast<Ogre::SceneNode*>(mCurObject->getChild(0));
-					Ogre::Entity* e = static_cast<Ogre::Entity*>(c->getAttachedObject(0));
+					Piece* e = static_cast<Piece*>(c->getAttachedObject(0));
+					Ogre::LogManager::getSingletonPtr()->logMessage("Child Object Piece ID   : " + Ogre::StringConverter::toString(e->getPieceID()));
+
 
 					// can access all the functions of the attached class now which makes like easier
 					
 					Ogre::LogManager::getSingletonPtr()->logMessage("Child Object Entity Name   : " + e->getName());
+					
 
-
-					//Ogre::LogManager::getSingletonPtr()->logMessage("Child Object clicked   : " + c->getName());
-					//Ogre::LogManager::getSingletonPtr()->logMessage("Child Object position (relative to parent) : " + Ogre::StringConverter::toString(c->getPosition()));
-					//Ogre::LogManager::getSingletonPtr()->logMessage("Parent Object position : " + Ogre::StringConverter::toString(mCurObject->getPosition()));
-					// check if there is a selected item already or not
-					// if(pController->getSource() == nullptr) {
 					// set the selected child object as the source... this can only happen if there is a child object .. aka a piece on a square
-					pController->setSource(c);
-					Ogre::LogManager::getSingletonPtr()->logMessage("Source Object Selected : " + c->getName());
+					
+					if (playerOne->getPlayerTurn() == true && e->getOwner() == playerOne)
+					{
+						pController->setSource(c);
+						Ogre::LogManager::getSingletonPtr()->logMessage("Source Object Selected : " + c->getName());
+						//save piece id for check
+						mPieceID = e->getBoardSquareID();
+						
+					}
+					else if (playerTwo->getPlayerTurn() == true && e->getOwner() == playerTwo)
+					{
+						pController->setSource(c);
+						Ogre::LogManager::getSingletonPtr()->logMessage("Source Object Selected : " + c->getName());
+						//save piece id for check
+						mPieceID = e->getBoardSquareID();
+						
+					}
 					
 					// move and start the particle system
 					mSceneMgr->getSceneNode("selectionNode")->setPosition(mCurObject->getPosition());
 					// if the selection effect was not already started.. start it
-					if(pManager->getParticleSystem("psSelection")->getState() != ParticleUniverse::ParticleSystem::ParticleSystemState::PSS_STARTED) {
-						pManager->getParticleSystem("psSelection")->start();
+					if(mParticleManager->getParticleSystem("psSelection")->getState() != ParticleUniverse::ParticleSystem::ParticleSystemState::PSS_STARTED) {
+						mParticleManager->getParticleSystem("psSelection")->start();
 					}
 				}
 				else {
 					// make sure that a target has been selected already
 					if(pController->getSource() != nullptr) {
 						// any square without a piece attached to it is a valid destination
-						pController->setDestination(mCurObject);
-						Ogre::LogManager::getSingletonPtr()->logMessage("Target Object Selected : " + mCurObject->getName());
+						//check if it is a valid dest before saving
+						if (isLegalMove(mPieceID, mCurObject->getName()))
+						{
+							pController->setDestination(mCurObject);
+							Ogre::LogManager::getSingletonPtr()->logMessage("Target Object Selected : " + mCurObject->getName());
+						}
 
 						// if the left mouse button was pressed.. set the position of the 'selection particle effect' to be the position of the selected object
 						mSceneMgr->getSceneNode("selectionNode")->setPosition(mCurObject->getPosition());
 						// if the selection effect was not already started.. start it
-						if(pManager->getParticleSystem("psSelection")->getState() != ParticleUniverse::ParticleSystem::ParticleSystemState::PSS_STARTED) {
-							pManager->getParticleSystem("psSelection")->start();
+						if(mParticleManager->getParticleSystem("psSelection")->getState() != ParticleUniverse::ParticleSystem::ParticleSystemState::PSS_STARTED) {
+							mParticleManager->getParticleSystem("psSelection")->start();
 						}
 					}
 				}
@@ -294,8 +323,14 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 				// test if both source and destination are selected and offload to the PieceController
 				if(pController->getSource() != nullptr && pController->getDest() != nullptr) {
 					pController->movePiece();
+					//set new boardsquare position on piece
+					
 					// stop the particle system
-					pManager->getParticleSystem("psSelection")->stop();
+					//swap turns after a move
+					playerOne->setPlayerTurn(playerTwo->getPlayerTurn());
+					playerTwo->setPlayerTurn(!playerOne->getPlayerTurn());
+					
+					mParticleManager->getParticleSystem("psSelection")->stop();
 				}
 
 
@@ -304,42 +339,260 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 			break;
 		}
 
-		//// sets a list of things to ignore on the query
-		//mMovableFound =
-		//	it->movable &&
-		//	it->movable->getName() != "" &&
-		//	it->movable->getName() != "MainCam" &&
-		//	it->movable->getName() != "selectionNode";
-		//	//it->movable->getName() != "boardBase" && 
-		//	//it->movable->getName() != "ground";
-
-		//if (mMovableFound)
-		//{
-		//	//Ogre::Vector3 intersect = it->worldFragment->singleIntersection;
-		//	mCurObject = it->movable->getParentSceneNode();
-		//	
-		//	Ogre::LogManager::getSingletonPtr()->logMessage("Object found: " + mCurObject->getName());
-		//	// Ogre::LogManager::getSingletonPtr()->logMessage("Position: "+Ogre::StringConverter::toString(intersect));
-		//	Ogre::Vector3 entityPos = mCurObject->getPosition();
-		//	
-		//	// If the user pressed the MMB center the camera on this SceneNode
-		//	if(id == OIS::MB_Middle)
-		//	{
-		//		mSceneMgr->getSceneNode("CAMERA_ROTATION")->setPosition(entityPos);
-		//	}
-
-
-		//}
+		
 	}
 
-	//if(mMovableFound)
-	//{
-	//	// We have selected an entity
-	//	std::cout << "Moveable object found" << std::endl;
-	//	Ogre::LogManager::getSingletonPtr()->logMessage("Moveable object found");
-	//}
-
+	
 	return true; 
+}
+bool
+JuicyCheckers::canJump(Player* player)
+{
+	bool jumpPossible = false;
+
+	if (player == playerOne) //check all player ones pieces
+	{
+		for (int i = 0; i < 12; i++)
+		{
+			int pSqId = pPieces[i]->getBoardSquareID(); // check from current piece position for potential jumps
+		
+			for (int j = 0; j < pPieces.size(); j++)
+			{
+				if (pSqId % 8 < 7) //if it isnt right on the edge
+				{
+					if (pSqId + 9 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerTwo) // there is an opponent piece 
+					{
+						//check there is no pieces in spot
+						for (int k = 0; k < pPieces.size(); k++)
+						{
+							if (pSqId + 18 == pPieces[k]->getBoardSquareID())
+							{
+								//found a match
+								break;
+							}
+							else //cant find match
+							{
+								jumpPossible = true;
+							}
+							
+						}
+						if (jumpPossible = true)
+							return jumpPossible;
+
+						
+
+					}
+				}
+				
+				if (pSqId % 8 > 2) //isnt right on edge
+				{
+					if (pSqId + 7 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerTwo) // there is an opponent piece 
+					{
+						//check there is no pieces in spot
+						for (int k = 0; k < pPieces.size(); k++)
+						{
+							if (pSqId + 14 == pPieces[k]->getBoardSquareID())
+							{
+								//found a match
+								break;
+							}
+							else //cant find match
+							{
+								jumpPossible = true;
+							}
+
+						}
+						if (jumpPossible)
+							return jumpPossible;
+					}
+				}
+				
+			}
+			
+		}
+	}
+	else //check all player 2s pieces
+	{
+		for (int i = 12; i < pPieces.size(); i++)
+		{
+			int pSqId = pPieces[i]->getBoardSquareID(); // check from current piece position for potential jumps
+			
+			
+				for (int j = 0; j < pPieces.size(); j++)
+				{
+					if (pSqId % 8 > 2) //if it isnt right on the edge
+					{
+						if (pSqId - 9 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerOne) // there is an opponent piece 
+						{
+							//check there is no pieces in spot
+							for (int k = 0; k < pPieces.size(); k++)
+							{
+								if (pSqId - 18 == pPieces[k]->getBoardSquareID())
+								{
+									//found a match
+									break;
+								}
+								else //cant find match
+								{
+									jumpPossible = true;
+								}
+							}
+							if (jumpPossible = true)
+								return jumpPossible;
+						}
+					}
+					if (pSqId % 8 < 7) //isnt right on edge
+					{
+						if (pSqId - 7 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerOne) // there is an opponent piece 
+						{
+							//check there is no pieces in spot
+							for (int k = 0; k < pPieces.size(); k++)
+							{
+								if (pSqId - 14 == pPieces[k]->getBoardSquareID())
+								{
+									//found a match
+									break;
+								}
+								else //cant find match
+								{
+									jumpPossible =  true;
+								}
+							}
+							if (jumpPossible = true)
+								return jumpPossible;
+						}
+					}
+				}
+			
+		}
+	}
+
+	return jumpPossible;
+}
+
+bool 
+JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
+{
+	int destID = stringToInt(destName);
+	Ogre::LogManager::getSingletonPtr()->logMessage("destname: " + destID);
+	Ogre::SceneNode* node;
+	bool valid = false;
+	//check whose turn
+	if (playerOne->getPlayerTurn() == true)
+	{
+		if (sourceID + 9 == destID && canJump(playerOne) != true || sourceID + 7 == destID && canJump(playerOne) != true)//simple one space move, cant if a jump is possible
+		{
+			valid = true;
+		}
+		else if (sourceID + 18 == destID) //trying to jump right
+		{
+			
+			for (int i = 0; i < pPieces.size(); i++) //check through piece vector
+			{
+				if (sourceID + 9 == pPieces[i]->getBoardSquareID()) //there is a piece
+				{
+					if (pPieces[i]->getOwner() == playerTwo) //is opponent piece
+					{
+						pPieces[i]->setVisible(false);
+
+						node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
+						node->getParentSceneNode()->removeChild(node);
+						pPieces[i]->setBoardSquareID(500);
+						
+
+						valid = true;
+					}
+				}
+
+			}	
+		}
+		else if (sourceID + 14 == destID) //trying to jump left
+		{
+
+			for (int i = 0; i < pPieces.size(); i++) //check through piece vector
+			{
+				if (sourceID + 7 == pPieces[i]->getBoardSquareID()) //there is a piece
+				{
+					if (pPieces[i]->getOwner() == playerTwo) //is opponent piece
+					{
+						pPieces[i]->setVisible(false);
+						node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
+						node->getParentSceneNode()->removeChild(node);
+						pPieces[i]->setBoardSquareID(500);
+					
+						valid = true;
+					}
+				}
+
+			}
+		}
+
+	}
+	else //player twos turn
+	{
+		if (sourceID - 9 == destID && canJump(playerTwo) != true || sourceID - 7 == destID && canJump(playerTwo) != true) //simple one space move
+		{
+			valid = true;
+		}
+		else if (sourceID - 18 == destID) //trying to jump right
+		{
+
+			for (int i = 0; i < pPieces.size(); i++) //check through piece vector
+			{
+				if (sourceID - 9 == pPieces[i]->getBoardSquareID()) //there is a piece
+				{
+					if (pPieces[i]->getOwner() == playerOne) //is opponent piece
+					{
+						pPieces[i]->setVisible(false);
+						node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
+						node->getParentSceneNode()->removeChild(node);
+						pPieces[i]->setBoardSquareID(500);
+						valid = true;
+					}
+				}
+
+			}
+		}
+		else if (sourceID - 14 == destID) //trying to jump left
+		{
+
+			for (int i = 0; i < pPieces.size(); i++) //check through piece vector
+			{
+				if (sourceID - 7 == pPieces[i]->getBoardSquareID()) //there is a piece
+				{
+					if (pPieces[i]->getOwner() == playerOne) //is opponent piece
+					{
+						pPieces[i]->setVisible(false);
+						node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
+						node->getParentSceneNode()->removeChild(node);
+						pPieces[i]->setBoardSquareID(500);
+						valid = true;
+					}
+				}
+
+			}
+		}
+	}
+	
+	
+	return valid;
+
+}
+
+int 
+JuicyCheckers::stringToInt(Ogre::String string)
+{
+	
+	for (int i = 0; i < (int)string.size() - 1; ++i)
+	{
+		if (!isdigit(string[i]))
+		{
+			string.erase(string.begin() + i);
+			--i;
+		}
+	}
+		int num = atoi(string.c_str());
+		return num;
 }
 
 bool 
@@ -364,10 +617,29 @@ JuicyCheckers::addPieces()
 		count += 2;
 		
 		// Piece Entity
-		Piece* p = new Piece();
+		Piece* p = new Piece(*mSceneMgr);
+		if (i <= 12) {
+			// create the entity
+			p = static_cast<Piece*>(mSceneMgr->createEntity("piece" + number, "robot.mesh"));
+		}
+		else {
+			// create the entity
+			p = static_cast<Piece*>(mSceneMgr->createEntity("piece" + number, "ninja.mesh"));
+		}
+		// set the entity query flag
+		p->setQueryFlags(PIECE_MASK);
+
+		// powerups
+		Powerup* pu = new Powerup();
+	
+		p->setPowerUps(pu);
+		//// set powerup state to a blank mask
+		mPowerUpManager->setPowerUpMask(p, mPowerUpManager->BLANK, true);
+
 
 		// use that board ID to get the scenenode of the boardsquare
 		Ogre::SceneNode* s = pBoard->getSceneNode(count, *mSceneMgr);
+		
 
 		// create child node of the board square
 		Ogre::SceneNode* pieceNode = s->createChildSceneNode("pieceNode" + number);
@@ -378,18 +650,21 @@ JuicyCheckers::addPieces()
 		p->setPieceID(i);
 		// set visibility
 		p->setVisible(true);
-		// set powerup state
-		p->setPowerup(0);
 		// set the board square ID
 		p->setBoardSquareID(count);
+		
 		// store the original position of the board node in the piece class
 		p->setOrigin(s->getPosition());
+		//set up boardsquare
+		
+
+
 
 		// first 12 will be ninjas
 		if(i <= 12) {
 			// add the piece
-			p->setMesh("robot.mesh");
-			p->setOwner(1);	// player 1
+			// p->setMesh("robot.mesh");
+			p->setOwner(playerOne);	// player 1
 			// rotate
 			pieceNode->yaw(Ogre::Degree(-90));
 			// scale
@@ -397,15 +672,11 @@ JuicyCheckers::addPieces()
 		}
 		else {
 		// next 12 will be robots
-			p->setMesh("ninja.mesh");
-			p->setOwner(2); // player 2
+			// p->setMesh("ninja.mesh");
+			p->setOwner(playerTwo); // player 2
 		}	
 
-		// create the entity
-		p = static_cast<Piece*>(mSceneMgr->createEntity("piece" + number, p->getMesh()));
 
-		// set the entity query flag
-		p->setQueryFlags(PIECE_MASK); 
 		
 		// attach the entity to the node
 		pieceNode->attachObject(p);
@@ -422,6 +693,8 @@ JuicyCheckers::addPieces()
 		if(count == 47) { count++; }
 		if(count == 56) { count--; }
 	}
+
+	// testStuff(*mSceneMgr);
 }
 
  
@@ -429,10 +702,10 @@ void
 JuicyCheckers::addParticleSystems() 
 {
 	// get the particle manager singleton pointer
-	pManager = ParticleUniverse::ParticleSystemManager::getSingletonPtr();
+	mParticleManager = ParticleUniverse::ParticleSystemManager::getSingletonPtr();
 
 	// circle particle that is triggered when an object is clicked
-	ParticleUniverse::ParticleSystem* psSelection = pManager->createParticleSystem("psSelection", "example_010", mSceneMgr);
+	ParticleUniverse::ParticleSystem* psSelection = mParticleManager->createParticleSystem("psSelection", "example_010", mSceneMgr);
 		
 	// set the query mask
 	psSelection->setQueryFlags(PARTICLE_MASK);
@@ -446,10 +719,10 @@ JuicyCheckers::addParticleSystems()
 
 	// define the particle system
 	// torches
-	ParticleUniverse::ParticleSystem* psTorch1 = pManager->createParticleSystem("psTorch1", "mp_torch", mSceneMgr);
-	ParticleUniverse::ParticleSystem* psTorch2 = pManager->createParticleSystem("psTorch2", "mp_torch", mSceneMgr);
-	ParticleUniverse::ParticleSystem* psTorch3 = pManager->createParticleSystem("psTorch3", "mp_torch", mSceneMgr);
-	ParticleUniverse::ParticleSystem* psTorch4 = pManager->createParticleSystem("psTorch4", "mp_torch", mSceneMgr);
+	ParticleUniverse::ParticleSystem* psTorch1 = mParticleManager->createParticleSystem("psTorch1", "mp_torch", mSceneMgr);
+	ParticleUniverse::ParticleSystem* psTorch2 = mParticleManager->createParticleSystem("psTorch2", "mp_torch", mSceneMgr);
+	ParticleUniverse::ParticleSystem* psTorch3 = mParticleManager->createParticleSystem("psTorch3", "mp_torch", mSceneMgr);
+	ParticleUniverse::ParticleSystem* psTorch4 = mParticleManager->createParticleSystem("psTorch4", "mp_torch", mSceneMgr);
 
 	// create a node for the torches to attach
 	Ogre::SceneNode* psTorchNode1 = mSceneMgr->getRootSceneNode()->createChildSceneNode("torchNode1");
@@ -486,52 +759,6 @@ JuicyCheckers::addParticleSystems()
 	psTorchNode2->attachObject(psTorch2);
 	psTorchNode3->attachObject(psTorch3);
 	psTorchNode4->attachObject(psTorch4);
-
-	
-	
-	// cool shield thing
-	//ParticleUniverse::ParticleSystem* pSys3 = pManager->createParticleSystem("pSys3", "flareShield", mSceneMgr);
-	// cool round thing system
-	//ParticleUniverse::ParticleSystem* pSys4 = pManager->createParticleSystem("pSys4", "example_010", mSceneMgr);
-	
-	// attach the particle systems to the scene
-
-	// using the root scene node as these will remain static
-	// add to the torches node
-
-
-	//mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(psTorch1); // torch 1
-	//mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(psTorch2); // torch 2
-	//mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(psTorch3); // torch 2
-	//mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(psTorch4); // torch 2
-
-	//mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pSys3); // sheild
-	//mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pSys4); // cool round thing
-
-	
-
-	// Scale the particle systems
-	//pSys0->setScaleVelocity(10);
-	//pSys0->setScale(Ogre::Vector3(10, 10, 10));
-
-
-	
-	// sheild
-	//pSys3->setScaleVelocity(10);
-	//pSys3->setScale(Ogre::Vector3(15, 15, 15));
-	// cool round thing
-	//pSys4->setScaleVelocity(10);
-	//pSys4->setScale(Ogre::Vector3(10, 10, 10));
-
-
-	// Adjust the position of the particle systems a bit by repositioning their ParticleTechnique (there is only one technique in mp_torch)
-	// Normally you would do that by setting the position of the SceneNode to which the Particle System is attached, but in this
-	// demo they are both attached to the same rootnode.
-
-	// placing these at the 4 corners of the board
-	
-	//pSys3->getTechnique(0)->position = Ogre::Vector3(0,0,0);
-	//pSys4->getTechnique(0)->position = Ogre::Vector3(0,0,0);
 
 	// Start the particle systems
 	psTorch1->start();
@@ -656,12 +883,20 @@ JuicyCheckers::initScene()
 {
 
 	mCamera = mSceneMgr->createCamera("MainCam");
+	//set up players
+	playerOne = new Player();
+	playerTwo = new Player();
+	playerOne->setPlayerTurn(true);
+	playerTwo->setPlayerTurn(false);
 
 	// initialize the playing board
 	pBoard = new Board();
 
 	// initialize the piece controller
 	pController = new PieceController();
+
+	// initialize the powerup manager
+	mPowerUpManager = new PowerUpManager();
 
 	// We want to create a scene node that we can rotate the camera around at the origin
 	Ogre::SceneNode* cameraParent = mSceneMgr->getRootSceneNode()->createChildSceneNode("CAMERA_ROTATION");;
@@ -713,6 +948,10 @@ JuicyCheckers::initScene()
     pointLight->setDiffuseColour(.3, .3, .3);
     pointLight->setSpecularColour(.3, .3, .3);
     pointLight->setPosition(Ogre::Vector3(0, 150, 250));
+
+	// selection square
+	mSelector = new LineDrawing();
+	mSelector->initSelectionSquare(*mSceneMgr);
 }
 
 

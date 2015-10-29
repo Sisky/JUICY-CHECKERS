@@ -33,6 +33,7 @@
 #include <OISMouse.h>
 
 #include <SdkTrays.h>
+
 // #include <SdkCameraMan.h>
 
 // #include <OgreFontManager.h>
@@ -43,9 +44,12 @@
 // Particle Universe headers
 #include "ParticleUniverseSystemManager.h"
  
+
+
 // any other header can be included, as usual
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
+
 #include "windows.h"
 #endif
 

@@ -48,7 +48,7 @@ public:
 	void movePiece(Ogre::SceneNode* source, Ogre::SceneNode* dest);
 	
 	void movePiece();
-
+	int PieceController::stringToInt(Ogre::String string);
 	// prefab movements
 	bool testMovePiece(Ogre::SceneNode* piece, PieceDirection direction);
 
