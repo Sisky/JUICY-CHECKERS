@@ -269,7 +269,7 @@ Lobby::StartChamps()
 	for(int i = 0; i < numMatches; ++i)
 	{
 		Match* currentMatch = 0;
-		currentMatch = new Match();
+		currentMatch = new Match(peer);
 		RakNet::NetworkID matchID = currentMatch->GetNetworkID();
 		currentMatch->SetPlayers(mPlayerContainer[(i*2)].guid,mPlayerContainer[(i*2)+1].guid);
 

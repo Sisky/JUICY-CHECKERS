@@ -17,6 +17,8 @@
 #include "BoardSquare.h"
 #include "Player.h"
 
+
+
 Match::Match()
 	: winningPlayer(RakNet::UNASSIGNED_NETWORK_ID)
 	, isRunning(true)
@@ -201,6 +203,8 @@ void Match::ProcessPacket(RakNet::RakPeerInterface* peer, RakNet::Packet* packet
 					// Create the bitstream object, read the packet from the bitstream
 					RakNet::BitStream moveBitstream(packet->data, packet->length, false);
 					moveBitstream.IgnoreBytes(sizeof(RakNet::MessageID));
+					moveBitstream.IgnoreBytes(sizeof(RakNet::NetworkID));
+					moveBitstream.IgnoreBytes(sizeof(RakNet::NetworkID));
 					int positionSrc = 0; int positionDest = 0;
 					moveBitstream.Read(positionSrc); moveBitstream.Read(positionDest);
 
@@ -381,177 +385,153 @@ bool
 Match::canJump(Player* player)
 {
 	bool jumpPossible = false;
+	bool sqFilled = false;
 
-	if (player == playerOne) //check all player ones pieces
+	if (player == playerOne) //check for playerOnes jumps
 	{
-		for (int i = 0; i < 12; i++)
+		for (int i = 0; i < 12; i++) //only check player ones pieces
 		{
-			int pSqId = pPieces[i]->getBoardSquareID(); // check from current piece position for potential jumps
-		
-			for (int j = 0; j < pPieces.size(); j++)
+			int sqID = pPieces[i]->getBoardSquareID(); //selected pieces square
+
+			if (sqID % 8 < 7) //cant be on edges
 			{
-				if (pSqId % 8 < 7) //if it isnt right on the edge
+				for (int j = 0; j < pPieces.size(); j++) //check every piece
 				{
-					if (pSqId + 9 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerTwo) // there is an opponent piece 
+					if (sqID + 9 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerTwo) // adjacent square is filled
 					{
-						//check there is no pieces in spot
-						for (int k = 0; k < pPieces.size(); k++)
+						for (int k = 0; k < pPieces.size(); k++) // check if jump is possible
 						{
-							if (pSqId + 18 == pPieces[k]->getBoardSquareID())
+							if (sqID + 18 == pPieces[k]->getBoardSquareID())
 							{
-								//found a match
-								break;
-							}
-							else //cant find match
-							{
-								jumpPossible = true;
+								sqFilled = true;
 							}
 							
 						}
-						if (jumpPossible = true)
-							return jumpPossible;
-
-						
-
-					}
-				}
-				
-				if (pSqId % 8 > 2) //isnt right on edge
-				{
-					if (pSqId + 7 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerTwo) // there is an opponent piece 
-					{
-						//check there is no pieces in spot
-						for (int k = 0; k < pPieces.size(); k++)
+						if (sqFilled == false)// not filled can jump
 						{
-							if (pSqId + 14 == pPieces[k]->getBoardSquareID())
-							{
-								//found a match
-								break;
-							}
-							else //cant find match
-							{
-								jumpPossible = true;
-							}
-
+							return true;
 						}
-						if (jumpPossible)
-							return jumpPossible;
 					}
 				}
-				
 			}
-			
-		}
-	}
-	else //check all player 2s pieces
-	{
-		for (int i = 12; i < pPieces.size(); i++)
-		{
-			int pSqId = pPieces[i]->getBoardSquareID(); // check from current piece position for potential jumps
-			
-			
-				for (int j = 0; j < pPieces.size(); j++)
+			if (sqID % 8 > 2) //cant be on edges
+			{
+				for (int j = 0; j < pPieces.size(); j++) //check every piece
 				{
-					if (pSqId % 8 > 2) //if it isnt right on the edge
+					if (sqID + 7 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerTwo) // adjacent square is filled
 					{
-						if (pSqId - 9 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerOne) // there is an opponent piece 
+						for (int k = 0; k < pPieces.size(); k++) // check if jump is possible
 						{
-							//check there is no pieces in spot
-							for (int k = 0; k < pPieces.size(); k++)
+							if (sqID + 14 == pPieces[k]->getBoardSquareID())
 							{
-								if (pSqId - 18 == pPieces[k]->getBoardSquareID())
-								{
-									//found a match
-									break;
-								}
-								else //cant find match
-								{
-									jumpPossible = true;
-								}
+								sqFilled = true;
 							}
-							if (jumpPossible = true)
-								return jumpPossible;
+
 						}
-					}
-					if (pSqId % 8 < 7) //isnt right on edge
-					{
-						if (pSqId - 7 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerOne) // there is an opponent piece 
+						if (sqFilled == false)// not filled can jump
 						{
-							//check there is no pieces in spot
-							for (int k = 0; k < pPieces.size(); k++)
-							{
-								if (pSqId - 14 == pPieces[k]->getBoardSquareID())
-								{
-									//found a match
-									break;
-								}
-								else //cant find match
-								{
-									jumpPossible =  true;
-								}
-							}
-							if (jumpPossible = true)
-								return jumpPossible;
+							return true;
 						}
 					}
 				}
-			
+			}
 		}
 	}
+	else //player two turn
+		for (int i = 12; i < pPieces.size(); i++) //only check player ones pieces
+		{
+			int sqID = pPieces[i]->getBoardSquareID(); //selected pieces square
+
+			if (sqID % 8 > 2) //cant be on edges
+			{
+				for (int j = 0; j < pPieces.size(); j++) //check every piece
+				{
+					if (sqID - 9 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerOne) // adjacent square is filled
+					{
+						for (int k = 0; k < pPieces.size(); k++) // check if jump is possible
+						{
+							if (sqID - 18 == pPieces[k]->getBoardSquareID())
+							{
+								sqFilled = true;
+							}
+
+						}
+						if (sqFilled == false)// not filled can jump
+						{
+							return true;
+						}
+					}
+				}
+			}
+			if (sqID % 8 < 7) //cant be on edges
+			{
+				for (int j = 0; j < pPieces.size(); j++) //check every piece
+				{
+					if (sqID - 7 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerOne) // adjacent square is filled
+					{
+						for (int k = 0; k < pPieces.size(); k++) // check if jump is possible
+						{
+							if (sqID - 14 == pPieces[k]->getBoardSquareID())
+							{
+								sqFilled = true;
+							}
+
+						}
+						if (sqFilled == false)// not filled can jump
+						{
+							return true;
+						}
+					}
+				}
+			}
+		}
 
 	return jumpPossible;
 }
 
 bool 
-Match::isLegalMove(int srcID, int destID)
-{	
-	//Ogre::LogManager::getSingletonPtr()->logMessage("destname: " + destID);
-	//Ogre::SceneNode* node;
+Match::isLegalMove(int sourceID, int destID)
+{
 	bool valid = false;
 	//check whose turn
 	if (playerOne->getPlayerTurn() == true)
 	{
-		if (srcID + 9 == destID && canJump(playerOne) != true || srcID + 7 == destID && canJump(playerOne) != true)//simple one space move, cant if a jump is possible
+		if (sourceID + 9 == destID && canJump(playerOne) != true || sourceID + 7 == destID && canJump(playerOne) != true)//simple one space move, cant if a jump is possible
 		{
 			valid = true;
 		}
-		else if (srcID + 18 == destID) //trying to jump right
+		else if (sourceID + 18 == destID) //trying to jump right
 		{
 			
 			for (int i = 0; i < pPieces.size(); i++) //check through piece vector
 			{
-				if (srcID + 9 == pPieces[i]->getBoardSquareID()) //there is a piece
+				if (sourceID + 9 == pPieces[i]->getBoardSquareID()) //there is a piece
 				{
 					if (pPieces[i]->getOwner() == playerTwo) //is opponent piece
 					{
-						// Move has removed a opponets piece
+						// Player deleted a tile
 						pPieces[i]->setVisible(false);
 
-						//node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
-						//node->getParentSceneNode()->removeChild(node);
+						pPieces[i]->setVisible(false);
+						// gets the boardsquare node
 						pPieces[i]->setBoardSquareID(500);
-						
-
 						valid = true;
 					}
 				}
 
 			}	
 		}
-		else if (srcID + 14 == destID) //trying to jump left
+		else if (sourceID + 14 == destID) //trying to jump left
 		{
 
 			for (int i = 0; i < pPieces.size(); i++) //check through piece vector
 			{
-				if (srcID + 7 == pPieces[i]->getBoardSquareID()) //there is a piece
+				if (sourceID + 7 == pPieces[i]->getBoardSquareID()) //there is a piece
 				{
 					if (pPieces[i]->getOwner() == playerTwo) //is opponent piece
 					{
-
-						// Move has removed a opponets piece
+						// Player deleted a tile
 						pPieces[i]->setVisible(false);
-	/*					node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
-						node->getParentSceneNode()->removeChild(node);*/
 						pPieces[i]->setBoardSquareID(500);
 					
 						valid = true;
@@ -564,23 +544,22 @@ Match::isLegalMove(int srcID, int destID)
 	}
 	else //player twos turn
 	{
-		if (srcID - 9 == destID && canJump(playerTwo) != true || srcID - 7 == destID && canJump(playerTwo) != true) //simple one space move
+		if (sourceID - 9 == destID && canJump(playerTwo) != true || sourceID - 7 == destID && canJump(playerTwo) != true) //simple one space move
 		{
 			valid = true;
 		}
-		else if (srcID - 18 == destID) //trying to jump right
+		else if (sourceID - 18 == destID) //trying to jump right
 		{
 
 			for (int i = 0; i < pPieces.size(); i++) //check through piece vector
 			{
-				if (srcID - 9 == pPieces[i]->getBoardSquareID()) //there is a piece
+				if (sourceID - 9 == pPieces[i]->getBoardSquareID()) //there is a piece
 				{
 					if (pPieces[i]->getOwner() == playerOne) //is opponent piece
 					{
-						// Move has removed a opponets piece
+						// Player deleted a tile
 						pPieces[i]->setVisible(false);
-						//node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
-						//node->getParentSceneNode()->removeChild(node);
+						// gets the boardsquare node
 						pPieces[i]->setBoardSquareID(500);
 						valid = true;
 					}
@@ -588,19 +567,18 @@ Match::isLegalMove(int srcID, int destID)
 
 			}
 		}
-		else if (srcID - 14 == destID) //trying to jump left
+		else if (sourceID - 14 == destID) //trying to jump left
 		{
 
 			for (int i = 0; i < pPieces.size(); i++) //check through piece vector
 			{
-				if (srcID - 7 == pPieces[i]->getBoardSquareID()) //there is a piece
+				if (sourceID - 7 == pPieces[i]->getBoardSquareID()) //there is a piece
 				{
 					if (pPieces[i]->getOwner() == playerOne) //is opponent piece
 					{
-						// Move has removed a opponets piece
+						// Player deleted a tile
 						pPieces[i]->setVisible(false);
-		/*				node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
-						node->getParentSceneNode()->removeChild(node);*/
+						// gets the boardsquare node
 						pPieces[i]->setBoardSquareID(500);
 						valid = true;
 					}

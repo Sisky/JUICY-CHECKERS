@@ -353,6 +353,8 @@ Client::SendMovement(int source, int dest)
 	RakNet::MessageID sendMovement = ID_USER_MOVE_PIECE;
 	RakNet::BitStream command;
 	command.Write(sendMovement);
+	command.Write(lobbyID);
+	command.Write(currentMatchID);
 	command.Write(source);
 	command.Write(dest);
 

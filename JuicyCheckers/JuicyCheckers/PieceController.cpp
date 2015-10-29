@@ -10,6 +10,7 @@
 #include "client.h"
 #include "Piece.h"
 #include "main.h"
+#include <OgreString.h>
 
 PieceController::PieceController(void)
 {
@@ -88,9 +89,18 @@ PieceController::getNetworkInterface()
 }
 
 void 
-PieceController::moveNetworkPiece(Ogre::SceneNode* source, Ogre::SceneNode* dest)
+PieceController::moveNetworkPiece()
 {
-	m_clientNetwork->SendMovement(atoi(source->getName().c_str()), atoi(dest->getName().c_str()));
+	Ogre::String srcName = m_sourceNode->getParent()->getName();
+	Ogre::String destName = m_destNode->getName(); //squareNode
+	Ogre::String srcResult = Ogre::StringUtil::replaceAll(srcName, "squareNode", "");
+	Ogre::String destResult = Ogre::StringUtil::replaceAll(destName, "squareNode", "");
+	
+	m_clientNetwork->SendMovement(atoi(srcResult.c_str()), atoi(destResult.c_str()));
+
+	// reset the source and dest pointers to null
+	m_sourceNode = nullptr;
+	m_destNode = nullptr;
 }
 
 int

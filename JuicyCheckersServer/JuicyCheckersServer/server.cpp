@@ -431,6 +431,7 @@ Server::handleUserPacket(RakNet::Packet* packet)
 					{
 						// This lobby does exist
 						doesLobbyExist = true;
+						curLobby = (*lobby);
 						break;
 					}
 				}

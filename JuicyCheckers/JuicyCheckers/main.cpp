@@ -322,7 +322,11 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 
 				// test if both source and destination are selected and offload to the PieceController
 				if(pController->getSource() != nullptr && pController->getDest() != nullptr) {
-					pController->movePiece();
+					//pController->movePiece();
+					// Trying Networking
+					pController->moveNetworkPiece();
+					
+					
 					//set new boardsquare position on piece
 					
 					// stop the particle system
@@ -449,30 +453,6 @@ JuicyCheckers::canJump(Player* player)
 				}
 			}
 		}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	
 
 	return jumpPossible;
 }
@@ -916,6 +896,7 @@ JuicyCheckers::initScene()
 
 	// initialize the piece controller
 	pController = new PieceController();
+	pController->setNetworkInterface(client);
 
 	// initialize the powerup manager
 	mPowerUpManager = new PowerUpManager();
@@ -1056,6 +1037,9 @@ JuicyCheckers::go()
 	// Make sure all resources are loaded
 	Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
 
+		// Initialise the Networking
+	initNetworking();
+
 	// Initialise the scene
 	initScene();
 
@@ -1064,9 +1048,6 @@ JuicyCheckers::go()
 
 	// create the scene
 	createScene();
-
-	// Initialise the Networking
-	initNetworking();
 
 	// Initialise the Menu
 	initMenu();

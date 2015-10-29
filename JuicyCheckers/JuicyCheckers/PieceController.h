@@ -56,7 +56,7 @@ public:
 	void setNetworkInterface(Client* _client);
 	Client* getNetworkInterface();
 
-	void moveNetworkPiece(Ogre::SceneNode* source, Ogre::SceneNode* dest);
+	void moveNetworkPiece();
 
 protected:
 private:
