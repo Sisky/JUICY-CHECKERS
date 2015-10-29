@@ -372,12 +372,16 @@ JuicyCheckers::canJump(Player* player)
 							{
 								jumpPossible = true;
 							}
+							
 						}
+						if (jumpPossible = true)
+							return jumpPossible;
 
 						
 
 					}
 				}
+				
 				if (pSqId % 8 > 2) //isnt right on edge
 				{
 					if (pSqId + 7 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerTwo) // there is an opponent piece 
@@ -394,9 +398,13 @@ JuicyCheckers::canJump(Player* player)
 							{
 								jumpPossible = true;
 							}
+
 						}
+						if (jumpPossible)
+							return jumpPossible;
 					}
 				}
+				
 			}
 			
 		}
@@ -427,6 +435,8 @@ JuicyCheckers::canJump(Player* player)
 									jumpPossible = true;
 								}
 							}
+							if (jumpPossible = true)
+								return jumpPossible;
 						}
 					}
 					if (pSqId % 8 < 7) //isnt right on edge
@@ -443,9 +453,11 @@ JuicyCheckers::canJump(Player* player)
 								}
 								else //cant find match
 								{
-									jumpPossible = true;
+									jumpPossible =  true;
 								}
 							}
+							if (jumpPossible = true)
+								return jumpPossible;
 						}
 					}
 				}
@@ -483,7 +495,7 @@ JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
 
 						node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
 						node->getParentSceneNode()->removeChild(node);
-						//pPieces[i]->setBoardSquareID(50);
+						pPieces[i]->setBoardSquareID(500);
 						
 
 						valid = true;
@@ -504,7 +516,7 @@ JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
 						pPieces[i]->setVisible(false);
 						node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
 						node->getParentSceneNode()->removeChild(node);
-						//pPieces[i]->setBoardSquareID(50);
+						pPieces[i]->setBoardSquareID(500);
 					
 						valid = true;
 					}
@@ -532,7 +544,7 @@ JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
 						pPieces[i]->setVisible(false);
 						node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
 						node->getParentSceneNode()->removeChild(node);
-						//pPieces[i]->setBoardSquareID(50);
+						pPieces[i]->setBoardSquareID(500);
 						valid = true;
 					}
 				}
@@ -551,7 +563,7 @@ JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
 						pPieces[i]->setVisible(false);
 						node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
 						node->getParentSceneNode()->removeChild(node);
-						//pPieces[i]->setBoardSquareID(50);
+						pPieces[i]->setBoardSquareID(500);
 						valid = true;
 					}
 				}
