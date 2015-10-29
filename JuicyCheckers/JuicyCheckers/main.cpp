@@ -347,123 +347,130 @@ bool
 JuicyCheckers::canJump(Player* player)
 {
 	bool jumpPossible = false;
+	bool sqFilled = false;
 
-	if (player == playerOne) //check all player ones pieces
+	if (player == playerOne) //check for playerOnes jumps
 	{
-		for (int i = 0; i < 12; i++)
+		for (int i = 0; i < 12; i++) //only check player ones pieces
 		{
-			int pSqId = pPieces[i]->getBoardSquareID(); // check from current piece position for potential jumps
-		
-			for (int j = 0; j < pPieces.size(); j++)
+			int sqID = pPieces[i]->getBoardSquareID(); //selected pieces square
+
+			if (sqID % 8 < 7) //cant be on edges
 			{
-				if (pSqId % 8 < 7) //if it isnt right on the edge
+				for (int j = 0; j < pPieces.size(); j++) //check every piece
 				{
-					if (pSqId + 9 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerTwo) // there is an opponent piece 
+					if (sqID + 9 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerTwo) // adjacent square is filled
 					{
-						//check there is no pieces in spot
-						for (int k = 0; k < pPieces.size(); k++)
+						for (int k = 0; k < pPieces.size(); k++) // check if jump is possible
 						{
-							if (pSqId + 18 == pPieces[k]->getBoardSquareID())
+							if (sqID + 18 == pPieces[k]->getBoardSquareID())
 							{
-								//found a match
-								break;
-							}
-							else //cant find match
-							{
-								jumpPossible = true;
+								sqFilled = true;
 							}
 							
 						}
-						if (jumpPossible = true)
-							return jumpPossible;
-
-						
-
-					}
-				}
-				
-				if (pSqId % 8 > 2) //isnt right on edge
-				{
-					if (pSqId + 7 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerTwo) // there is an opponent piece 
-					{
-						//check there is no pieces in spot
-						for (int k = 0; k < pPieces.size(); k++)
+						if (sqFilled == false)// not filled can jump
 						{
-							if (pSqId + 14 == pPieces[k]->getBoardSquareID())
-							{
-								//found a match
-								break;
-							}
-							else //cant find match
-							{
-								jumpPossible = true;
-							}
-
+							return true;
 						}
-						if (jumpPossible)
-							return jumpPossible;
 					}
 				}
-				
 			}
-			
-		}
-	}
-	else //check all player 2s pieces
-	{
-		for (int i = 12; i < pPieces.size(); i++)
-		{
-			int pSqId = pPieces[i]->getBoardSquareID(); // check from current piece position for potential jumps
-			
-			
-				for (int j = 0; j < pPieces.size(); j++)
+			if (sqID % 8 > 2) //cant be on edges
+			{
+				for (int j = 0; j < pPieces.size(); j++) //check every piece
 				{
-					if (pSqId % 8 > 2) //if it isnt right on the edge
+					if (sqID + 7 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerTwo) // adjacent square is filled
 					{
-						if (pSqId - 9 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerOne) // there is an opponent piece 
+						for (int k = 0; k < pPieces.size(); k++) // check if jump is possible
 						{
-							//check there is no pieces in spot
-							for (int k = 0; k < pPieces.size(); k++)
+							if (sqID + 14 == pPieces[k]->getBoardSquareID())
 							{
-								if (pSqId - 18 == pPieces[k]->getBoardSquareID())
-								{
-									//found a match
-									break;
-								}
-								else //cant find match
-								{
-									jumpPossible = true;
-								}
+								sqFilled = true;
 							}
-							if (jumpPossible = true)
-								return jumpPossible;
+
 						}
-					}
-					if (pSqId % 8 < 7) //isnt right on edge
-					{
-						if (pSqId - 7 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerOne) // there is an opponent piece 
+						if (sqFilled == false)// not filled can jump
 						{
-							//check there is no pieces in spot
-							for (int k = 0; k < pPieces.size(); k++)
-							{
-								if (pSqId - 14 == pPieces[k]->getBoardSquareID())
-								{
-									//found a match
-									break;
-								}
-								else //cant find match
-								{
-									jumpPossible =  true;
-								}
-							}
-							if (jumpPossible = true)
-								return jumpPossible;
+							return true;
 						}
 					}
 				}
-			
+			}
 		}
 	}
+	else //player two turn
+		for (int i = 12; i < pPieces.size(); i++) //only check player ones pieces
+		{
+			int sqID = pPieces[i]->getBoardSquareID(); //selected pieces square
+
+			if (sqID % 8 > 2) //cant be on edges
+			{
+				for (int j = 0; j < pPieces.size(); j++) //check every piece
+				{
+					if (sqID - 9 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerOne) // adjacent square is filled
+					{
+						for (int k = 0; k < pPieces.size(); k++) // check if jump is possible
+						{
+							if (sqID - 18 == pPieces[k]->getBoardSquareID())
+							{
+								sqFilled = true;
+							}
+
+						}
+						if (sqFilled == false)// not filled can jump
+						{
+							return true;
+						}
+					}
+				}
+			}
+			if (sqID % 8 < 7) //cant be on edges
+			{
+				for (int j = 0; j < pPieces.size(); j++) //check every piece
+				{
+					if (sqID - 7 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerOne) // adjacent square is filled
+					{
+						for (int k = 0; k < pPieces.size(); k++) // check if jump is possible
+						{
+							if (sqID - 14 == pPieces[k]->getBoardSquareID())
+							{
+								sqFilled = true;
+							}
+
+						}
+						if (sqFilled == false)// not filled can jump
+						{
+							return true;
+						}
+					}
+				}
+			}
+		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
 
 	return jumpPossible;
 }
@@ -493,11 +500,14 @@ JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
 					{
 						pPieces[i]->setVisible(false);
 
+						pPieces[i]->setVisible(false);
+						// gets the boardsquare node
 						node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
-						node->getParentSceneNode()->removeChild(node);
+						// get the piece node
+						Ogre::SceneNode* pieceNode = static_cast<Ogre::SceneNode*>(node->getChild(0));
+						// removes the child
+						node->removeChild(pieceNode);
 						pPieces[i]->setBoardSquareID(500);
-						
-
 						valid = true;
 					}
 				}
@@ -514,8 +524,12 @@ JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
 					if (pPieces[i]->getOwner() == playerTwo) //is opponent piece
 					{
 						pPieces[i]->setVisible(false);
+						// gets the boardsquare node
 						node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
-						node->getParentSceneNode()->removeChild(node);
+						// get the piece node
+						Ogre::SceneNode* pieceNode = static_cast<Ogre::SceneNode*>(node->getChild(0));
+						// removes the child
+						node->removeChild(pieceNode);
 						pPieces[i]->setBoardSquareID(500);
 					
 						valid = true;
@@ -542,8 +556,12 @@ JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
 					if (pPieces[i]->getOwner() == playerOne) //is opponent piece
 					{
 						pPieces[i]->setVisible(false);
+						// gets the boardsquare node
 						node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
-						node->getParentSceneNode()->removeChild(node);
+						// get the piece node
+						Ogre::SceneNode* pieceNode = static_cast<Ogre::SceneNode*>(node->getChild(0));
+						// removes the child
+						node->removeChild(pieceNode);
 						pPieces[i]->setBoardSquareID(500);
 						valid = true;
 					}
@@ -561,8 +579,12 @@ JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
 					if (pPieces[i]->getOwner() == playerOne) //is opponent piece
 					{
 						pPieces[i]->setVisible(false);
+						// gets the boardsquare node
 						node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
-						node->getParentSceneNode()->removeChild(node);
+						// get the piece node
+						Ogre::SceneNode* pieceNode = static_cast<Ogre::SceneNode*>(node->getChild(0));
+						// removes the child
+						node->removeChild(pieceNode);
 						pPieces[i]->setBoardSquareID(500);
 						valid = true;
 					}
