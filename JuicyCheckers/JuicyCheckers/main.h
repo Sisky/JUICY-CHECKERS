@@ -137,7 +137,10 @@ private:
 
 	//Piece id for checking
 	int mPieceID;
-
+	//piece that is just moved
+	int mPieceMovedID;
+	//bool showing if jumped last turn
+	bool jumped;
 };
 
 

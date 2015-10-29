@@ -39,7 +39,9 @@ JuicyCheckers::JuicyCheckers()
 	mMenuSystem(0),
 	playerOne(0),
 	playerTwo(0),
-	mPieceID(0)
+	mPieceID(0),
+	mPieceMovedID(0),
+	jumped(false)
 {
 }
 
@@ -306,6 +308,12 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 						if (isLegalMove(mPieceID, mCurObject->getName()))
 						{
 							pController->setDestination(mCurObject);
+							mPieceID = stringToInt(mCurObject->getName());
+
+
+
+								
+
 							Ogre::LogManager::getSingletonPtr()->logMessage("Target Object Selected : " + mCurObject->getName());
 						}
 
@@ -320,15 +328,19 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 
 				// test if both source and destination are selected and offload to the PieceController
 				if(pController->getSource() != nullptr && pController->getDest() != nullptr) {
+					
+					
+
 					pController->movePiece();
-					//set new boardsquare position on piece
-					
-					// stop the particle system
-					//swap turns after a move
-					playerOne->setPlayerTurn(playerTwo->getPlayerTurn());
-					playerTwo->setPlayerTurn(!playerOne->getPlayerTurn());
-					
-					mParticleManager->getParticleSystem("psSelection")->stop();
+
+					//stop turn swap if a jump chain can happen
+					if (jumped == false)
+					{
+						playerOne->setPlayerTurn(playerTwo->getPlayerTurn());
+						playerTwo->setPlayerTurn(!playerOne->getPlayerTurn());
+
+						mParticleManager->getParticleSystem("psSelection")->stop();
+					}
 				}
 
 
@@ -448,32 +460,11 @@ JuicyCheckers::canJump(Player* player)
 			}
 		}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	
-
 	return jumpPossible;
 }
+
+
+
 
 bool 
 JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
@@ -488,6 +479,7 @@ JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
 		if (sourceID + 9 == destID && canJump(playerOne) != true || sourceID + 7 == destID && canJump(playerOne) != true)//simple one space move, cant if a jump is possible
 		{
 			valid = true;
+			jumped = false;
 		}
 		else if (sourceID + 18 == destID) //trying to jump right
 		{
@@ -509,6 +501,7 @@ JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
 						node->removeChild(pieceNode);
 						pPieces[i]->setBoardSquareID(500);
 						valid = true;
+						jumped = true;
 					}
 				}
 
@@ -533,6 +526,7 @@ JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
 						pPieces[i]->setBoardSquareID(500);
 					
 						valid = true;
+						jumped = true;
 					}
 				}
 
@@ -545,6 +539,7 @@ JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
 		if (sourceID - 9 == destID && canJump(playerTwo) != true || sourceID - 7 == destID && canJump(playerTwo) != true) //simple one space move
 		{
 			valid = true;
+			jumped = false;
 		}
 		else if (sourceID - 18 == destID) //trying to jump right
 		{
@@ -564,6 +559,7 @@ JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
 						node->removeChild(pieceNode);
 						pPieces[i]->setBoardSquareID(500);
 						valid = true;
+						jumped = true;
 					}
 				}
 
@@ -587,6 +583,7 @@ JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
 						node->removeChild(pieceNode);
 						pPieces[i]->setBoardSquareID(500);
 						valid = true;
+						jumped = true;
 					}
 				}
 
