@@ -29,6 +29,9 @@
 // #include <OgreBorderPanelOverlayElement.h>
 // #include <OgreTextAreaOverlayElement.h>
 
+#include <string>
+class Client;
+
 
 class MenuSystem : public OgreBites::SdkTrayListener
 {
@@ -40,6 +43,7 @@ public:
 		CREATELOBBYMENU,
 		LOBBYMENU,
 		MATCHMENU,
+		UPGRADEMENU,
 		RESULTMENU,
 		MENU_MAX
 	};
@@ -56,12 +60,27 @@ public:
 	bool MouseReleased(const OIS::MouseEvent& me, OIS::MouseButtonID id);
 
 	void buttonHit(OgreBites::Button* button);
+	void itemSelected(OgreBites::SelectMenu* selectMenu);
 
 	void SetMenu(MENUS menu);
 
 	//void SetMainRef(JuicyCheckers* main);
 
+	void setClientPtr(Client* ptr);
+	Client* getClientPtr();
+
 	void frameRenderingQueued(const Ogre::FrameEvent& evt);
+
+	// Methods to update the current lobbies
+	void updateLobbies();
+
+	void processTextEvent(const OIS::KeyEvent& ke);
+	
+	bool isShown();
+
+	void adjustTrays(); 
+
+	void updateChats();
 
 protected:
 	void createMenu(MENUS menu);
@@ -79,10 +98,52 @@ private:
 		// Menu Stuff
     // OgreBites
     Ogre::OverlaySystem*        mOverlaySystem;
+
+	// We hold these pointers to SDKTrayWidgets so we can
+	// check which widget triggered the listener event
+
+	// Widgets for the Start Game Menu
 	OgreBites::Button*			startButton;
+	OgreBites::TextBox* pName;
+	OgreBites::TextBox* ip;
 	OgreBites::Button*			exitButton;
-	OgreBites::TextBox*			textBox;
+
+	Ogre::String name;
+	Ogre::String ipStr;
+	
+
+	// Widgets for the Lobby Selection Menu
+	OgreBites::SelectMenu*			selectLobby;
+	Ogre::StringVector lobbyVector;
+	OgreBites::Button*			createLobbyButton;
+	OgreBites::Button*			refreshLobbyButton;
+	OgreBites::Button*			joinLobby;
+	OgreBites::Button*			lobbyBack;
+
+	// Widgets for the create lobby menu
+	OgreBites::TextBox* lobbyName;
+	OgreBites::Button* createLobby;
+	OgreBites::Button* createLobbyBack;
+
+	// Widgets for the lobby menu
+	OgreBites::TextBox* lobbyPlayersTextBox;
+	OgreBites::Button* lobbyReadyButton;
+	OgreBites::TextBox* lobbyChatBox;
+	OgreBites::TextBox* lobbyChatTextField;
+	bool isReady;
     
+	// Widgets for the match menu
+	OgreBites::Label* matchTurn;
+	OgreBites::Label* matchCredits;
+	OgreBites::Button*	matchUpgrade;
+	OgreBites::ProgressBar* upgradeProgress;
+
+	// Widgets for the upgrade menu
+	OgreBites::Button*	powerupOne;
+	OgreBites::Button*	powerupTwo;
+	OgreBites::Button*	powerupThree;
+	OgreBites::Button*	powerupBack;
+
 	// OgreBites::SdkCameraMan*    mCameraMan;     	// Basic camera controller
 	OgreBites::ParamsPanel*     mDetailsPanel;   	// Sample details panel
 
@@ -91,12 +152,18 @@ private:
 	OgreBites::InputContext mInputContext;
 	OIS::InputManager* mInputManager; 
 	OIS::Mouse* mMouse;
-	OIS::Keyboard* mKeyboard;
+	OIS::Keyboard* mKeyboard;	
 
 		// The array of SdkMenus
 	std::vector<OgreBites::SdkTrayManager*> mTrays;
+	OgreBites::SdkTrayManager* currentTray;
+	MENUS currentMenu;
 
-	//JuicyCheckers* mMain;
+	//TutorialApplication* mMain;
+
+	Client* clientPtr;
+	std::string currentText;
+
 };
 
 #endif __MENUSYSTEM_H__

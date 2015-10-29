@@ -93,10 +93,11 @@ JuicyCheckers::frameRenderingQueued(const Ogre::FrameEvent& evt)
 	mKeyboard->capture();
 	mMouse->capture();
 	client->Process(evt.timeSinceLastEvent);
-
+	
 	mMenuSystem->frameRenderingQueued(evt);
 
-	// processInput(evt);
+	mMenuSystem->updateLobbies();
+	//processInput(evt);
 
 	if(mKeyboard->isKeyDown(OIS::KC_ESCAPE))
 		return false;
@@ -113,6 +114,8 @@ JuicyCheckers::frameRenderingQueued(const Ogre::FrameEvent& evt)
 bool 
 JuicyCheckers::keyPressed(const OIS::KeyEvent& ke) 
 { 
+	// Send the event to the MenuSystem incase we are on a menu that requires input
+	mMenuSystem->processTextEvent(ke);
 	return true; 
 }
 
@@ -126,8 +129,7 @@ JuicyCheckers::keyReleased(const OIS::KeyEvent& ke)
 bool 
 JuicyCheckers::mouseMoved(const OIS::MouseEvent& me) 
 { 
-	// pass mouse event to the menu system
-	mMenuSystem->MouseMoved(me);
+	if(mMenuSystem->MouseMoved(me)){ return true; }
 
 	// as the mouse moves over each item it it highlighted... each square needs a particle effect
 	Ogre::Vector2 mousePos = Ogre::Vector2(static_cast<Ogre::Real>(me.state.X.abs),static_cast<Ogre::Real>(me.state.Y.abs));
@@ -202,8 +204,8 @@ JuicyCheckers::mouseMoved(const OIS::MouseEvent& me)
 
 bool 
 JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id) 
-{
-	mMenuSystem->MousePressed(me,id);
+{ 
+	if(mMenuSystem->MousePressed(me,id)){ return true; }
 
 	// get the x,y position of the mouse
 	Ogre::Vector2 mousePos = Ogre::Vector2(static_cast<Ogre::Real>(me.state.X.abs),static_cast<Ogre::Real>(me.state.Y.abs));
@@ -343,7 +345,7 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 bool 
 JuicyCheckers::mouseReleased(const OIS::MouseEvent& me, OIS::MouseButtonID id) 
 { 
-	mMenuSystem->MouseReleased(me,id);
+	if(mMenuSystem->MouseReleased(me,id)){ return true; }
 	return true; 
 }
 
@@ -834,6 +836,7 @@ JuicyCheckers::initMenu()
 
 	OgreBites::InputContext mInputContext;
 	mMenuSystem->Initialise(mWindow, mInputContext, mInputManager, mMouse, mKeyboard);
+	mMenuSystem->setClientPtr(client);
 
 	mMenuSystem->SetMenu(MenuSystem::MENUS::STARTMENU);
 }
@@ -866,8 +869,11 @@ extern "C" {
 	int main(int argc, char *argv[])
 #endif
 	{
-
-		JuicyCheckers app; 		// Create application object
+		// Seed the random numb generator
+		srand(time(0));
+		
+		// Create application object
+		JuicyCheckers app;
 
 		try {
 			app.go();

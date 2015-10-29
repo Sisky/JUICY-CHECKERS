@@ -7,12 +7,13 @@
 
 #include "stdafx.h"
 #include "PieceController.h"
-
+#include "client.h"
 
 PieceController::PieceController(void)
 {
 	m_sourceNode = nullptr;
 	m_destNode = nullptr;
+	m_clientNetwork = nullptr;
 }
 
 
@@ -56,4 +57,23 @@ bool
 PieceController::testMovePiece(Ogre::SceneNode* piece, PieceController::PieceDirection direction)
 {
 	return true;
+}
+
+// Network Methods
+void 
+PieceController::setNetworkInterface(Client* _client)
+{
+	m_clientNetwork = _client;
+}
+
+Client* 
+PieceController::getNetworkInterface()
+{
+	return m_clientNetwork;
+}
+
+void 
+PieceController::moveNetworkPiece(Ogre::SceneNode* source, Ogre::SceneNode* dest)
+{
+	m_clientNetwork->SendMovement(atoi(source->getName().c_str()), atoi(dest->getName().c_str()));
 }

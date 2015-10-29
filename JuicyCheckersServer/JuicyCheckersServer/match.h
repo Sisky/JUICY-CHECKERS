@@ -17,6 +17,7 @@ class Match : public RakNet::NetworkIDObject
 	// Member Functions
 public:
 	Match();
+	Match(RakNet::RakPeerInterface *_peer);
 	~Match();
 
 	// Do a general process on this match
@@ -26,6 +27,9 @@ public:
 	void ProcessPacket(RakNet::RakPeerInterface* peer, RakNet::Packet* packet);
 
 	void SetPlayers(RakNet::RakNetGUID p1, RakNet::RakNetGUID p2);
+
+	bool GetStatus();
+	RakNet::RakNetGUID GetWinner();
 
 protected:
 
@@ -40,8 +44,15 @@ private:
 	RakNet::RakNetGUID playerOne;
 	RakNet::RakNetGUID playerTwo;
 
+	// Hold a pointer to the RakPeerInterface
+	RakNet::RakPeerInterface *peer;
+
 	// The current players turn
 	RakNet::RakNetGUID currentPlayer;
+
+	RakNet::RakNetGUID winningPlayer;
+
+	bool isRunning;
 
 	// Probably will need to hold some kind of Game data here for 
 	// the verification of moves

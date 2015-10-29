@@ -9,6 +9,11 @@
 #ifndef __Client_H__
 #define __Client_H__
 
+#include "NetworkIDObject.h"
+#include "NetworkIDManager.h"
+
+
+#include "datastructures.h"
 //#include "RakPeerInterface.h"
 //#include "MessageIdentifiers.h"
 //#include "BitStream.h"
@@ -23,14 +28,36 @@ public:
 
 	void Process(float _delta);
 
-	void SendMovement(int x1, int y1, int x2, int y2);
+	void SendMovement(int source, int dest);
 	void GetTurn();
-	void GetLobbies();
-	void JoinLobby();
+	std::vector<LobbyMsg>* GetLobbies();
+	void JoinLobby(int lobbyIndex);
 	void TakePiece();
 
+	void CreateLobby(RakNet::RakString& name);
+
+	void RefreshLobbies();
+
+	void SendMasterChat(const char* _chat);
+	void SendLobbyChat(const char* _chat);
+	void SendMatchChat(const char* _chat);
+
+	std::deque<RakNet::RakString>* GetMasterChatLog();
+	std::deque<RakNet::RakString>* GetLobbyChatLog();
+	std::deque<RakNet::RakString>* GetMatchChatLog();
+
+	void Initialize(const char* ip, const char* name);
+
+	bool getIsConnected();
+
+	void sendReady();
+
+	std::vector<RakNet::RakString>* GetLobbyUsers();
+
+	bool getTransitionMatch();
+	void setTransitionMatch(bool doTransition);
 protected:
-	void Initialize();
+	
 	bool handleUserPacket(RakNet::Packet* packet);
 
 	// Will need some kind of method to call to update the current gamestate
@@ -43,14 +70,36 @@ private:
 	// Member Variables
 public:
 
+
 protected:
 
 private:
 	// Hold RakNet Variables
 	RakNet::RakPeerInterface *peer;
+
+	RakNet::RakNetGUID serverGUID;
+
+	RakNet::NetworkID lobbyID;
+
+	RakNet::NetworkID currentMatchID;
+	bool transitionMatch;
+
+	bool isConnected;
+
+	RakNet::RakString name;
+
+
 	
 	static const int PORT = 61126;
 	static const bool isServer = false;
+
+	std::vector<LobbyMsg> lobbyNetworkID;
+
+	std::deque<RakNet::RakString> raknetMasterChat;
+	std::deque<RakNet::RakString> raknetLobbyChat;
+	std::deque<RakNet::RakString> raknetMatchChat;
+
+	std::vector<RakNet::RakString> LobbyUsers;
 
 
 	// Hold containers of players

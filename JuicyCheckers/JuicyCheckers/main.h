@@ -1,7 +1,6 @@
 #ifndef __JUICYCHECKERS_H__
 #define __JUICYCHECKERS_H__
 
-
 // forward declarations
 class BoardSquare;
 class Board;
@@ -9,8 +8,6 @@ class Piece;
 class PieceController;
 class MenuSystem;
 class Client;
-
-
 
 class JuicyCheckers : public Ogre::WindowEventListener, public Ogre::FrameListener, public OIS::KeyListener, public OIS::MouseListener
 {
@@ -126,9 +123,7 @@ private:
 
 };
 
-
-
-#endif __JUICYCHECKERS_H__
+#endif //__JUICYCHECKERS_H__
 
 
 

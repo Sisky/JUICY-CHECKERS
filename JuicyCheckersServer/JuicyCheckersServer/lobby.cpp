@@ -23,7 +23,14 @@
 
 // Local Includes
 
+Lobby::Lobby(RakNet::RakPeerInterface *_peer)
+	: isRunning(false)
+{
+	peer = _peer;
+}
+
 Lobby::Lobby()
+	: isRunning(false)
 {
 
 }
@@ -58,12 +65,12 @@ void
 	// If we get a message from other user pass the message onto all connected clients
 	// Iterate over the RakNet GUID's and send a message to all of them.
 
-	for(std::vector<RakNet::RakNetGUID>::iterator connectedPeer = mPlayerContainer.begin();
+	for(std::vector<player>::iterator connectedPeer = mPlayerContainer.begin();
 		connectedPeer != mPlayerContainer.end(); 
 		++connectedPeer)
 	{   
 		//if((packet->guid) == (*connectedPeer)) { continue; } // Don't forward the message back to the sending peer			
-		RakNet::SystemAddress sa = peer->GetSystemAddressFromGuid(*connectedPeer);
+		RakNet::SystemAddress sa = peer->GetSystemAddressFromGuid((*connectedPeer).guid);
 
 		// Get the bitstream out of the packet and forward it on to all connected peers
 		RakNet::BitStream myBitStream(packet->data, packet->length, false); // The false is for efficiency so we don't make a copy of the passed data		
@@ -72,10 +79,11 @@ void
 
 	}
 
-	// Display the lobby message
+	// Display the lobby message 
 	RakNet::BitStream myBitStream(packet->data, packet->length, false);
 	printf("User Sent Master Chat Message\n");
 	myBitStream.IgnoreBytes(sizeof(RakNet::MessageID));
+	myBitStream.IgnoreBytes(sizeof(RakNet::NetworkID));
 	RakNet::RakString msg;
 	myBitStream.Read(msg);
 
@@ -86,19 +94,37 @@ void
 	Lobby::SetHostingPlayer(RakNet::RakNetGUID hostingPlayer)
 {
 	mHostingPlayer = hostingPlayer;
-	AddClient(hostingPlayer);
+	//AddClient(hostingPlayer);
 }
 
 void 
-	Lobby::AddClient(RakNet::RakNetGUID guid)
+	Lobby::AddClient(RakNet::RakNetGUID guid, RakNet::RakString& name)
 {
-	mPlayerContainer.push_back(guid);
+	player p;
+	p.guid = guid;
+	p.name = name;
+	mPlayerContainer.push_back(p);
 }
 
-void 
+bool 
 	Lobby::RemoveClient(RakNet::RakNetGUID guid)
 {
-	mPlayerContainer.erase(std::remove(mPlayerContainer.begin(), mPlayerContainer.end(), guid), mPlayerContainer.end());
+	bool didRemove = false;
+	//mPlayerContainer.erase(std::remove(mPlayerContainer.begin(), mPlayerContainer.end(), guid), mPlayerContainer.end());
+	for(std::vector<player>::iterator players = mPlayerContainer.begin();
+		players != mPlayerContainer.end(); 
+		++players)
+	{   
+		if((*players).guid == guid)
+		{
+			// This lobby does exist
+			players = mPlayerContainer.erase(players);
+			didRemove = true;
+			break;
+		}
+	}
+
+	return didRemove;
 }
 
 void 
@@ -142,4 +168,139 @@ void
 		replyLobby.Write(ERROR_ID_MATCHID);
 	}
 
+}
+
+void 
+Lobby::SendPlayerUpdate(RakNet::RakPeerInterface* peer)
+{
+	// Prepare the packet
+	RakNet::BitStream playerUpdate;
+	playerUpdate.Write((RakNet::MessageID)ID_USER_JOIN_LOBBY);
+	playerUpdate.Write((int)(mPlayerContainer.size()));
+
+	for(std::vector<player>::iterator connectedPeer = mPlayerContainer.begin();
+		connectedPeer != mPlayerContainer.end(); 
+		++connectedPeer)
+	{   
+		//if((packet->guid) == (*connectedPeer)) { continue; } // Don't forward the message back to the sending peer			
+		if(connectedPeer->ready)
+		{
+			playerUpdate.Write(RakNet::RakString(connectedPeer->name + ":READY"));
+		}
+		else
+		{
+			playerUpdate.Write(RakNet::RakString(connectedPeer->name + ":UNREADY"));
+		}
+	}
+
+	// Send the packet to all peers
+	for(std::vector<player>::iterator connectedPeer = mPlayerContainer.begin();
+		connectedPeer != mPlayerContainer.end(); 
+		++connectedPeer)
+	{   
+		//if((packet->guid) == (*connectedPeer)) { continue; } // Don't forward the message back to the sending peer			
+		RakNet::SystemAddress sa = peer->GetSystemAddressFromGuid((*connectedPeer).guid);
+
+		peer->Send(&playerUpdate, LOW_PRIORITY,RELIABLE_ORDERED,0,sa,false);
+
+	}
+}
+
+void Lobby::ProcessDisconnect(RakNet::RakPeerInterface* peer, RakNet::Packet* packet)
+{
+	if(RemoveClient(packet->guid))
+	{
+		SendPlayerUpdate(peer);
+	}
+}
+
+bool 
+Lobby::SetReady(RakNet::Packet* packet)
+{
+	bool changed = false;
+	for(std::vector<player>::iterator players = mPlayerContainer.begin();
+		players != mPlayerContainer.end(); 
+		++players)
+	{   
+		if((*players).guid == packet->guid)
+		{
+			(*players).ready = !((*players).ready);
+			changed = true;
+			break;
+		}
+	}
+
+	// Check to make sure how many players have set their ready
+	// if all players in the lobby are ready.
+	int numReady = 0;
+	for(std::vector<player>::iterator players = mPlayerContainer.begin();
+		players != mPlayerContainer.end(); 
+		++players)
+	{   
+		if((*players).ready == true)
+		{
+			++numReady;
+		}
+	}
+
+	if(numReady == mPlayerContainer.size() && mPlayerContainer.size() >= 2)
+	{
+		// All the players are ready launch the game(s)
+		StartChamps();
+	}
+
+
+	return changed;
+}
+
+void 
+Lobby::StartChamps()
+{
+	// Should should notify the server to not allow new connections
+
+	isRunning = true;
+
+	// Start the championship by splitting every two players into match objects
+	int numPlayers = mPlayerContainer.size();
+	bool playersEven = (numPlayers % 2) == 0;
+	int numMatches = numPlayers/2;
+
+	// We should have atleast two players ready
+	for(int i = 0; i < numMatches; ++i)
+	{
+		Match* currentMatch = 0;
+		currentMatch = new Match();
+		RakNet::NetworkID matchID = currentMatch->GetNetworkID();
+		currentMatch->SetPlayers(mPlayerContainer[(i*2)].guid,mPlayerContainer[(i*2)+1].guid);
+
+		// We need to send a packet to these players indicating the match network id
+		RakNet::BitStream noticationStream;
+		RakNet::MessageID typeID = ID_USER_JOIN_MATCH;
+		noticationStream.Write(typeID);
+
+		// Send the NetworkID of the match
+		noticationStream.Write(matchID);
+				
+
+		RakNet::SystemAddress sa1 = peer->GetSystemAddressFromGuid((mPlayerContainer[(i*2)].guid));
+		RakNet::SystemAddress sa2 = peer->GetSystemAddressFromGuid((mPlayerContainer[(i*2)+1].guid));
+		peer->Send(&noticationStream, HIGH_PRIORITY,RELIABLE_ORDERED,0,sa1,false);
+		peer->Send(&noticationStream, HIGH_PRIORITY,RELIABLE_ORDERED,0,sa2,false);
+		printf("Sending A match notification to two players\n");
+
+		// Push the match onto the container for matches
+		mMatches.push_back(currentMatch);
+	}
+
+	if(!playersEven)
+	{
+		// There is one player that is left over in the championship forward them to the next round
+		mWinnerPlayers.push_back(*(mPlayerContainer.end()));
+	}	
+}
+
+bool 
+Lobby::getIsRunning()
+{
+	return isRunning;
 }
