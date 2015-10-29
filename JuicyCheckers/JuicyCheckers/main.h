@@ -74,6 +74,8 @@ protected:
 
 	//check for legal move
 	bool isLegalMove(int sourceID, Ogre::String destName);
+	//check if a jump is avaliable
+	bool canJump(Player* player);
 
 	int stringToInt(Ogre::String string);
 

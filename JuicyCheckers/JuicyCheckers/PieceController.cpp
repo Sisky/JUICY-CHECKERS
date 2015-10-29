@@ -31,6 +31,11 @@ PieceController::movePiece(Ogre::SceneNode* source, Ogre::SceneNode* dest)
 	// destination : create a child node on the square and attach the source node
 	dest->addChild(source);
 
+	Ogre::SceneNode* c = static_cast<Ogre::SceneNode*>(m_destNode->getChild(0));
+	Piece* e = static_cast<Piece*>(c->getAttachedObject(0));
+	int destBoardSquare = stringToInt(m_destNode->getName());
+
+	e->setBoardSquareID(destBoardSquare);
 	// reset the source and dest pointers to null
 	m_sourceNode = nullptr;
 	m_destNode = nullptr;
