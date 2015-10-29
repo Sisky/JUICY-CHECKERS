@@ -257,7 +257,6 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 				
 				// ensure that there is a source before being able to select a target
 				
-
 				// determine if the boardsqaure has an attached piece
 				if(mCurObject->numChildren() > 0) {
 
@@ -323,22 +322,25 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 				// test if both source and destination are selected and offload to the PieceController
 				if(pController->getSource() != nullptr && pController->getDest() != nullptr) {
 					//pController->movePiece();
-					// Trying Networking
-					pController->moveNetworkPiece();
-					
-					
-					//set new boardsquare position on piece
-					
-					// stop the particle system
-					//swap turns after a move
-					playerOne->setPlayerTurn(playerTwo->getPlayerTurn());
-					playerTwo->setPlayerTurn(!playerOne->getPlayerTurn());
-					
-					mParticleManager->getParticleSystem("psSelection")->stop();
+					if(client->isOurTurn())
+					{
+						// Trying Networking
+						pController->moveNetworkPiece();
+
+
+						//set new boardsquare position on piece
+
+						// stop the particle system
+						//swap turns after a move
+						//playerOne->setPlayerTurn(playerTwo->getPlayerTurn());
+						//playerTwo->setPlayerTurn(!playerOne->getPlayerTurn());
+
+						mParticleManager->getParticleSystem("psSelection")->stop();
+					}
 				}
 
 
-				
+
 			}
 			break;
 		}
@@ -897,6 +899,10 @@ JuicyCheckers::initScene()
 	// initialize the piece controller
 	pController = new PieceController();
 	pController->setNetworkInterface(client);
+	pBoard->setSceneManager(mSceneMgr);
+	client->setPieceController(pController);
+	client->setBoard(pBoard);
+	client->setPlayers(playerOne,playerTwo);
 
 	// initialize the powerup manager
 	mPowerUpManager = new PowerUpManager();

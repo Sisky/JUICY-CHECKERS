@@ -19,6 +19,11 @@
 //#include "BitStream.h"
 //#include "RakNetTypes.h"  // MessageID
 
+class PieceController;
+class Board;
+
+class Player;
+
 class Client
 {
 	// Member Functions
@@ -56,6 +61,15 @@ public:
 
 	bool getTransitionMatch();
 	void setTransitionMatch(bool doTransition);
+
+	void setPieceController(PieceController* pControler);
+	PieceController* getPieceController();
+
+	void setBoard(Board* _pBoard);
+
+	bool isOurTurn();
+
+	void setPlayers(Player* p1, Player* p2);
 protected:
 	
 	bool handleUserPacket(RakNet::Packet* packet);
@@ -81,8 +95,16 @@ private:
 
 	RakNet::NetworkID lobbyID;
 
+	// Hold a pointer to the PieceController so we can move
+	PieceController* pPieceController;
+	Board* pBoard;
+
 	RakNet::NetworkID currentMatchID;
+	RakNet::RakNetGUID currentPlayerTurn;
 	bool transitionMatch;
+
+		Player* playerOne;
+	Player* playerTwo;
 
 	bool isConnected;
 

@@ -68,3 +68,16 @@ Board::getSceneNodeFromPiece(int id, Ogre::SceneManager& sManager)
 	}
 	return nullptr;
 }
+
+Ogre::SceneNode* 
+Board::getSceneNode(int id)
+{
+	Ogre::String number = Ogre::StringConverter::toString(id);
+	return msManager->getSceneNode("squareNode" + number);
+}
+
+void
+Board::setSceneManager(Ogre::SceneManager* _sManager)
+{
+	msManager = _sManager;
+}

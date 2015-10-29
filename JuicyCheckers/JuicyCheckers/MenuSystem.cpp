@@ -321,6 +321,21 @@ void MenuSystem::frameRenderingQueued(const Ogre::FrameEvent& evt)
 			SetMenu(MATCHMENU);
 		}
 	}
+
+	if(currentMenu == MATCHMENU)
+	{
+		if(clientPtr->isOurTurn())
+		{
+			matchTurn->setCaption("Your Turn");
+			currentTray->adjustTrays();
+		}
+		else
+		{
+			matchTurn->setCaption("Opponents Turn");
+			currentTray->adjustTrays();
+			
+		}
+	}
 }
 
 void 

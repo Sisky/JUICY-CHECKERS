@@ -268,8 +268,14 @@ Lobby::StartChamps()
 	// We should have atleast two players ready
 	for(int i = 0; i < numMatches; ++i)
 	{
+		// Create the match
 		Match* currentMatch = 0;
 		currentMatch = new Match(peer);
+
+		// Initialise the match data
+		currentMatch->Initialise();
+
+		// Get the network ID of the match and set the players
 		RakNet::NetworkID matchID = currentMatch->GetNetworkID();
 		currentMatch->SetPlayers(mPlayerContainer[(i*2)].guid,mPlayerContainer[(i*2)+1].guid);
 

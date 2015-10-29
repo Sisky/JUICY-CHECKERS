@@ -36,16 +36,17 @@ Board::addSquare(int id)
 BoardSquare* 
 Board::getSquare(int id) 
 {
-	// iterate through the array until there is a match on the id.. return that item.. otherwise return a null pointer
-	for(auto& i : m_Board) {
-		if(i->getID() == id) {
-			return i;
-		}
-		else {
-			return nullptr;
-		}
-	}
-	return nullptr;
+	//// iterate through the array until there is a match on the id.. return that item.. otherwise return a null pointer
+	//for(auto& i : m_Board) {
+	//	if(i->getID() == id) {
+	//		return i;
+	//	}
+	//	else {
+	//		return nullptr;
+	//	}
+	//}
+	//return nullptr;
+	return m_Board[id-1];
 }
 
 //// returns the scenenode of the board square based on the passed square ID

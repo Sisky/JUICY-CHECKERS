@@ -12,6 +12,7 @@
 
 // forward declarations
 class BoardSquare;
+class Ogre::SceneManager;
 
 class Board
 {
@@ -24,6 +25,10 @@ public:
 	Ogre::SceneNode* getSceneNode(int id, Ogre::SceneManager& sManager); 
 	Ogre::SceneNode* getSceneNodeFromPiece(int id, Ogre::SceneManager& sManager);
 
+	// Checked this in there since the client doesn't have a ref to the scene manager (jony)
+	Ogre::SceneNode* getSceneNode(int id); 
+	void setSceneManager(Ogre::SceneManager* _sManager);
+
 protected:
 private:
 	// member variables
@@ -31,6 +36,8 @@ public:
 protected:
 	// vector array of BoardSquares 
 	std::vector<BoardSquare*> m_Board;
+
+	Ogre::SceneManager* msManager;
 private:
 };
 

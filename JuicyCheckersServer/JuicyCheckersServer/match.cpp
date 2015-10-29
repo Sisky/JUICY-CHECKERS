@@ -22,8 +22,10 @@
 Match::Match()
 	: winningPlayer(RakNet::UNASSIGNED_NETWORK_ID)
 	, isRunning(true)
+	, pBoard(0)
 {
-	Initialise();
+	// Trying to call this from elsewhere
+	//Initialise();
 }
 
 Match::Match(RakNet::RakPeerInterface *_peer)
@@ -42,6 +44,13 @@ Match::~Match()
 void 
 Match::Initialise()
 {
+
+		playerOne = new Player();
+	playerTwo = new Player();
+	playerOne->setPlayerTurn(true);
+	playerTwo->setPlayerTurn(false);
+
+
 	pBoard = new Board();
 	// populate the board with empty squares with an id of 1 - 64
 	for(int i = 0; i < 64; i++) {
@@ -85,6 +94,7 @@ Match::Initialise()
 		//// use that board ID to get the scenenode of the boardsquare
 		//Ogre::SceneNode* s = pBoard->getSceneNode(count, *mSceneMgr);
 		//
+		(pBoard->getSquare(count))->setAttachedPiece(p);
 
 		//// create child node of the board square
 		//Ogre::SceneNode* pieceNode = s->createChildSceneNode("pieceNode" + number);
@@ -208,9 +218,10 @@ void Match::ProcessPacket(RakNet::RakPeerInterface* peer, RakNet::Packet* packet
 					int positionSrc = 0; int positionDest = 0;
 					moveBitstream.Read(positionSrc); moveBitstream.Read(positionDest);
 
-
+					BoardSquare* bs = pBoard->getSquare(positionSrc);
+					Piece* piece = bs->getAttachedPiece();
 					// Determine that the source boardsquare has an attached piece
-					if(pBoard->getSquare(positionSrc)->getAttachedPiece() != 0)
+					if(piece != 0)
 					{
 						// Determine that the destination boardsquare is empty
 						if(pBoard->getSquare(positionDest)->getAttachedPiece() == 0)
@@ -238,6 +249,12 @@ void Match::ProcessPacket(RakNet::RakPeerInterface* peer, RakNet::Packet* packet
 								RakNet::SystemAddress sa2 = peer->GetSystemAddressFromGuid(playerTwoGUID);
 								peer->Send(&movePacket, HIGH_PRIORITY,RELIABLE_ORDERED,0,sa1,false);
 								peer->Send(&movePacket, HIGH_PRIORITY,RELIABLE_ORDERED,0,sa2,false);
+
+								// Perform the swap of data
+								Piece* cur = pBoard->getSquare(positionSrc)->getAttachedPiece();
+								cur->setBoardSquareID(positionDest);
+								pBoard->getSquare(positionSrc)->setAttachedPiece(0);
+								pBoard->getSquare(positionDest)->setAttachedPiece(cur);
 
 
 							}
@@ -387,7 +404,7 @@ Match::canJump(Player* player)
 	bool jumpPossible = false;
 	bool sqFilled = false;
 
-	if (player == playerOne) //check for playerOnes jumps
+	if (currentPlayer == playerOneGUID) //check for playerOnes jumps
 	{
 		for (int i = 0; i < 12; i++) //only check player ones pieces
 		{
@@ -494,7 +511,7 @@ Match::isLegalMove(int sourceID, int destID)
 {
 	bool valid = false;
 	//check whose turn
-	if (playerOne->getPlayerTurn() == true)
+	if (currentPlayer == playerOneGUID)
 	{
 		if (sourceID + 9 == destID && canJump(playerOne) != true || sourceID + 7 == destID && canJump(playerOne) != true)//simple one space move, cant if a jump is possible
 		{
@@ -511,6 +528,7 @@ Match::isLegalMove(int sourceID, int destID)
 					{
 						// Player deleted a tile
 						pPieces[i]->setVisible(false);
+						pBoard->getSquare(pPieces[i]->getBoardSquareID())->setAttachedPiece(0);
 
 						pPieces[i]->setVisible(false);
 						// gets the boardsquare node
@@ -530,6 +548,7 @@ Match::isLegalMove(int sourceID, int destID)
 				{
 					if (pPieces[i]->getOwner() == playerTwo) //is opponent piece
 					{
+						pBoard->getSquare(pPieces[i]->getBoardSquareID())->setAttachedPiece(0);
 						// Player deleted a tile
 						pPieces[i]->setVisible(false);
 						pPieces[i]->setBoardSquareID(500);
@@ -558,6 +577,7 @@ Match::isLegalMove(int sourceID, int destID)
 					if (pPieces[i]->getOwner() == playerOne) //is opponent piece
 					{
 						// Player deleted a tile
+						pBoard->getSquare(pPieces[i]->getBoardSquareID())->setAttachedPiece(0);
 						pPieces[i]->setVisible(false);
 						// gets the boardsquare node
 						pPieces[i]->setBoardSquareID(500);
@@ -577,6 +597,7 @@ Match::isLegalMove(int sourceID, int destID)
 					if (pPieces[i]->getOwner() == playerOne) //is opponent piece
 					{
 						// Player deleted a tile
+						pBoard->getSquare(pPieces[i]->getBoardSquareID())->setAttachedPiece(0);
 						pPieces[i]->setVisible(false);
 						// gets the boardsquare node
 						pPieces[i]->setBoardSquareID(500);
