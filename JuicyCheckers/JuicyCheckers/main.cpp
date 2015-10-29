@@ -8,6 +8,7 @@
 #include "main.h"
 
 #include "Board.h"
+#include "BoardSquare.h"
 #include "Piece.h"
 #include "PieceController.h"
 #include "MenuSystem.h"
@@ -352,16 +353,77 @@ JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
 	//check whose turn
 	if (playerOne->getPlayerTurn() == true)
 	{
-		if (sourceID + 9 == destID || sourceID + 7 == destID)
+		if (sourceID + 9 == destID || sourceID + 7 == destID)//simple one space move
 		{
 			valid = true;
 		}
+		else if (sourceID + 18 == destID) //trying to jump right
+		{
+			
+			for (int i = 0; i < pPieces.size(); i++) //check through piece vector
+			{
+				if (sourceID + 9 == pPieces[i]->getBoardSquareID()) //there is a piece
+				{
+					if (pPieces[i]->getOwner() == playerTwo) //is opponent piece
+					{
+						valid = true;
+					}
+				}
+
+			}	
+		}
+		else if (sourceID + 14 == destID) //trying to jump left
+		{
+
+			for (int i = 0; i < pPieces.size(); i++) //check through piece vector
+			{
+				if (sourceID + 7 == pPieces[i]->getBoardSquareID()) //there is a piece
+				{
+					if (pPieces[i]->getOwner() == playerTwo) //is opponent piece
+					{
+						valid = true;
+					}
+				}
+
+			}
+		}
+
 	}
 	else //player twos turn
 	{
-		if (sourceID - 9 == destID || sourceID - 7 == destID)
+		if (sourceID - 9 == destID || sourceID - 7 == destID) //simple one space move
 		{
 			valid = true;
+		}
+		else if (sourceID - 18 == destID) //trying to jump right
+		{
+
+			for (int i = 0; i < pPieces.size(); i++) //check through piece vector
+			{
+				if (sourceID - 9 == pPieces[i]->getBoardSquareID()) //there is a piece
+				{
+					if (pPieces[i]->getOwner() == playerOne) //is opponent piece
+					{
+						valid = true;
+					}
+				}
+
+			}
+		}
+		else if (sourceID - 14 == destID) //trying to jump left
+		{
+
+			for (int i = 0; i < pPieces.size(); i++) //check through piece vector
+			{
+				if (sourceID - 7 == pPieces[i]->getBoardSquareID()) //there is a piece
+				{
+					if (pPieces[i]->getOwner() == playerOne) //is opponent piece
+					{
+						valid = true;
+					}
+				}
+
+			}
 		}
 	}
 	
@@ -430,6 +492,7 @@ JuicyCheckers::addPieces()
 
 		// use that board ID to get the scenenode of the boardsquare
 		Ogre::SceneNode* s = pBoard->getSceneNode(count, *mSceneMgr);
+		
 
 		// create child node of the board square
 		Ogre::SceneNode* pieceNode = s->createChildSceneNode("pieceNode" + number);
@@ -442,8 +505,13 @@ JuicyCheckers::addPieces()
 		p->setVisible(true);
 		// set the board square ID
 		p->setBoardSquareID(count);
+		
 		// store the original position of the board node in the piece class
 		p->setOrigin(s->getPosition());
+		//set up boardsquare
+		
+
+
 
 		// first 12 will be ninjas
 		if(i <= 12) {
