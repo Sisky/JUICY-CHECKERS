@@ -97,7 +97,7 @@ bool MenuSystem::MousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 	}
 
 	//hitFlag = currentTray->injectMouseDown(me, id);
-	
+	if(currentMenu != MATCHMENU){return true;}
 	return hitFlag;
 }
 
