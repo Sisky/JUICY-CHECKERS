@@ -227,7 +227,7 @@ void Match::ProcessPacket(RakNet::RakPeerInterface* peer, RakNet::Packet* packet
 						if(pBoard->getSquare(positionDest)->getAttachedPiece() == 0)
 						{
 							bool jumped = false;
-							if (isLegalMove(positionSrc, positionDest))
+							if (isLegalMove(positionSrc, positionDest, jumped))
 							{	
 								if(jumped)
 								{   // If the user jumped a piece don't swap turns
