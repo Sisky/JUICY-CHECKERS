@@ -31,6 +31,12 @@ MenuSystem::~MenuSystem()
 
 }
 
+void 
+MenuSystem::error(const char* msg)
+{
+currentTray->showOkDialog("Custom Error",msg);
+}
+
 bool MenuSystem::InitialiseOverlaySystem(Ogre::SceneManager* sceneMgr)
 {
 	mSceneMgr = sceneMgr;

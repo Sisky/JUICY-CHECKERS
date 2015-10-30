@@ -84,6 +84,7 @@ public:
 	void invalidMoveErr();
 	void canCapturePieceErr();
 	void generalError();
+	void error(const char* msg);
 
 protected:
 	void createMenu(MENUS menu);

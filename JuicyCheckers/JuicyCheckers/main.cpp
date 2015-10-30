@@ -346,7 +346,7 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 					}
 					else
 					{
-						mMenuSystem->invalidMoveErr();
+						mMenuSystem->error("Source not set");
 					}
 				}
 
@@ -381,7 +381,7 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 					}
 					else
 					{
-						mMenuSystem->invalidMoveErr();
+						mMenuSystem->error("Client says not our turn");
 					}
 				}
 			}
