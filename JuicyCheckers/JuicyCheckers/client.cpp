@@ -318,14 +318,25 @@ Client::handleUserPacket(RakNet::Packet* packet)
 
 				// CURRENT PLAYER
 				RakNet::RakNetGUID currentPlayer; moveBitstream.Read(currentPlayer);
-				currentPlayerTurn = currentPlayer;
+
+
+				
 
 				pPieceController->setSource(static_cast<Ogre::SceneNode*>(pBoard->getSceneNode(srcPosition)->getChild(0)));
 				pPieceController->setDestination(pBoard->getSceneNode(destPosition));
 				pPieceController->movePiece();
 
-				playerOne->setPlayerTurn(playerTwo->getPlayerTurn());
-				playerTwo->setPlayerTurn(!playerOne->getPlayerTurn());
+				if(currentPlayerTurn == currentPlayer)
+				{
+					// The server is given the currentPlayer another turn don't swap turns
+				}
+				else
+				{
+					playerOne->setPlayerTurn(playerTwo->getPlayerTurn());
+					playerTwo->setPlayerTurn(!playerOne->getPlayerTurn());
+				}
+				
+				currentPlayerTurn = currentPlayer;
 
 			}
 			break;

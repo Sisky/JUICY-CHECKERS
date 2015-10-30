@@ -229,7 +229,7 @@ void Match::ProcessPacket(RakNet::RakPeerInterface* peer, RakNet::Packet* packet
 							bool jumped = false;
 							if (isLegalMove(positionSrc, positionDest, jumped))
 							{	
-								if(jumped)
+								if(jumped == false)
 								{   // If the user jumped a piece don't swap turns
 									if(currentPlayer == playerOneGUID)
 									{
@@ -239,6 +239,10 @@ void Match::ProcessPacket(RakNet::RakPeerInterface* peer, RakNet::Packet* packet
 									{
 										currentPlayer = playerOneGUID;
 									}
+								}
+								else
+								{
+									
 								}
 								// The move is legal we can forward it to all the peers
 								RakNet::BitStream movePacket;

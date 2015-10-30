@@ -100,7 +100,7 @@ Ogre::SceneNode*
 Board::getSceneNode(int id)
 {
 	Ogre::String number = Ogre::StringConverter::toString(id);
-	return msManager->getSceneNode("squareNode" + number);
+	return msManager->getSceneNode("boardSquareNode" + number);
 }
 
 void

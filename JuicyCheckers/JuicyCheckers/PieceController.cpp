@@ -95,8 +95,8 @@ PieceController::moveNetworkPiece()
 {
 	Ogre::String srcName = m_sourceNode->getParent()->getName();
 	Ogre::String destName = m_destNode->getName(); //squareNode
-	Ogre::String srcResult = Ogre::StringUtil::replaceAll(srcName, "squareNode", "");
-	Ogre::String destResult = Ogre::StringUtil::replaceAll(destName, "squareNode", "");
+	Ogre::String srcResult = Ogre::StringUtil::replaceAll(srcName, "boardSquareNode", "");
+	Ogre::String destResult = Ogre::StringUtil::replaceAll(destName, "boardSquareNode", "");
 	
 	m_clientNetwork->SendMovement(atoi(srcResult.c_str()), atoi(destResult.c_str()));
 
