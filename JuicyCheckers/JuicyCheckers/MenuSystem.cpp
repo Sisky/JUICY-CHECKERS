@@ -624,6 +624,7 @@ MenuSystem::createMenu(MENUS menu)
 
 			//Notify for invalid move
 			currentTray->showOkDialog("invalidMove", "That move is invalid, please try another move");
+
 			//Notify for piece capture
 			currentTray->showOkDialog("canCapture", "There's a piece you can capture");
 

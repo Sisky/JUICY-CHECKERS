@@ -138,9 +138,6 @@ private:
 	OgreBites::Button*	matchUpgrade;
 	OgreBites::ProgressBar* upgradeProgress;
 
-	//Widgets for Move Warning
-	OgreBites::Label* invalidMove;
-	OgreBites::Label* canCapture;
 
 	// Widgets for the upgrade menu
 	OgreBites::Button*	powerupOne;
