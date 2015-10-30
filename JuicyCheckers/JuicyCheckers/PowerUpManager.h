@@ -46,7 +46,9 @@ public:
 	// bitmask returning the powerups currently active on the player
 	PowerUpMask getPowerUps(Player& p);
 
-	void setPowerUpBar(int level, Ogre::SceneNode* powerupBarNode);
+	void setPowerUpBarGradient(int level, Ogre::SceneNode* powerupBarNode);
+	void setPowerUpBar(int level, Ogre::SceneNode* powerUpBarNode);
+
 
 	// set the bitmask for the power up for the piece... either updating or overwrite
 	void setPowerUpMask(Piece* p, PowerUpMask mask, bool overwrite);

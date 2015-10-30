@@ -103,9 +103,78 @@ LineDrawing::setSelectionSquareColor(Ogre::Vector3 col)
 	mSquareMaterial->getTechnique(0)->getPass(0)->setSelfIllumination(0, 1, 0);
 }
 
+void
+LineDrawing::initPowerUpBar(Ogre::SceneManager & sm)
+{
+	// create a scene node that will hold the powerup bar
+	Ogre::SceneNode* powerupBarNodeP1 = sm.getRootSceneNode()->createChildSceneNode("powerupBarNodeP1");
+	Ogre::SceneNode* powerupBarNodeP2 = sm.getRootSceneNode()->createChildSceneNode("powerupBarNodeP2");
+
+	//player 1
+	Ogre::SceneNode* pub1 = powerupBarNodeP1->createChildSceneNode("pub1p1");
+	Ogre::SceneNode* pub2 = powerupBarNodeP1->createChildSceneNode("pub2p1");
+	Ogre::SceneNode* pub3 = powerupBarNodeP1->createChildSceneNode("pub3p1");
+	//player 2
+	Ogre::SceneNode* pub4 = powerupBarNodeP2->createChildSceneNode("pub1p2");
+	Ogre::SceneNode* pub5 = powerupBarNodeP2->createChildSceneNode("pub2p2");
+	Ogre::SceneNode* pub6 = powerupBarNodeP2->createChildSceneNode("pub3p2");
+
+
+	// add a plain coloured box
+	Ogre::Entity* puBox1P1;
+	Ogre::Entity* puBox2P1;
+	Ogre::Entity* puBox3P1;
+
+	Ogre::Entity* puBox1P2;
+	Ogre::Entity* puBox2P2;
+	Ogre::Entity* puBox3P2;
+
+	puBox1P1 = sm.createEntity("puBox1P1", "cube.mesh");
+	puBox2P1 = sm.createEntity("puBox2P1", "cube.mesh");
+	puBox3P1 = sm.createEntity("puBox3P1", "cube.mesh");
+
+	puBox1P2 = sm.createEntity("puBox1P2", "cube.mesh");
+	puBox2P2 = sm.createEntity("puBox2P2", "cube.mesh");
+	puBox3P2 = sm.createEntity("puBox3P2", "cube.mesh");
+
+	puBox1P1->setMaterialName("Juicy/Red"); 
+	puBox2P1->setMaterialName("Juicy/Red");
+	puBox3P1->setMaterialName("Juicy/Red");
+
+	puBox1P2->setMaterialName("Juicy/Red");
+	puBox2P2->setMaterialName("Juicy/Red");
+	puBox3P2->setMaterialName("Juicy/Red");
+
+	pub1->setPosition(-150, -40, 0);
+	pub2->setPosition(0, -40, 0);
+	pub3->setPosition(150, -40, 0);
+
+	pub4->setPosition(-150, -40, 0);
+	pub5->setPosition(0, -40, 0);
+	pub6->setPosition(150, -40, 0);
+
+	pub1->scale(Ogre::Vector3(1, 1, 1));
+	pub2->scale(Ogre::Vector3(1, 1, 1));
+	pub3->scale(Ogre::Vector3(1, 1, 1));
+
+	pub4->scale(Ogre::Vector3(1, 1, 1));
+	pub5->scale(Ogre::Vector3(1, 1, 1));
+	pub6->scale(Ogre::Vector3(1, 1, 1));
+
+	pub1->attachObject(puBox1P1);
+	pub2->attachObject(puBox2P1);
+	pub3->attachObject(puBox3P1);
+
+	pub4->attachObject(puBox1P2);
+	pub5->attachObject(puBox2P2);
+	pub6->attachObject(puBox3P2);
+
+}
+
+
 // initialize the powerup bar
 void 
-LineDrawing::initPowerUpBar(Ogre::SceneManager & sm)
+LineDrawing::initPowerUpBarGradient(Ogre::SceneManager & sm)
 {
 	// create manual object
 	mBarPlayer1 = sm.createManualObject("powerUpBarP1");

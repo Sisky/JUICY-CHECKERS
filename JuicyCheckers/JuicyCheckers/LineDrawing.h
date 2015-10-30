@@ -23,6 +23,7 @@ public:
 
 	// powerup bar
 	void initPowerUpBar(Ogre::SceneManager& sm);
+	void initPowerUpBarGradient(Ogre::SceneManager& sm);
 
 	enum QueryFlags2
 	{

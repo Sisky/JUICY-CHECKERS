@@ -36,7 +36,7 @@ PowerUpManager::getPowerUps(Player & p)
 }
 
 void 
-PowerUpManager::setPowerUpBar(int level, Ogre::SceneNode * powerupBarNode)
+PowerUpManager::setPowerUpBarGradient(int level, Ogre::SceneNode * powerupBarNode)
 {
 	// 0--2--4--6
 	// |  |  |  |
@@ -224,6 +224,45 @@ PowerUpManager::setPowerUpBar(int level, Ogre::SceneNode * powerupBarNode)
 		
 
 
+	}
+}
+
+
+void 
+PowerUpManager::setPowerUpBar(int level, Ogre::SceneNode * powerUpBarNode)
+{
+	// set the material of the entites attached to the scenenode
+
+	Ogre::SceneNode* s1 = static_cast<Ogre::SceneNode*>(powerUpBarNode->getChild(0));
+	Ogre::SceneNode* s2 = static_cast<Ogre::SceneNode*>(powerUpBarNode->getChild(1));
+	Ogre::SceneNode* s3 = static_cast<Ogre::SceneNode*>(powerUpBarNode->getChild(2));
+
+	// there will be 3 entities
+	Ogre::Entity* e1 = static_cast<Ogre::Entity*>(s1->getAttachedObject(0));
+	Ogre::Entity* e2 = static_cast<Ogre::Entity*>(s2->getAttachedObject(0));
+	Ogre::Entity* e3 = static_cast<Ogre::Entity*>(s3->getAttachedObject(0));
+
+	switch (level) {
+	case 0:
+		e1->setMaterialName("Juicy/Red");
+		e2->setMaterialName("Juicy/Red");
+		e3->setMaterialName("Juicy/Red");
+		break;
+	case 1:
+		e1->setMaterialName("Juicy/Green");
+		e2->setMaterialName("Juicy/Red");
+		e3->setMaterialName("Juicy/Red");
+		break;
+	case 2:
+		e1->setMaterialName("Juicy/Green");
+		e2->setMaterialName("Juicy/Green");
+		e3->setMaterialName("Juicy/Red");
+		break;
+	case 3:
+		e1->setMaterialName("Juicy/Green");
+		e2->setMaterialName("Juicy/Green");
+		e3->setMaterialName("Juicy/Green");
+		break;
 	}
 }
 
