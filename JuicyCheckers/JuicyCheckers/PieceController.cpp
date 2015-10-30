@@ -8,6 +8,9 @@
 #include "stdafx.h"
 #include "PieceController.h"
 #include "client.h"
+#include "Piece.h"
+#include "main.h"
+#include <OgreString.h>
 
 PieceController::PieceController(void)
 {
@@ -31,6 +34,11 @@ PieceController::movePiece(Ogre::SceneNode* source, Ogre::SceneNode* dest)
 	// destination : create a child node on the square and attach the source node
 	dest->addChild(source);
 
+	Ogre::SceneNode* c = static_cast<Ogre::SceneNode*>(m_destNode->getChild(0));
+	Piece* e = static_cast<Piece*>(c->getAttachedObject(0));
+	int destBoardSquare = stringToInt(m_destNode->getName());
+
+	e->setBoardSquareID(destBoardSquare);
 	// reset the source and dest pointers to null
 	m_sourceNode = nullptr;
 	m_destNode = nullptr;
@@ -46,6 +54,16 @@ PieceController::movePiece()
 	// destination : create a child node on the square and attach the source node
 	m_destNode->addChild(m_sourceNode);
 
+	//set childs new square
+
+	Ogre::SceneNode* c = static_cast<Ogre::SceneNode*>(m_destNode->getChild(0));
+	Piece* e = static_cast<Piece*>(c->getAttachedObject(0));
+	int destBoardSquare = stringToInt(m_destNode->getName());
+
+	e->setBoardSquareID(destBoardSquare);
+
+
+	
 	// reset the source and dest pointers to null
 	m_sourceNode = nullptr;
 	m_destNode = nullptr;
@@ -73,7 +91,32 @@ PieceController::getNetworkInterface()
 }
 
 void 
-PieceController::moveNetworkPiece(Ogre::SceneNode* source, Ogre::SceneNode* dest)
+PieceController::moveNetworkPiece()
 {
-	m_clientNetwork->SendMovement(atoi(source->getName().c_str()), atoi(dest->getName().c_str()));
+	Ogre::String srcName = m_sourceNode->getParent()->getName();
+	Ogre::String destName = m_destNode->getName(); //squareNode
+	Ogre::String srcResult = Ogre::StringUtil::replaceAll(srcName, "squareNode", "");
+	Ogre::String destResult = Ogre::StringUtil::replaceAll(destName, "squareNode", "");
+	
+	m_clientNetwork->SendMovement(atoi(srcResult.c_str()), atoi(destResult.c_str()));
+
+	// reset the source and dest pointers to null
+	m_sourceNode = nullptr;
+	m_destNode = nullptr;
+}
+
+int
+PieceController::stringToInt(Ogre::String string)
+{
+
+	for (int i = 0; i < (int)string.size() - 1; ++i)
+	{
+		if (!isdigit(string[i]))
+		{
+			string.erase(string.begin() + i);
+			--i;
+		}
+	}
+	int num = atoi(string.c_str());
+	return num;
 }

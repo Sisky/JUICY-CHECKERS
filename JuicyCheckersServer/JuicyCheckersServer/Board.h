@@ -9,10 +9,10 @@
 #define __BOARD_H__
 
 // this class is used to define the board containing a vector of boardpieces that can be accessed
+#include <vector>
 
 // forward declarations
 class BoardSquare;
-class Ogre::SceneManager;
 
 class Board
 {
@@ -22,14 +22,8 @@ public:
 
 	void addSquare(int id);
 	BoardSquare* getSquare(int id);
-	BoardSquare* getSquare(Ogre::SceneNode* node);
-	int getSquareID(Ogre::SceneNode* node);
-	Ogre::SceneNode* getSceneNode(int id, Ogre::SceneManager& sManager); 
-	Ogre::SceneNode* getSceneNodeFromPiece(int id, Ogre::SceneManager& sManager);
-
-	// Checked this in there since the client doesn't have a ref to the scene manager (jony)
-	Ogre::SceneNode* getSceneNode(int id); 
-	void setSceneManager(Ogre::SceneManager* _sManager);
+	//Ogre::SceneNode* getSceneNode(int id, Ogre::SceneManager& sManager); 
+	//Ogre::SceneNode* getSceneNodeFromPiece(int id, Ogre::SceneManager& sManager);
 
 protected:
 private:
@@ -38,8 +32,6 @@ public:
 protected:
 	// vector array of BoardSquares 
 	std::vector<BoardSquare*> m_Board;
-
-	Ogre::SceneManager* msManager;
 private:
 };
 

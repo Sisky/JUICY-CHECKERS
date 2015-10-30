@@ -6,8 +6,8 @@
  *
  */
 
-#ifndef __Client_H__
-#define __Client_H__
+#ifndef __CLIENT_H__
+#define __CLIENT_H__
 
 #include "NetworkIDObject.h"
 #include "NetworkIDManager.h"
@@ -18,6 +18,12 @@
 //#include "MessageIdentifiers.h"
 //#include "BitStream.h"
 //#include "RakNetTypes.h"  // MessageID
+
+class PieceController;
+class Board;
+class Piece;
+
+class Player;
 
 class Client
 {
@@ -56,6 +62,15 @@ public:
 
 	bool getTransitionMatch();
 	void setTransitionMatch(bool doTransition);
+
+	void setPieceController(PieceController* pControler);
+	PieceController* getPieceController();
+
+	void setBoard(Board* _pBoard);
+
+	bool isOurTurn();
+
+	void setPlayers(Player* p1, Player* p2);
 protected:
 	
 	bool handleUserPacket(RakNet::Packet* packet);
@@ -69,7 +84,7 @@ private:
 
 	// Member Variables
 public:
-
+	std::vector<Piece*>* mpPieces;
 
 protected:
 
@@ -81,8 +96,16 @@ private:
 
 	RakNet::NetworkID lobbyID;
 
+	// Hold a pointer to the PieceController so we can move
+	PieceController* pPieceController;
+	Board* pBoard;
+
 	RakNet::NetworkID currentMatchID;
+	RakNet::RakNetGUID currentPlayerTurn;
 	bool transitionMatch;
+
+		Player* playerOne;
+	Player* playerTwo;
 
 	bool isConnected;
 
@@ -109,4 +132,5 @@ private:
 	// Hold games
 };
 
-#endif //__Client_H__
+#endif __CLIENT_H__
+

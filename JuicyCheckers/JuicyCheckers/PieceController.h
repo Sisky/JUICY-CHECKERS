@@ -48,7 +48,7 @@ public:
 	void movePiece(Ogre::SceneNode* source, Ogre::SceneNode* dest);
 	
 	void movePiece();
-
+	int PieceController::stringToInt(Ogre::String string);
 	// prefab movements
 	bool testMovePiece(Ogre::SceneNode* piece, PieceDirection direction);
 
@@ -56,7 +56,7 @@ public:
 	void setNetworkInterface(Client* _client);
 	Client* getNetworkInterface();
 
-	void moveNetworkPiece(Ogre::SceneNode* source, Ogre::SceneNode* dest);
+	void moveNetworkPiece();
 
 protected:
 private:

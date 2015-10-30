@@ -5,9 +5,9 @@
 *					players connecting, lobby joining/creation, and general Client management
 *
 */	
+#include "stdafx.h"
 
 // Includes 
-#include "stdafx.h"
 #include "client.h"
 
 #include <tchar.h>
@@ -16,6 +16,12 @@
 
 
 #include "client.h"
+
+#include "Board.h"
+#include "PieceController.h"
+
+#include "Player.h"
+#include "Piece.h"
 
 Client::Client()
 	: peer(0)
@@ -287,8 +293,8 @@ Client::handleUserPacket(RakNet::Packet* packet)
 				updateBitstream.IgnoreBytes(sizeof(RakNet::MessageID));
 
 				// CURRENT PLAYER
-				RakNet::NetworkID currentPlayer; updateBitstream.Read(currentPlayer);
-
+				RakNet::RakNetGUID currentPlayer; updateBitstream.Read(currentPlayer);
+				currentPlayerTurn = currentPlayer;
 				// PLAYER ONE
 				RakNet::NetworkID p1; updateBitstream.Read(p1);
 
@@ -302,11 +308,24 @@ Client::handleUserPacket(RakNet::Packet* packet)
 		case ID_USER_MOVE_PIECE:
 			{
 				// This is the server issuing a move piece command
-				// structured like
-				// Type
-				// Position1X Position1Y
-				// Position2X Position2Y
+				RakNet::BitStream moveBitstream(packet->data, packet->length, false); // The false is for efficiency so we don't make a copy of the passed data
+				moveBitstream.IgnoreBytes(sizeof(RakNet::MessageID));
+	
+				// Position1 Source
+				// Position2 Dest
+				int srcPosition = 0; int destPosition = 0;
+				moveBitstream.Read(srcPosition); moveBitstream.Read(destPosition);
 
+				// CURRENT PLAYER
+				RakNet::RakNetGUID currentPlayer; moveBitstream.Read(currentPlayer);
+				currentPlayerTurn = currentPlayer;
+
+				pPieceController->setSource(static_cast<Ogre::SceneNode*>(pBoard->getSceneNode(srcPosition)->getChild(0)));
+				pPieceController->setDestination(pBoard->getSceneNode(destPosition));
+				pPieceController->movePiece();
+
+				playerOne->setPlayerTurn(playerTwo->getPlayerTurn());
+				playerTwo->setPlayerTurn(!playerOne->getPlayerTurn());
 
 			}
 			break;
@@ -317,7 +336,29 @@ Client::handleUserPacket(RakNet::Packet* packet)
 			break;
 		case ID_USER_TAKE_PIECE:
 			{
-				// The user has joined the Client 
+				// The server is issueing a command to say that a piece was taken
+				RakNet::BitStream takeBitstream(packet->data, packet->length, false); // The false is for efficiency so we don't make a copy of the passed data
+				takeBitstream.IgnoreBytes(sizeof(RakNet::MessageID));  //TypeID
+				
+				// Get the boardsquare and piece ids
+				int boardSquareID = 0; takeBitstream.Read(boardSquareID);
+				int pieceID = 0; takeBitstream.Read(pieceID);
+
+				// Remove the checker
+				Ogre::SceneNode* node;
+		
+				// gets the boardsquare node
+				node = pBoard->getSceneNode(boardSquareID);
+
+				// get the piece node
+				Ogre::SceneNode* pieceNode = static_cast<Ogre::SceneNode*>(node->getChild(0));
+				
+				// removes the child
+				node->removeChild(pieceNode);
+				
+				// Set the piece to be invalid
+				(*mpPieces)[pieceID+1]->setBoardSquareID(500);
+				//(*mpPieces)[pieceID+1]->setVisible(false);
 			}
 			break;
 		case ID_USER_SPEND_UPGRADE:
@@ -353,6 +394,8 @@ Client::SendMovement(int source, int dest)
 	RakNet::MessageID sendMovement = ID_USER_MOVE_PIECE;
 	RakNet::BitStream command;
 	command.Write(sendMovement);
+	command.Write(lobbyID);
+	command.Write(currentMatchID);
 	command.Write(source);
 	command.Write(dest);
 
@@ -547,4 +590,42 @@ bool Client::getTransitionMatch()
 void Client::setTransitionMatch(bool doTransition)
 {
 	transitionMatch = doTransition;
+}
+
+void 
+Client::setPieceController(PieceController* _pControler)
+{
+	pPieceController = _pControler;
+}
+
+PieceController* 
+Client::getPieceController()
+{
+	return pPieceController;
+}
+
+void
+Client::setBoard(Board* _pBoard)
+{
+	pBoard = _pBoard;
+}
+
+bool 
+Client::isOurTurn()
+{
+	if(currentPlayerTurn == peer->GetMyGUID())
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void 
+Client::setPlayers(Player* p1, Player* p2)
+{
+	playerOne = p1;
+	playerTwo = p2;
 }

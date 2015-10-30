@@ -1,6 +1,9 @@
 #ifndef __JUICYCHECKERS_H__
 #define __JUICYCHECKERS_H__
 
+
+
+
 // forward declarations
 class BoardSquare;
 class Board;
@@ -8,6 +11,12 @@ class Piece;
 class PieceController;
 class MenuSystem;
 class Client;
+
+class LineDrawing;
+class PowerUpManager;
+class Player;
+
+
 
 class JuicyCheckers : public Ogre::WindowEventListener, public Ogre::FrameListener, public OIS::KeyListener, public OIS::MouseListener
 {
@@ -22,19 +31,17 @@ public:
 	// 00000001 << 1 = 00000010 = 2 in binary etc
 	enum QueryFlags
 	{
-	  ROBOT_MASK = 1 << 0,
-	  NINJA_MASK = 1 << 1,
-	  BOARD_BLACK = 1 << 2,
-	  BOARD_WHITE = 1 << 3,
-	  PARTICLE_MASK = 1 << 4,
-	  PIECE_MASK = 1 << 5
+		ROBOT_MASK = 1 << 0,
+		NINJA_MASK = 1 << 1,
+		BOARD_BLACK = 1 << 2,
+		BOARD_WHITE = 1 << 3,
+		PARTICLE_MASK = 1 << 4,
+		PIECE_MASK = 1 << 5,
+		POWERUP_MASK = 1 << 6
 	};
 
-	enum Player
-	{
-		PLAYER_ONE = 1,
-		PLAYER_TWO = 2
-	};
+	Player* playerOne;
+	Player* playerTwo;
 
 protected:
 	// Ogre::WindowEventListener
@@ -51,8 +58,6 @@ protected:
 
 	// add the pieces to the array
 	void addPieces();
-	// draw the pieces on the board
-	void drawPieces();
 
 	// init particle system
 	void addParticleSystems();
@@ -68,6 +73,15 @@ protected:
 
 	// testing stuff
 	void testStuff(Ogre::SceneManager& sm);
+
+	//check for legal move
+	bool isLegalMove(int sourceID, Ogre::String destName);
+	//check if a jump is avaliable
+	bool canJump(Player* player);
+	//check if there is a winner
+	int checkForWin();
+	//connverts a string to an int
+	int stringToInt(Ogre::String string);
 
 	// Process BufferedInput
 	virtual bool keyPressed(const OIS::KeyEvent& ke);
@@ -102,7 +116,7 @@ private:
 	Ogre::RaySceneQuery* mRayScnQuery;
 
 	// Particle system manager
-	ParticleUniverse::ParticleSystemManager* pManager;
+	ParticleUniverse::ParticleSystemManager* mParticleManager;
 
 	// networking client
 	Client* client;
@@ -111,7 +125,6 @@ private:
 	Board* pBoard;
 
 	// vector array of pieces.. total of 12 per side (24 in total)
-	// std::vector<Piece*> pPieces;
 	std::vector<Piece*> pPieces;
 
 	// Piece Controller
@@ -120,7 +133,18 @@ private:
 	// MenuSystem
 	MenuSystem* mMenuSystem;
 
+	// Basic Line Drawing Class
+	LineDrawing* mSelector;
 
+	// Powerup Manager
+	PowerUpManager* mPowerUpManager;
+
+	//Piece id for checking
+	int mPieceID;
+	//piece that is just moved
+	int mPieceMovedID;
+	//bool showing if jumped last turn
+	bool jumped;
 };
 
 #endif //__JUICYCHECKERS_H__

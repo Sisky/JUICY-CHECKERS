@@ -1,5 +1,6 @@
 /*
 *   Author:  Dave Brown <wpv9142@aut.ac.nz>
+*	Networking Revisions:  Jony Hill <xyc8034@aut.ac.nz>
 *   Filename: Player.h
 *   Description:  This is the Player class that will handle player specific interactions
 *

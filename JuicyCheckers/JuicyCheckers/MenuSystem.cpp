@@ -97,7 +97,7 @@ bool MenuSystem::MousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 	}
 
 	//hitFlag = currentTray->injectMouseDown(me, id);
-	
+	if(currentMenu != MATCHMENU){return true;}
 	return hitFlag;
 }
 
@@ -319,6 +319,21 @@ void MenuSystem::frameRenderingQueued(const Ogre::FrameEvent& evt)
 			clientPtr->setTransitionMatch(false);
 
 			SetMenu(MATCHMENU);
+		}
+	}
+
+	if(currentMenu == MATCHMENU)
+	{
+		if(clientPtr->isOurTurn())
+		{
+			matchTurn->setCaption(Ogre::DisplayString("Your Turn"));
+			currentTray->adjustTrays();
+		}
+		else
+		{
+			matchTurn->setCaption(Ogre::DisplayString("Opponents Turn"));
+			currentTray->adjustTrays();
+			
 		}
 	}
 }
@@ -639,7 +654,6 @@ MenuSystem::createMenu(MENUS menu)
 			// Create the Tray Manager
 			currentTray = new OgreBites::SdkTrayManager("UpgradeMenu", mWindow, mInputContext, this);
 
-			matchTurn = currentTray->createLabel(OgreBites::TL_CENTER, "nameLabel", "Powerup Menu");
 			matchCredits = currentTray->createLabel(OgreBites::TL_CENTER, "credits", "Credits: 0");
 			powerupOne = currentTray->createButton(OgreBites::TL_CENTER, "buyPU1", "Powerup One");
 			powerupTwo = currentTray->createButton(OgreBites::TL_CENTER, "buyPU2", "Powerup Two");
