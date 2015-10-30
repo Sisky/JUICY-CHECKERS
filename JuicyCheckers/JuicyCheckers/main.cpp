@@ -482,16 +482,17 @@ JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
 				{
 					if (pPieces[i]->getOwner() == playerTwo) //is opponent piece
 					{
-						pPieces[i]->setVisible(false);
-
-						pPieces[i]->setVisible(false);
-						// gets the boardsquare node
-						node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
-						// get the piece node
-						Ogre::SceneNode* pieceNode = static_cast<Ogre::SceneNode*>(node->getChild(0));
-						// removes the child
-						node->removeChild(pieceNode);
-						pPieces[i]->setBoardSquareID(500);
+						// The removal of pieces is now handled by the client class 
+						// ~ line 336 client.cpp						
+						//pPieces[i]->setVisible(false);
+						//pPieces[i]->setVisible(false);
+						//// gets the boardsquare node
+						//node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
+						//// get the piece node
+						//Ogre::SceneNode* pieceNode = static_cast<Ogre::SceneNode*>(node->getChild(0));
+						//// removes the child
+						//node->removeChild(pieceNode);
+						//pPieces[i]->setBoardSquareID(500);
 						valid = true;
 					}
 				}
@@ -507,14 +508,16 @@ JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
 				{
 					if (pPieces[i]->getOwner() == playerTwo) //is opponent piece
 					{
+						// The removal of pieces is now handled by the client class 
+						// ~ line 336 client.cpp	
 						pPieces[i]->setVisible(false);
 						// gets the boardsquare node
-						node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
-						// get the piece node
-						Ogre::SceneNode* pieceNode = static_cast<Ogre::SceneNode*>(node->getChild(0));
-						// removes the child
-						node->removeChild(pieceNode);
-						pPieces[i]->setBoardSquareID(500);
+						//node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
+						//// get the piece node
+						//Ogre::SceneNode* pieceNode = static_cast<Ogre::SceneNode*>(node->getChild(0));
+						//// removes the child
+						//node->removeChild(pieceNode);
+						//pPieces[i]->setBoardSquareID(500);
 					
 						valid = true;
 					}
@@ -539,14 +542,16 @@ JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
 				{
 					if (pPieces[i]->getOwner() == playerOne) //is opponent piece
 					{
-						pPieces[i]->setVisible(false);
-						// gets the boardsquare node
-						node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
-						// get the piece node
-						Ogre::SceneNode* pieceNode = static_cast<Ogre::SceneNode*>(node->getChild(0));
-						// removes the child
-						node->removeChild(pieceNode);
-						pPieces[i]->setBoardSquareID(500);
+						// The removal of pieces is now handled by the client class 
+						// ~ line 336 client.cpp	
+						//pPieces[i]->setVisible(false);
+						//// gets the boardsquare node
+						//node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
+						//// get the piece node
+						//Ogre::SceneNode* pieceNode = static_cast<Ogre::SceneNode*>(node->getChild(0));
+						//// removes the child
+						//node->removeChild(pieceNode);
+						//pPieces[i]->setBoardSquareID(500);
 						valid = true;
 					}
 				}
@@ -562,14 +567,16 @@ JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
 				{
 					if (pPieces[i]->getOwner() == playerOne) //is opponent piece
 					{
-						pPieces[i]->setVisible(false);
-						// gets the boardsquare node
-						node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
-						// get the piece node
-						Ogre::SceneNode* pieceNode = static_cast<Ogre::SceneNode*>(node->getChild(0));
-						// removes the child
-						node->removeChild(pieceNode);
-						pPieces[i]->setBoardSquareID(500);
+						// The removal of pieces is now handled by the client class 
+						// ~ line 336 client.cpp	
+						//pPieces[i]->setVisible(false);
+						//// gets the boardsquare node
+						//node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
+						//// get the piece node
+						//Ogre::SceneNode* pieceNode = static_cast<Ogre::SceneNode*>(node->getChild(0));
+						//// removes the child
+						//node->removeChild(pieceNode);
+						//pPieces[i]->setBoardSquareID(500);
 						valid = true;
 					}
 				}
@@ -1054,6 +1061,7 @@ JuicyCheckers::go()
 
 	// create the scene
 	createScene();
+	client->mpPieces = &pPieces;
 
 	// Initialise the Menu
 	initMenu();

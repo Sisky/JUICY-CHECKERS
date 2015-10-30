@@ -326,12 +326,12 @@ void MenuSystem::frameRenderingQueued(const Ogre::FrameEvent& evt)
 	{
 		if(clientPtr->isOurTurn())
 		{
-			matchTurn->setCaption("Your Turn");
+			matchTurn->setCaption(Ogre::DisplayString("Your Turn"));
 			currentTray->adjustTrays();
 		}
 		else
 		{
-			matchTurn->setCaption("Opponents Turn");
+			matchTurn->setCaption(Ogre::DisplayString("Opponents Turn"));
 			currentTray->adjustTrays();
 			
 		}
@@ -648,7 +648,6 @@ MenuSystem::createMenu(MENUS menu)
 			// Create the Tray Manager
 			currentTray = new OgreBites::SdkTrayManager("UpgradeMenu", mWindow, mInputContext, this);
 
-			matchTurn = currentTray->createLabel(OgreBites::TL_CENTER, "nameLabel", "Powerup Menu");
 			matchCredits = currentTray->createLabel(OgreBites::TL_CENTER, "credits", "Credits: 0");
 			powerupOne = currentTray->createButton(OgreBites::TL_CENTER, "buyPU1", "Powerup One");
 			powerupTwo = currentTray->createButton(OgreBites::TL_CENTER, "buyPU2", "Powerup Two");

@@ -21,6 +21,7 @@
 
 class PieceController;
 class Board;
+class Piece;
 
 class Player;
 
@@ -83,7 +84,7 @@ private:
 
 	// Member Variables
 public:
-
+	std::vector<Piece*>* mpPieces;
 
 protected:
 

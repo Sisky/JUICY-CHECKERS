@@ -21,6 +21,7 @@
 #include "PieceController.h"
 
 #include "Player.h"
+#include "Piece.h"
 
 Client::Client()
 	: peer(0)
@@ -335,7 +336,29 @@ Client::handleUserPacket(RakNet::Packet* packet)
 			break;
 		case ID_USER_TAKE_PIECE:
 			{
-				// The user has joined the Client 
+				// The server is issueing a command to say that a piece was taken
+				RakNet::BitStream takeBitstream(packet->data, packet->length, false); // The false is for efficiency so we don't make a copy of the passed data
+				takeBitstream.IgnoreBytes(sizeof(RakNet::MessageID));  //TypeID
+				
+				// Get the boardsquare and piece ids
+				int boardSquareID = 0; takeBitstream.Read(boardSquareID);
+				int pieceID = 0; takeBitstream.Read(pieceID);
+
+				// Remove the checker
+				Ogre::SceneNode* node;
+		
+				// gets the boardsquare node
+				node = pBoard->getSceneNode(boardSquareID);
+
+				// get the piece node
+				Ogre::SceneNode* pieceNode = static_cast<Ogre::SceneNode*>(node->getChild(0));
+				
+				// removes the child
+				node->removeChild(pieceNode);
+				
+				// Set the piece to be invalid
+				(*mpPieces)[pieceID+1]->setBoardSquareID(500);
+				//(*mpPieces)[pieceID+1]->setVisible(false);
 			}
 			break;
 		case ID_USER_SPEND_UPGRADE:

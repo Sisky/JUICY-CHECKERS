@@ -44,6 +44,7 @@ public:
 	bool canJump(Player* player);
 
 protected:
+	void sendPieceTake(int boardSquareID, int pieceID);
 
 private:
 

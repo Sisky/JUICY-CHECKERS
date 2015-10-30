@@ -526,6 +526,9 @@ Match::isLegalMove(int sourceID, int destID)
 				{
 					if (pPieces[i]->getOwner() == playerTwo) //is opponent piece
 					{
+						sendPieceTake(pPieces[i]->getBoardSquareID(), pPieces[i]->getPieceID());
+
+
 						// Player deleted a tile
 						pPieces[i]->setVisible(false);
 						pBoard->getSquare(pPieces[i]->getBoardSquareID())->setAttachedPiece(0);
@@ -534,6 +537,7 @@ Match::isLegalMove(int sourceID, int destID)
 						// gets the boardsquare node
 						pPieces[i]->setBoardSquareID(500);
 						valid = true;
+						break;
 					}
 				}
 
@@ -548,12 +552,16 @@ Match::isLegalMove(int sourceID, int destID)
 				{
 					if (pPieces[i]->getOwner() == playerTwo) //is opponent piece
 					{
+						sendPieceTake(pPieces[i]->getBoardSquareID(), pPieces[i]->getPieceID());
+
+
 						pBoard->getSquare(pPieces[i]->getBoardSquareID())->setAttachedPiece(0);
 						// Player deleted a tile
 						pPieces[i]->setVisible(false);
 						pPieces[i]->setBoardSquareID(500);
 					
 						valid = true;
+						break;
 					}
 				}
 
@@ -577,11 +585,15 @@ Match::isLegalMove(int sourceID, int destID)
 					if (pPieces[i]->getOwner() == playerOne) //is opponent piece
 					{
 						// Player deleted a tile
+						sendPieceTake(pPieces[i]->getBoardSquareID(), pPieces[i]->getPieceID());
+
+
 						pBoard->getSquare(pPieces[i]->getBoardSquareID())->setAttachedPiece(0);
 						pPieces[i]->setVisible(false);
 						// gets the boardsquare node
 						pPieces[i]->setBoardSquareID(500);
 						valid = true;
+						break;
 					}
 				}
 
@@ -597,11 +609,16 @@ Match::isLegalMove(int sourceID, int destID)
 					if (pPieces[i]->getOwner() == playerOne) //is opponent piece
 					{
 						// Player deleted a tile
+						// Send the message to all users saying that this piece is taken
+						sendPieceTake(pPieces[i]->getBoardSquareID(), pPieces[i]->getPieceID());
+						
 						pBoard->getSquare(pPieces[i]->getBoardSquareID())->setAttachedPiece(0);
 						pPieces[i]->setVisible(false);
 						// gets the boardsquare node
 						pPieces[i]->setBoardSquareID(500);
 						valid = true;
+						break;
+						
 					}
 				}
 
@@ -612,4 +629,26 @@ Match::isLegalMove(int sourceID, int destID)
 	
 	return valid;
 
+}
+
+void 
+Match::sendPieceTake(int boardSquareID, int pieceID)
+{
+	RakNet::BitStream takeStream;
+
+		// TYPE ID
+	RakNet::MessageID typeID = ID_USER_TAKE_PIECE;
+	takeStream.Write(typeID);
+
+	// CURRENT PLAYER
+	takeStream.Write(boardSquareID);
+
+	// PLAYER ONE
+	takeStream.Write(pieceID);
+
+
+	RakNet::SystemAddress sa1 = peer->GetSystemAddressFromGuid(playerOneGUID);
+	RakNet::SystemAddress sa2 = peer->GetSystemAddressFromGuid(playerTwoGUID);
+	peer->Send(&takeStream, HIGH_PRIORITY,RELIABLE_ORDERED,0,sa1,false);
+	peer->Send(&takeStream, HIGH_PRIORITY,RELIABLE_ORDERED,0,sa2,false);
 }
