@@ -359,6 +359,26 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 						pController->moveNetworkPiece();
 
 
+					//pController->movePiece();
+
+					//if moved to an end piece king it
+					//player one and it has reached playerTwos side
+					if (mPieceID > 56 && pPieces[pBoard->getSquare(mPieceID)->getPieceID()]->getOwner() == playerOne)
+					{
+						Ogre::SceneNode* c1 = static_cast<Ogre::SceneNode*>(pBoard->getSceneNode(mPieceID, *mSceneMgr)->getChild(0));
+						Piece* e1 = static_cast<Piece*>(c1->getAttachedObject(0));
+						mPowerUpManager->setPowerUpMask(e1, PowerUpManager::KING, true);
+						mPowerUpManager->applyPowerUps(e1);
+					}
+					if (mPieceID < 9 && pPieces[pBoard->getSquare(mPieceID)->getPieceID()]->getOwner() == playerTwo)
+					{
+						Ogre::SceneNode* c1 = static_cast<Ogre::SceneNode*>(pBoard->getSceneNode(mPieceID, *mSceneMgr)->getChild(0));
+						Piece* e1 = static_cast<Piece*>(c1->getAttachedObject(0));
+						mPowerUpManager->setPowerUpMask(e1, PowerUpManager::KING, true);
+						mPowerUpManager->applyPowerUps(e1);
+					}
+
+
 						//set new boardsquare position on piece
 
 						// stop the particle system
@@ -402,6 +422,96 @@ JuicyCheckers::canJump(Player* player)
 		for (int i = 0; i < 12; i++) //only check player ones pieces
 		{
 			int sqID = pPieces[i]->getBoardSquareID(); //selected pieces square
+			//if it's kinged can move any direction
+
+			if (mPowerUpManager->hasKing(pPieces[i]) == true)
+			{
+				if (sqID % 8 < 7 && sqID < 41) //cant be on edges
+				{
+					for (int j = 0; j < pPieces.size(); j++) //check every piece
+					{
+						if (sqID + 9 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerTwo) // adjacent square is filled
+						{
+							for (int k = 0; k < pPieces.size(); k++) // check if jump is possible
+							{
+								if (sqID + 18 == pPieces[k]->getBoardSquareID())
+								{
+									sqFilled = true;
+								}
+
+							}
+							if (sqFilled == false)// not filled can jump
+							{
+								return true;
+							}
+						}
+					}
+				}
+				if (sqID % 8 > 2 && sqID < 41) //cant be on edges
+				{
+					for (int j = 0; j < pPieces.size(); j++) //check every piece
+					{
+						if (sqID + 7 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerTwo) // adjacent square is filled
+						{
+							for (int k = 0; k < pPieces.size(); k++) // check if jump is possible
+							{
+								if (sqID + 14 == pPieces[k]->getBoardSquareID())
+								{
+									sqFilled = true;
+								}
+
+							}
+							if (sqFilled == false)// not filled can jump
+							{
+								return true;
+							}
+						}
+					}
+				}
+				if (sqID % 8 > 2 && sqID > 16) //cant be on edges
+				{
+					for (int j = 0; j < pPieces.size(); j++) //check every piece
+					{
+						if (sqID - 9 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerTwo) // adjacent square is filled
+						{
+							for (int k = 0; k < pPieces.size(); k++) // check if jump is possible
+							{
+								if (sqID - 18 == pPieces[k]->getBoardSquareID())
+								{
+									sqFilled = true;
+								}
+
+							}
+							if (sqFilled == false)// not filled can jump
+							{
+								return true;
+							}
+						}
+					}
+				}
+				if (sqID % 8 < 7 && sqID > 16) //cant be on edges
+				{
+					for (int j = 0; j < pPieces.size(); j++) //check every piece
+					{
+						if (sqID - 7 == pPieces[j]->getBoardSquareID() && pPieces[j]->getOwner() == playerTwo) // adjacent square is filled
+						{
+							for (int k = 0; k < pPieces.size(); k++) // check if jump is possible
+							{
+								if (sqID - 14 == pPieces[k]->getBoardSquareID())
+								{
+									sqFilled = true;
+								}
+
+							}
+							if (sqFilled == false)// not filled can jump
+							{
+								return true;
+							}
+						}
+					}
+				}
+			}
+
 
 			if (sqID % 8 < 7 && sqID < 41) //cant be on edges
 			{
@@ -445,6 +555,7 @@ JuicyCheckers::canJump(Player* player)
 					}
 				}
 			}
+
 		}
 
 	}
@@ -681,6 +792,12 @@ JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
 			valid = true;
 			jumped = false;
 		}
+		else if (sourceID - 9 == destID && canJump(playerOne) != true && mPowerUpManager->hasKing(pPieces[pBoard->getSquare(sourceID)->getPieceID()]) == true || sourceID - 7 == destID && canJump(playerOne) != true && mPowerUpManager->hasKing(pPieces[pBoard->getSquare(sourceID)->getPieceID()]) == true) //simple one space move
+		{
+
+			valid = true;
+			jumped = false;
+		}
 		else if (sourceID + 18 == destID) //trying to jump right
 		{
 			
@@ -735,12 +852,67 @@ JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
 
 			}
 		}
+		else if (sourceID - 18 == destID &&  mPowerUpManager->hasKing(pPieces[pBoard->getSquare(sourceID)->getPieceID()]) == true) //trying to jump right
+		{
+
+			for (int i = 0; i < pPieces.size(); i++) //check through piece vector
+			{
+				if (sourceID - 9 == pPieces[i]->getBoardSquareID()) //there is a piece
+				{
+					if (pPieces[i]->getOwner() == playerTwo) //is opponent piece
+					{
+						pPieces[i]->setVisible(false);
+						// gets the boardsquare node
+						node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
+						// get the piece node
+						Ogre::SceneNode* pieceNode = static_cast<Ogre::SceneNode*>(node->getChild(0));
+						// removes the child
+						node->removeChild(pieceNode);
+						pPieces[i]->setBoardSquareID(500);
+						valid = true;
+						jumped = true;
+					}
+				}
+
+			}
+		}
+		else if (sourceID - 14 == destID &&  mPowerUpManager->hasKing(pPieces[pBoard->getSquare(sourceID)->getPieceID()]) == true) //trying to jump left
+		{
+
+			for (int i = 0; i < pPieces.size(); i++) //check through piece vector
+			{
+				if (sourceID - 7 == pPieces[i]->getBoardSquareID()) //there is a piece
+				{
+					if (pPieces[i]->getOwner() == playerTwo) //is opponent piece
+					{
+						pPieces[i]->setVisible(false);
+						// gets the boardsquare node
+						node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
+						// get the piece node
+						Ogre::SceneNode* pieceNode = static_cast<Ogre::SceneNode*>(node->getChild(0));
+						// removes the child
+						node->removeChild(pieceNode);
+						pPieces[i]->setBoardSquareID(500);
+						valid = true;
+						jumped = true;
+					}
+				}
+
+			}
+		}
+
 
 	}
 	else //player twos turn
 	{
 		if (sourceID - 9 == destID && canJump(playerTwo) != true || sourceID - 7 == destID && canJump(playerTwo) != true) //simple one space move
 		{
+			valid = true;
+			jumped = false;
+		}
+		else if (sourceID + 9 == destID && canJump(playerTwo) != true && mPowerUpManager->hasKing(pPieces[pBoard->getSquare(sourceID)->getPieceID()]) == true || sourceID + 7 == destID && canJump(playerTwo) != true && mPowerUpManager->hasKing(pPieces[pBoard->getSquare(sourceID)->getPieceID()]) == true) //simple one space move
+		{
+
 			valid = true;
 			jumped = false;
 		}
@@ -789,6 +961,54 @@ JuicyCheckers::isLegalMove(int sourceID, Ogre::String destName)
 						//// removes the child
 						//node->removeChild(pieceNode);
 						//pPieces[i]->setBoardSquareID(500);
+						valid = true;
+						jumped = true;
+					}
+				}
+
+			}
+		}
+		else if (sourceID + 18 == destID &&  mPowerUpManager->hasKing(pPieces[pBoard->getSquare(sourceID)->getPieceID()]) == true) //trying to jump right
+		{
+
+			for (int i = 0; i < pPieces.size(); i++) //check through piece vector
+			{
+				if (sourceID + 9 == pPieces[i]->getBoardSquareID()) //there is a piece
+				{
+					if (pPieces[i]->getOwner() == playerOne) //is opponent piece
+					{
+						pPieces[i]->setVisible(false);
+						// gets the boardsquare node
+						node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
+						// get the piece node
+						Ogre::SceneNode* pieceNode = static_cast<Ogre::SceneNode*>(node->getChild(0));
+						// removes the child
+						node->removeChild(pieceNode);
+						pPieces[i]->setBoardSquareID(500);
+						valid = true;
+						jumped = true;
+					}
+				}
+
+			}
+		}
+		else if (sourceID + 14 == destID &&  mPowerUpManager->hasKing(pPieces[pBoard->getSquare(sourceID)->getPieceID()]) == true) //trying to jump left
+		{
+
+			for (int i = 0; i < pPieces.size(); i++) //check through piece vector
+			{
+				if (sourceID + 7 == pPieces[i]->getBoardSquareID()) //there is a piece
+				{
+					if (pPieces[i]->getOwner() == playerOne) //is opponent piece
+					{
+						pPieces[i]->setVisible(false);
+						// gets the boardsquare node
+						node = pBoard->getSceneNode(pPieces[i]->getBoardSquareID(), *mSceneMgr);
+						// get the piece node
+						Ogre::SceneNode* pieceNode = static_cast<Ogre::SceneNode*>(node->getChild(0));
+						// removes the child
+						node->removeChild(pieceNode);
+						pPieces[i]->setBoardSquareID(500);
 						valid = true;
 						jumped = true;
 					}
@@ -865,7 +1085,7 @@ JuicyCheckers::addPieces()
 		Powerup* pu = new Powerup();
 		p->setPowerUps(pu);
 		//// set powerup state to a blank mask
-		mPowerUpManager->setPowerUpMask(p, mPowerUpManager->BLANK, true);
+		mPowerUpManager->setPowerUpMask(p, PowerUpManager::BLANK, true);
 
 
 		
