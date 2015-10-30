@@ -226,15 +226,19 @@ void Match::ProcessPacket(RakNet::RakPeerInterface* peer, RakNet::Packet* packet
 						// Determine that the destination boardsquare is empty
 						if(pBoard->getSquare(positionDest)->getAttachedPiece() == 0)
 						{
+							bool jumped = false;
 							if (isLegalMove(positionSrc, positionDest))
 							{	
-								if(currentPlayer == playerOneGUID)
-								{
-									currentPlayer = playerTwoGUID;
-								} 
-								else 
-								{
-									currentPlayer = playerOneGUID;
+								if(jumped)
+								{   // If the user jumped a piece don't swap turns
+									if(currentPlayer == playerOneGUID)
+									{
+										currentPlayer = playerTwoGUID;
+									} 
+									else 
+									{
+										currentPlayer = playerOneGUID;
+									}
 								}
 								// The move is legal we can forward it to all the peers
 								RakNet::BitStream movePacket;
@@ -507,15 +511,17 @@ Match::canJump(Player* player)
 }
 
 bool 
-Match::isLegalMove(int sourceID, int destID)
+Match::isLegalMove(int sourceID, int destID, bool& jumped)
 {
 	bool valid = false;
+	jumped = false;
 	//check whose turn
 	if (currentPlayer == playerOneGUID)
 	{
 		if (sourceID + 9 == destID && canJump(playerOne) != true || sourceID + 7 == destID && canJump(playerOne) != true)//simple one space move, cant if a jump is possible
 		{
 			valid = true;
+			jumped = false;
 		}
 		else if (sourceID + 18 == destID) //trying to jump right
 		{
@@ -537,6 +543,7 @@ Match::isLegalMove(int sourceID, int destID)
 						// gets the boardsquare node
 						pPieces[i]->setBoardSquareID(500);
 						valid = true;
+						jumped = true;
 						break;
 					}
 				}
@@ -561,6 +568,7 @@ Match::isLegalMove(int sourceID, int destID)
 						pPieces[i]->setBoardSquareID(500);
 					
 						valid = true;
+						jumped = true;
 						break;
 					}
 				}
@@ -574,6 +582,7 @@ Match::isLegalMove(int sourceID, int destID)
 		if (sourceID - 9 == destID && canJump(playerTwo) != true || sourceID - 7 == destID && canJump(playerTwo) != true) //simple one space move
 		{
 			valid = true;
+			jumped = false;
 		}
 		else if (sourceID - 18 == destID) //trying to jump right
 		{
@@ -593,6 +602,7 @@ Match::isLegalMove(int sourceID, int destID)
 						// gets the boardsquare node
 						pPieces[i]->setBoardSquareID(500);
 						valid = true;
+						jumped = true;
 						break;
 					}
 				}
@@ -617,6 +627,7 @@ Match::isLegalMove(int sourceID, int destID)
 						// gets the boardsquare node
 						pPieces[i]->setBoardSquareID(500);
 						valid = true;
+						jumped = true;
 						break;
 						
 					}

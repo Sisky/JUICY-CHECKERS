@@ -40,7 +40,7 @@ public:
 	bool GetStatus();
 	RakNet::RakNetGUID GetWinner();
 
-	bool isLegalMove(int srcID, int destID);
+	bool isLegalMove(int srcID, int destID, bool& jumped);
 	bool canJump(Player* player);
 
 protected:
