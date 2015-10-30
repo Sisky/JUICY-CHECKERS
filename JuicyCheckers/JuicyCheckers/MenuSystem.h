@@ -83,6 +83,7 @@ public:
 	void updateChats();
 	void invalidMoveErr();
 	void canCapturePieceErr();
+	void generalError();
 
 protected:
 	void createMenu(MENUS menu);

@@ -22,6 +22,7 @@
 class PieceController;
 class Board;
 class Piece;
+class MenuSystem;
 
 class Player;
 
@@ -66,6 +67,8 @@ public:
 	void setPieceController(PieceController* pControler);
 	PieceController* getPieceController();
 
+	void setMenuSystem(MenuSystem* ms);
+
 	void setBoard(Board* _pBoard);
 
 	bool isOurTurn();
@@ -99,6 +102,8 @@ private:
 	// Hold a pointer to the PieceController so we can move
 	PieceController* pPieceController;
 	Board* pBoard;
+
+	MenuSystem* menuSys;
 
 	RakNet::NetworkID currentMatchID;
 	RakNet::RakNetGUID currentPlayerTurn;

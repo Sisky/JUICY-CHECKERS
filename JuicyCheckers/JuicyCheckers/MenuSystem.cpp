@@ -527,6 +527,11 @@ MenuSystem::canCapturePieceErr(){
 }
 
 void
+MenuSystem::generalError(){
+	currentTray->showOkDialog("Error", "There has been a serious error");
+}
+
+void
 MenuSystem::createMenu(MENUS menu)
 {
 	OgreBites::SdkTrayManager* currentTray = 0;
@@ -646,14 +651,6 @@ MenuSystem::createMenu(MENUS menu)
 			// Have a button that opens up the upgrade menu
 
 			matchUpgrade = currentTray->createButton(OgreBites::TL_TOPLEFT, "upgradeButton", "Open Upgrades");
-
-			//Notify for invalid move
-			currentTray->showOkDialog("invalidMove", "That move is invalid, please try another move");
-
-			//Notify for piece capture
-			currentTray->showOkDialog("canCapture", "There's a piece you can capture");
-
-			
 
 			// Add the tray into the tray container.  NOTE: This function is designed to be run from 0 -> MENU.max
 			mTrays.push_back(currentTray);

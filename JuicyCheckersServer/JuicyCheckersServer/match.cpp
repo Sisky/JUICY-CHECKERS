@@ -418,7 +418,7 @@ Match::canJump(Player* player)
 		{
 			int sqID = pPieces[i]->getBoardSquareID(); //selected pieces square
 
-			if (sqID % 8 < 7) //cant be on edges
+			if (sqID % 8 < 7 && sqID < 41) //cant be on edges
 			{
 				for (int j = 0; j < pPieces.size(); j++) //check every piece
 				{
@@ -439,7 +439,7 @@ Match::canJump(Player* player)
 					}
 				}
 			}
-			if (sqID % 8 > 2) //cant be on edges
+			if (sqID % 8 > 2 && sqID < 41) //cant be on edges
 			{
 				for (int j = 0; j < pPieces.size(); j++) //check every piece
 				{
@@ -467,7 +467,7 @@ Match::canJump(Player* player)
 		{
 			int sqID = pPieces[i]->getBoardSquareID(); //selected pieces square
 
-			if (sqID % 8 > 2) //cant be on edges
+			if (sqID % 8 > 2 && sqID > 16) //cant be on edges
 			{
 				for (int j = 0; j < pPieces.size(); j++) //check every piece
 				{
@@ -488,7 +488,7 @@ Match::canJump(Player* player)
 					}
 				}
 			}
-			if (sqID % 8 < 7) //cant be on edges
+			if (sqID % 8 < 7 && sqID > 16) //cant be on edges
 			{
 				for (int j = 0; j < pPieces.size(); j++) //check every piece
 				{

@@ -19,6 +19,7 @@
 
 #include "Board.h"
 #include "PieceController.h"
+#include "MenuSystem.h"
 
 #include "Player.h"
 #include "Piece.h"
@@ -384,7 +385,37 @@ Client::handleUserPacket(RakNet::Packet* packet)
 			break;
 		case ID_USER_ERROR:
 			{
-				// The user has joined the Client 
+				enum errors
+				{
+					MIN,
+					TURNERROR,
+					TAKEERROR
+				};
+
+				RakNet::BitStream takeBitstream(packet->data, packet->length, false); // The false is for efficiency so we don't make a copy of the passed data
+				takeBitstream.IgnoreBytes(sizeof(RakNet::MessageID));  //TypeID
+				
+				// Get the boardsquare and piece ids
+				errors errorID = MIN; takeBitstream.Read(errorID);
+
+				switch(errorID)
+				{
+				case TURNERROR:
+					{
+						menuSys->invalidMoveErr();
+					}
+					break;
+				case TAKEERROR:
+					{
+						menuSys->canCapturePieceErr();
+					}
+					break;
+				default:
+					{
+
+					}
+					break;
+				}
 			}
 			break;
 		default:			
@@ -639,4 +670,10 @@ Client::setPlayers(Player* p1, Player* p2)
 {
 	playerOne = p1;
 	playerTwo = p2;
+}
+
+void 
+Client::setMenuSystem(MenuSystem* ms)
+{
+	menuSys = ms;
 }

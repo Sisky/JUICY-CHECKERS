@@ -331,6 +331,10 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 
 							Ogre::LogManager::getSingletonPtr()->logMessage("Target Object Selected : " + mCurObject->getName());
 						}
+						else
+						{
+							mMenuSystem->invalidMoveErr();
+						}
 
 
 						// if the left mouse button was pressed.. set the position of the 'selection particle effect' to be the position of the selected object
@@ -339,6 +343,10 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 						if(mParticleManager->getParticleSystem("psSelection")->getState() != ParticleUniverse::ParticleSystem::ParticleSystemState::PSS_STARTED) {
 							mParticleManager->getParticleSystem("psSelection")->start();
 						}
+					}
+					else
+					{
+						mMenuSystem->invalidMoveErr();
 					}
 				}
 
@@ -370,6 +378,10 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 
 							mParticleManager->getParticleSystem("psSelection")->stop();
 						}
+					}
+					else
+					{
+						mMenuSystem->invalidMoveErr();
 					}
 				}
 			}
@@ -1275,6 +1287,7 @@ JuicyCheckers::go()
 
 	// Initialise the Menu
 	initMenu();
+	client->setMenuSystem(mMenuSystem);
 
 	//Register as a Window listener
 	Ogre::WindowEventUtilities::addWindowEventListener(mWindow, this);
