@@ -517,6 +517,16 @@ void MenuSystem::updateChats()
 }
 
 void
+MenuSystem::invalidMoveErr(){
+	currentTray->showOkDialog("Notice:Invalid Move", "The move you just did is invalid, please try another move");
+}
+
+void
+MenuSystem::canCapturePieceErr(){
+	currentTray->showOkDialog("Notice", "There is a piece you can capture");
+}
+
+void
 MenuSystem::createMenu(MENUS menu)
 {
 	OgreBites::SdkTrayManager* currentTray = 0;

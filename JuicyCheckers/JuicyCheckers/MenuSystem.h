@@ -81,6 +81,8 @@ public:
 	void adjustTrays(); 
 
 	void updateChats();
+	void invalidMoveErr();
+	void canCapturePieceErr();
 
 protected:
 	void createMenu(MENUS menu);
