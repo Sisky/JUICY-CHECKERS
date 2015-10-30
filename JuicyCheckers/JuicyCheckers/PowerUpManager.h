@@ -46,21 +46,25 @@ public:
 	// bitmask returning the powerups currently active on the player
 	PowerUpMask getPowerUps(Player& p);
 
+	void setPowerUpBar(int level, Ogre::SceneNode* powerupBarNode);
+
 	// set the bitmask for the power up for the piece... either updating or overwrite
 	void setPowerUpMask(Piece* p, PowerUpMask mask, bool overwrite);
 	// set the bitmask for the power up for the player
 	void setPowerUpMask(Player* p, PowerUpMask mask, bool overwrite);
 
+	void applyPowerUps(Piece* p);
+	void applyPowerUps(Player* p);
 	// query functions to determine if the player or piece has certain powerups
 	// PIECE
-	bool hasShield(Piece& p);
-	bool hasLock(Piece& p);
-	bool hasKing(Piece& p);
+	bool hasShield(Piece* p);
+	bool hasLock(Piece* p);
+	bool hasKing(Piece* p);
 
 	// PLAYER
-	bool hasForce(Player& p);
-	bool hasSwap(Player& p);
-	bool hasDethrone(Player& p);
+	bool hasForce(Player* p);
+	bool hasSwap(Player* p);
+	bool hasDethrone(Player* p);
 
 
 protected:

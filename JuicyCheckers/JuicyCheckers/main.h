@@ -36,7 +36,8 @@ public:
 		BOARD_BLACK = 1 << 2,
 		BOARD_WHITE = 1 << 3,
 		PARTICLE_MASK = 1 << 4,
-		PIECE_MASK = 1 << 5
+		PIECE_MASK = 1 << 5,
+		POWERUP_MASK = 1 << 6
 	};
 
 	Player* playerOne;
@@ -57,8 +58,6 @@ protected:
 
 	// add the pieces to the array
 	void addPieces();
-	// draw the pieces on the board
-	void drawPieces();
 
 	// init particle system
 	void addParticleSystems();
@@ -79,7 +78,9 @@ protected:
 	bool isLegalMove(int sourceID, Ogre::String destName);
 	//check if a jump is avaliable
 	bool canJump(Player* player);
-
+	//check if there is a winner
+	int checkForWin();
+	//connverts a string to an int
 	int stringToInt(Ogre::String string);
 
 	// Process BufferedInput
@@ -140,7 +141,10 @@ private:
 
 	//Piece id for checking
 	int mPieceID;
-
+	//piece that is just moved
+	int mPieceMovedID;
+	//bool showing if jumped last turn
+	bool jumped;
 };
 
 #endif //__JUICYCHECKERS_H__

@@ -102,3 +102,144 @@ LineDrawing::setSelectionSquareColor(Ogre::Vector3 col)
 	mSquareMaterial->getTechnique(0)->getPass(0)->setAmbient(0, 1, 0);
 	mSquareMaterial->getTechnique(0)->getPass(0)->setSelfIllumination(0, 1, 0);
 }
+
+// initialize the powerup bar
+void 
+LineDrawing::initPowerUpBar(Ogre::SceneManager & sm)
+{
+	// create manual object
+	mBarPlayer1 = sm.createManualObject("powerUpBarP1");
+	mBarPlayer2 = sm.createManualObject("powerUpBarP2");
+
+	// create a scene node that will hold the powerup bar
+	Ogre::SceneNode* powerupBarNodeP1 = sm.getRootSceneNode()->createChildSceneNode("powerupBarNodeP1");
+	Ogre::SceneNode* powerupBarNodeP2 = sm.getRootSceneNode()->createChildSceneNode("powerupBarNodeP2");
+
+	mBarPlayer1->setDynamic(true);
+	mBarPlayer2->setDynamic(true);
+
+	mBarPlayer1->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+
+		// 0
+	mBarPlayer1->position(-150, 0, 50);
+	mBarPlayer1->colour(1, 0, 0, 1);
+		// 1
+	mBarPlayer1->position(-150, 0, -50);
+	mBarPlayer1->colour(1, 0, 0, 1);
+		// 2
+	mBarPlayer1->position(-50, 0, 50);
+	mBarPlayer1->colour(1, 0, 0, 1);
+		// 3
+	mBarPlayer1->position(-50, 0, -50);
+	mBarPlayer1->colour(1, 0, 0, 1);
+		// 4
+	mBarPlayer1->position(50, 0, 50);
+	mBarPlayer1->colour(1, 0, 0, 1);
+		// 5
+	mBarPlayer1->position(50, 0, -50);
+	mBarPlayer1->colour(1, 0, 0, 1);
+		// 6
+	mBarPlayer1->position(150, 0, 50);
+	mBarPlayer1->colour(1, 0, 0, 1);
+		// 7
+	mBarPlayer1->position(150, 0, -50);
+	mBarPlayer1->colour(1, 0, 0, 1);
+
+		// create using indexes.. essentially 6 triangles
+		// bottom square
+	mBarPlayer1->index(2);
+	mBarPlayer1->index(3);
+	mBarPlayer1->index(0);
+
+	mBarPlayer1->index(3);
+	mBarPlayer1->index(1);
+	mBarPlayer1->index(0);
+
+		// middle square
+	mBarPlayer1->index(4);
+	mBarPlayer1->index(5);
+	mBarPlayer1->index(2);
+
+	mBarPlayer1->index(5);
+	mBarPlayer1->index(3);
+	mBarPlayer1->index(2);
+
+		// top square
+	mBarPlayer1->index(6);
+	mBarPlayer1->index(7);
+	mBarPlayer1->index(4);
+
+	mBarPlayer1->index(7);
+	mBarPlayer1->index(5);
+	mBarPlayer1->index(4);
+
+	mBarPlayer1->end();
+	
+	// player 2s bar
+
+	mBarPlayer2->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+
+	// 0
+	mBarPlayer2->position(-150, 0, 50);
+	mBarPlayer2->colour(1, 0, 0, 1);
+	// 1
+	mBarPlayer2->position(-150, 0, -50);
+	mBarPlayer2->colour(1, 0, 0, 1);
+	// 2
+	mBarPlayer2->position(-50, 0, 50);
+	mBarPlayer2->colour(1, 0, 0, 1);
+	// 3
+	mBarPlayer2->position(-50, 0, -50);
+	mBarPlayer2->colour(1, 0, 0, 1);
+	// 4
+	mBarPlayer2->position(50, 0, 50);
+	mBarPlayer2->colour(1, 0, 0, 1);
+	// 5
+	mBarPlayer2->position(50, 0, -50);
+	mBarPlayer2->colour(1, 0, 0, 1);
+	// 6
+	mBarPlayer2->position(150, 0, 50);
+	mBarPlayer2->colour(1, 0, 0, 1);
+	// 7
+	mBarPlayer2->position(150, 0, -50);
+	mBarPlayer2->colour(1, 0, 0, 1);
+
+	// create using indexes.. essentially 6 triangles
+	// bottom square
+	mBarPlayer2->index(2);
+	mBarPlayer2->index(3);
+	mBarPlayer2->index(0);
+
+	mBarPlayer2->index(3);
+	mBarPlayer2->index(1);
+	mBarPlayer2->index(0);
+
+	// middle square
+	mBarPlayer2->index(4);
+	mBarPlayer2->index(5);
+	mBarPlayer2->index(2);
+
+	mBarPlayer2->index(5);
+	mBarPlayer2->index(3);
+	mBarPlayer2->index(2);
+
+	// top square
+	mBarPlayer2->index(6);
+	mBarPlayer2->index(7);
+	mBarPlayer2->index(4);
+
+	mBarPlayer2->index(7);
+	mBarPlayer2->index(5);
+	mBarPlayer2->index(4);
+
+	mBarPlayer2->end();
+	// hopfully can set the value of the colours as follows
+	// mBar[0].colour(0, 1, 0, 1);
+	mBarPlayer1->setQueryFlags(SELECTION_FLAG);
+	mBarPlayer2->setQueryFlags(SELECTION_FLAG);
+
+	// attach to the game node
+	powerupBarNodeP1->attachObject(mBarPlayer1);
+	powerupBarNodeP2->attachObject(mBarPlayer2);
+
+}
