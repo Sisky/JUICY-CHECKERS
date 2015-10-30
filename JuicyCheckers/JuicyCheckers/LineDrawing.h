@@ -15,12 +15,14 @@ class LineDrawing
 public:
 	LineDrawing(void);
 	~LineDrawing(void);
-
+	
+	// selection square
 	void initSelectionSquare(Ogre::SceneManager& sm);
-
 	void setSelectionSquareColor(Ogre::Vector3 col);
-
 	Ogre::ManualObject* getSquare() { return mSquare; }
+
+	// powerup bar
+	void initPowerUpBar(Ogre::SceneManager& sm);
 
 	enum QueryFlags2
 	{
@@ -33,6 +35,8 @@ private:
 	// member variables
 public:
 	Ogre::ManualObject* mSquare;
+	Ogre::ManualObject* mBarPlayer1;
+	Ogre::ManualObject* mBarPlayer2;
 protected:
 private:
 	

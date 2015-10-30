@@ -43,13 +43,16 @@ void Piece::initPowerups(Ogre::SceneManager* sm, ParticleUniverse::ParticleSyste
 
 	// setup the Crown entity and node
 	m_puKing = sm->createEntity("crownEntity" + id, "crown.mesh");
+	// create a material
+	m_puKing->setMaterialName("BallGold");
 	Ogre::SceneNode* crownNode = m_PowerUpNode->createChildSceneNode("crownNode" + id);
 	m_puKing->setQueryFlags(JuicyCheckers::POWERUP_MASK);
 	// attach the entity to the node
 	crownNode->attachObject(m_puKing);
 	// scale and position the node
-	crownNode->scale(70, 70, 70);
-	crownNode->setPosition(0, 80, 0);
+	crownNode->scale(70, 70, 90);
+	crownNode->setPosition(2, 83, 0);
+	crownNode->yaw(Ogre::Degree(90));
 	// set visibility and query flags
 	crownNode->setVisible(false);
 	

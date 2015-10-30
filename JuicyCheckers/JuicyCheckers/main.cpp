@@ -1153,6 +1153,12 @@ JuicyCheckers::initScene()
 	// selection square
 	mSelector = new LineDrawing();
 	mSelector->initSelectionSquare(*mSceneMgr);
+
+	// powerup bar
+	mSelector->initPowerUpBar(*mSceneMgr);
+	mSceneMgr->getSceneNode("powerupBarNodeP1")->setPosition(0, 1, -900);
+	mSceneMgr->getSceneNode("powerupBarNodeP1")->yaw(Ogre::Degree(180));
+	mSceneMgr->getSceneNode("powerupBarNodeP2")->setPosition(0, 1, 900);
 }
 
 
