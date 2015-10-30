@@ -12,6 +12,7 @@
 
 Powerup::Powerup(void)
 {
+	mPowerUpState = static_cast<PowerUpManager::PowerUpMask>(PowerUpManager::BLANK);
 }
 
 

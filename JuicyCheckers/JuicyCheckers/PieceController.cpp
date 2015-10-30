@@ -7,7 +7,8 @@
 
 #include "stdafx.h"
 #include "PieceController.h"
-
+#include "SoundSystem.h"
+#include "Piece.h"
 
 PieceController::PieceController(void)
 {
@@ -24,8 +25,20 @@ PieceController::~PieceController(void)
 void
 PieceController::movePiece(Ogre::SceneNode* source, Ogre::SceneNode* dest)
 {
+	Piece* p = static_cast<Piece*>(source->getAttachedObject(0));
+	// check the owner of source piece
+	if (p->getOwner() == 1) { // player 1.. this might change with scotts code
+		// play the move sound for player 1 ... robots
+		SoundSystem::GetInstance().PlaySound(SoundSystem::SOUNDFILE::LASER);
+	}
+	else {
+		SoundSystem::GetInstance().PlaySound(SoundSystem::SOUNDFILE::KNIFE);
+	}
+
 	// source node will be a child node... so will need to detach from the parent node
 	source->getParentSceneNode()->removeChild(source);
+
+	
 
 	// destination : create a child node on the square and attach the source node
 	dest->addChild(source);
@@ -39,6 +52,17 @@ PieceController::movePiece(Ogre::SceneNode* source, Ogre::SceneNode* dest)
 void
 PieceController::movePiece()
 {
+	Piece* p = static_cast<Piece*>(m_sourceNode->getAttachedObject(0));
+	// check the owner of source piece
+	if (p->getOwner() == 1) { // player 1.. this might change with scotts code
+		// play the move sound for player 1 ... robots
+		SoundSystem::GetInstance().PlaySound(SoundSystem::SOUNDFILE::LASER);
+	}
+	else {
+		SoundSystem::GetInstance().PlaySound(SoundSystem::SOUNDFILE::KNIFE);
+	}
+
+
 	// source node will be a child node... so will need to detach from the parent node
 	m_sourceNode->getParentSceneNode()->removeChild(m_sourceNode);
 

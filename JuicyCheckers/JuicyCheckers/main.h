@@ -12,6 +12,7 @@ class MenuSystem;
 class Client;
 class LineDrawing;
 class PowerUpManager;
+class SoundSystem;
 
 
 class JuicyCheckers : public Ogre::WindowEventListener, public Ogre::FrameListener, public OIS::KeyListener, public OIS::MouseListener
@@ -128,6 +129,7 @@ private:
 
 	// Powerup Manager
 	PowerUpManager* mPowerUpManager;
+
 
 };
 

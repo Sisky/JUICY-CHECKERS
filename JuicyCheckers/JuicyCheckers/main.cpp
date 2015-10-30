@@ -16,7 +16,7 @@
 #include "LineDrawing.h"
 #include "PowerUpManager.h"
 #include "Powerup.h"
-
+#include "SoundSystem.h"
 
 
 JuicyCheckers::JuicyCheckers()
@@ -382,7 +382,7 @@ JuicyCheckers::addPieces()
 		Powerup* pu = new Powerup();
 		p->setPowerUps(pu);
 		//// set powerup state to a blank mask
-		mPowerUpManager->setPowerUpMask(p, mPowerUpManager->BLANK, true);
+		mPowerUpManager->setPowerUpMask(p, PowerUpManager::BLANK, true);
 
 		// create the powerup Node as a child of the pieceNode
 		p->m_PowerUpNode = pieceNode->createChildSceneNode("powerUpNode" + number);
@@ -610,6 +610,9 @@ JuicyCheckers::createScene()
 void
 JuicyCheckers::initScene()
 {
+	// Create and initialise the sound manager
+	SoundSystem& soundSys = SoundSystem::GetInstance();
+	soundSys.Initialise();
 
 	mCamera = mSceneMgr->createCamera("MainCam");
 
@@ -686,6 +689,9 @@ JuicyCheckers::initScene()
 	mSceneMgr->getSceneNode("powerupBarNodeP1")->yaw(Ogre::Degree(180));
 
 	mSceneMgr->getSceneNode("powerupBarNodeP2")->setPosition(0, 1, 900);
+
+	// play the bg music
+	SoundSystem::GetInstance().PlaySound(SoundSystem::SOUNDFILE::BG);
 }
 
 
