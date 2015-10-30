@@ -81,6 +81,8 @@ public:
 	void adjustTrays(); 
 
 	void updateChats();
+	void invalidMoveErr();
+	void canCapturePieceErr();
 
 protected:
 	void createMenu(MENUS menu);
@@ -138,11 +140,16 @@ private:
 	OgreBites::Button*	matchUpgrade;
 	OgreBites::ProgressBar* upgradeProgress;
 
+
 	// Widgets for the upgrade menu
 	OgreBites::Button*	powerupOne;
 	OgreBites::Button*	powerupTwo;
 	OgreBites::Button*	powerupThree;
 	OgreBites::Button*	powerupBack;
+
+	//Widgets for Resultmenu
+	OgreBites::Label* playerOneWin;
+	OgreBites::Label* playerTwoWin;
 
 	// OgreBites::SdkCameraMan*    mCameraMan;     	// Basic camera controller
 	OgreBites::ParamsPanel*     mDetailsPanel;   	// Sample details panel

@@ -517,6 +517,16 @@ void MenuSystem::updateChats()
 }
 
 void
+MenuSystem::invalidMoveErr(){
+	currentTray->showOkDialog("Notice:Invalid Move", "The move you just did is invalid, please try another move");
+}
+
+void
+MenuSystem::canCapturePieceErr(){
+	currentTray->showOkDialog("Notice", "There is a piece you can capture");
+}
+
+void
 MenuSystem::createMenu(MENUS menu)
 {
 	OgreBites::SdkTrayManager* currentTray = 0;
@@ -637,6 +647,12 @@ MenuSystem::createMenu(MENUS menu)
 
 			matchUpgrade = currentTray->createButton(OgreBites::TL_TOPLEFT, "upgradeButton", "Open Upgrades");
 
+			//Notify for invalid move
+			currentTray->showOkDialog("invalidMove", "That move is invalid, please try another move");
+
+			//Notify for piece capture
+			currentTray->showOkDialog("canCapture", "There's a piece you can capture");
+
 			
 
 			// Add the tray into the tray container.  NOTE: This function is designed to be run from 0 -> MENU.max
@@ -669,7 +685,8 @@ MenuSystem::createMenu(MENUS menu)
 			// Label
 
 			// Label results
-
+			playerOneWin = currentTray->createLabel(OgreBites::TL_CENTER, "P1Won", "Player One Won the Game");
+			playerTwoWin = currentTray->createLabel(OgreBites::TL_CENTER, "P2Won", "Player Two Won the Game");
 
 
 
