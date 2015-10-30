@@ -323,6 +323,7 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 							pController->setDestination(mCurObject);
 							mPieceID = stringToInt(mCurObject->getName());
 
+							
 
 
 								
@@ -346,6 +347,8 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 					
 
 					pController->movePiece();
+					//if moved to an end piece king it
+					//if(pPieces[mPieceID]->getBoardSquareID() > 56)
 
 					//stop turn swap if a jump chain can happen
 					if (jumped == false)

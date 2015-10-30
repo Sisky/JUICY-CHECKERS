@@ -58,6 +58,8 @@ PieceController::movePiece()
 	int destBoardSquare = stringToInt(m_destNode->getName());
 
 	e->setBoardSquareID(destBoardSquare);
+
+
 	
 	// reset the source and dest pointers to null
 	m_sourceNode = nullptr;
