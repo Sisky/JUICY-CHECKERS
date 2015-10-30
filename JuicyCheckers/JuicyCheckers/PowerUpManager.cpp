@@ -35,6 +35,198 @@ PowerUpManager::getPowerUps(Player & p)
 	return p.getPowerUps()->getPowerUpMask();
 }
 
+void 
+PowerUpManager::setPowerUpBar(int level, Ogre::SceneNode * powerupBarNode)
+{
+	// 0--2--4--6
+	// |  |  |  |
+	// 1--3--5--7
+	// get the manual object from the scenenode
+	Ogre::ManualObject* mo = static_cast<Ogre::ManualObject*>(powerupBarNode->getAttachedObject(0));
+	// to update vertex colours... the whole thing needs to be redefined and colours applied at that point!...dumb
+
+	switch (level) {
+	case 0:
+		// set all the colour nodes to red 
+		
+		mo->beginUpdate(0);
+
+			mo->position(-150, 0, 50); mo->colour(1, 0, 0, 1);	// 0
+			mo->position(-150, 0, -50); mo->colour(1, 0, 0, 1);	// 1
+			mo->position(-50, 0, 50); mo->colour(1, 0, 0, 1);	// 2
+			mo->position(-50, 0, -50); mo->colour(1, 0, 0, 1);	// 3
+			mo->position(50, 0, 50); mo->colour(1, 0, 0, 1);	// 4
+			mo->position(50, 0, -50); mo->colour(1, 0, 0, 1);	// 5
+			mo->position(150, 0, 50); mo->colour(1, 0, 0, 1);	// 6
+			mo->position(150, 0, -50); mo->colour(1, 0, 0, 1);	// 7
+
+			// create using indexes.. essentially 6 triangles
+			// bottom square
+			mo->index(2);
+			mo->index(3);
+			mo->index(0);
+
+			mo->index(3);
+			mo->index(1);
+			mo->index(0);
+
+			// middle square
+			mo->index(4);
+			mo->index(5);
+			mo->index(2);
+
+			mo->index(5);
+			mo->index(3);
+			mo->index(2);
+
+			// top square
+			mo->index(6);
+			mo->index(7);
+			mo->index(4);
+
+			mo->index(7);
+			mo->index(5);
+			mo->index(4);
+
+		mo->end();
+		
+		break;
+	case 1:
+		// set the first 2 vertices to green, the next 2 to orange
+		mo->beginUpdate(0);
+
+			mo->position(-150, 0, 50); mo->colour(0, 1, 0, 1);	// 0
+			mo->position(-150, 0, -50); mo->colour(0, 1, 0, 1);	// 1
+			mo->position(-50, 0, 50); mo->colour(1, 1, 0, 1);	// 2
+			mo->position(-50, 0, -50); mo->colour(1, 1, 0, 1);	// 3
+			mo->position(50, 0, 50); mo->colour(1, 0, 0, 1);	// 4
+			mo->position(50, 0, -50); mo->colour(1, 0, 0, 1);	// 5
+			mo->position(150, 0, 50); mo->colour(1, 0, 0, 1);	// 6
+			mo->position(150, 0, -50); mo->colour(1, 0, 0, 1);	// 7
+
+			// create using indexes.. essentially 6 triangles
+			// bottom square
+			mo->index(2);
+			mo->index(3);
+			mo->index(0);
+
+			mo->index(3);
+			mo->index(1);
+			mo->index(0);
+
+			// middle square
+			mo->index(4);
+			mo->index(5);
+			mo->index(2);
+
+			mo->index(5);
+			mo->index(3);
+			mo->index(2);
+
+			// top square
+			mo->index(6);
+			mo->index(7);
+			mo->index(4);
+
+			mo->index(7);
+			mo->index(5);
+			mo->index(4);
+
+		mo->end();
+		break;
+	case 2:
+		// set the first 2 vertices to green, the next 2 to orange
+		mo->beginUpdate(0);
+
+			mo->position(-150, 0, 50); mo->colour(0, 1, 0, 1);	// 0
+			mo->position(-150, 0, -50); mo->colour(0, 1, 0, 1);	// 1
+			mo->position(-50, 0, 50); mo->colour(0, 1, 0, 1);	// 2
+			mo->position(-50, 0, -50); mo->colour(0, 1, 0, 1);	// 3
+			mo->position(50, 0, 50); mo->colour(1, 1, 0, 1);	// 4
+			mo->position(50, 0, -50); mo->colour(1, 1, 0, 1);	// 5
+			mo->position(150, 0, 50); mo->colour(1, 0, 0, 1);	// 6
+			mo->position(150, 0, -50); mo->colour(1, 0, 0, 1);	// 7
+
+			// create using indexes.. essentially 6 triangles
+			// bottom square
+			mo->index(2);
+			mo->index(3);
+			mo->index(0);
+
+			mo->index(3);
+			mo->index(1);
+			mo->index(0);
+
+			// middle square
+			mo->index(4);
+			mo->index(5);
+			mo->index(2);
+
+			mo->index(5);
+			mo->index(3);
+			mo->index(2);
+
+			// top square
+			mo->index(6);
+			mo->index(7);
+			mo->index(4);
+
+			mo->index(7);
+			mo->index(5);
+			mo->index(4);
+
+		mo->end();
+		break;
+	case 3:
+		// all green
+		mo->beginUpdate(0);
+
+			mo->position(-150, 0, 50); mo->colour(0, 1, 0, 1);	// 0
+			mo->position(-150, 0, -50); mo->colour(0, 1, 0, 1);	// 1
+			mo->position(-50, 0, 50); mo->colour(0, 1, 0, 1);	// 2
+			mo->position(-50, 0, -50); mo->colour(0, 1, 0, 1);	// 3
+			mo->position(50, 0, 50); mo->colour(0, 1, 0, 1);	// 4
+			mo->position(50, 0, -50); mo->colour(0, 1, 0, 1);	// 5
+			mo->position(150, 0, 50); mo->colour(0, 1, 0, 1);	// 6
+			mo->position(150, 0, -50); mo->colour(0, 1, 0, 1);	// 7
+
+			// create using indexes.. essentially 6 triangles
+			// bottom square
+			mo->index(2);
+			mo->index(3);
+			mo->index(0);
+
+			mo->index(3);
+			mo->index(1);
+			mo->index(0);
+
+			// middle square
+			mo->index(4);
+			mo->index(5);
+			mo->index(2);
+
+			mo->index(5);
+			mo->index(3);
+			mo->index(2);
+
+			// top square
+			mo->index(6);
+			mo->index(7);
+			mo->index(4);
+
+			mo->index(7);
+			mo->index(5);
+			mo->index(4);
+
+		mo->end();
+		
+		break;
+		
+
+
+	}
+}
+
 // sets the powerup mask on the passed piece
 void 
 PowerUpManager::setPowerUpMask(Piece * p, PowerUpMask mask, bool overwrite)
@@ -45,7 +237,7 @@ PowerUpManager::setPowerUpMask(Piece * p, PowerUpMask mask, bool overwrite)
 	}
 	else {
 		// get existing mask and add to it
-		p->getPowerUps()->setPowerUpMask(static_cast<PowerUpManager::PowerUpMask>(p->getPowerUps()->getPowerUpMask() | mask));
+		p->getPowerUps()->setPowerUpMask(static_cast<PowerUpManager::PowerUpMask>(p->getPowerUps()->getPowerUpMask() ^ mask));
 	}
 }
 

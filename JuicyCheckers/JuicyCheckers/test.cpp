@@ -11,7 +11,7 @@
 #include "PowerUpManager.h"
 
 
-
+// this is being called at the end of addPieces in main.cpp
 void
 JuicyCheckers::testStuff(Ogre::SceneManager& sm)
 {
@@ -36,12 +36,20 @@ JuicyCheckers::testStuff(Ogre::SceneManager& sm)
 	mPowerUpManager->setPowerUpMask(e2, PowerUpManager::LOCK, true);
 	mPowerUpManager->setPowerUpMask(e3, PowerUpManager::SHIELD , true);
 	// combining masks
-	PowerUpManager::PowerUpMask mask = static_cast<PowerUpManager::PowerUpMask>(PowerUpManager::SHIELD | PowerUpManager::KING);
-	mPowerUpManager->setPowerUpMask(e4, mask, true);
+	// create a powerup mask and assign values
+	PowerUpManager::PowerUpMask mask1 = static_cast<PowerUpManager::PowerUpMask>(PowerUpManager::KING);
+	mPowerUpManager->setPowerUpMask(e4, mask1, true);
 	// adding to the mask
 	mPowerUpManager->setPowerUpMask(e5, PowerUpManager::LOCK, true);	// set initial mask
-	mPowerUpManager->setPowerUpMask(e5, PowerUpManager::SHIELD, false);   // add a powerup , set the overwrite flag to false
+	mPowerUpManager->setPowerUpMask(e5, PowerUpManager::SHIELD, false);   // add a powerup , set the overwrite flag to false to keep the previous entry
 
+	// removing the shield powerup and adding a king to e5 but keeping the lock powerup
+	PowerUpManager::PowerUpMask mask2 = static_cast<PowerUpManager::PowerUpMask>(PowerUpManager::KING | PowerUpManager::SHIELD);
+	mPowerUpManager->setPowerUpMask(e5, mask2, false);	// keep lock powerup by setting overwrite to false
+
+	// removing all powerups 
+	// mask2 = static_cast<PowerUpManager::PowerUpMask>(PowerUpManager::BLANK);
+	// mPowerUpManager->setPowerUpMask(e5, mask2, true);
 
 	// apply the powerup
 	mPowerUpManager->applyPowerUps(e1);
@@ -50,6 +58,10 @@ JuicyCheckers::testStuff(Ogre::SceneManager& sm)
 	mPowerUpManager->applyPowerUps(e4);
 	mPowerUpManager->applyPowerUps(e5);
 
+	// set the powerup bar for player 1 and player 2
+	
+	mPowerUpManager->setPowerUpBar(2, sm.getSceneNode("powerupBarNodeP1"));
+	mPowerUpManager->setPowerUpBar(1, sm.getSceneNode("powerupBarNodeP2"));
 
 }
 

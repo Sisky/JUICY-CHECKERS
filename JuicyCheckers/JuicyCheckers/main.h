@@ -57,8 +57,6 @@ protected:
 
 	// add the pieces to the array
 	void addPieces();
-	// draw the pieces on the board
-	void drawPieces();
 
 	// init particle system
 	void addParticleSystems();
