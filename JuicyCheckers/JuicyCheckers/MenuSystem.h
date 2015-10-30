@@ -138,11 +138,19 @@ private:
 	OgreBites::Button*	matchUpgrade;
 	OgreBites::ProgressBar* upgradeProgress;
 
+	//Widgets for Move Warning
+	OgreBites::Label* invalidMove;
+	OgreBites::Label* canCapture;
+
 	// Widgets for the upgrade menu
 	OgreBites::Button*	powerupOne;
 	OgreBites::Button*	powerupTwo;
 	OgreBites::Button*	powerupThree;
 	OgreBites::Button*	powerupBack;
+
+	//Widgets for Resultmenu
+	OgreBites::Label* playerOneWin;
+	OgreBites::Label* playerTwoWin;
 
 	// OgreBites::SdkCameraMan*    mCameraMan;     	// Basic camera controller
 	OgreBites::ParamsPanel*     mDetailsPanel;   	// Sample details panel
