@@ -25,10 +25,14 @@ Board::~Board(void)
 void
 Board::addSquare(int id)
 {
-	// create the square
+	// create a square
 	BoardSquare* b = new BoardSquare();
-	// assign the id
+	// create a plane and assign the id
 	b->createPlane(id);
+	// set default flag for occupied
+	b->setOccupied(false);
+	// set the default pieceID as 0
+	b->setPieceID(0);
 	// pushback onto the boardsquare vector
 	m_Board.push_back(b);
 }
@@ -41,11 +45,34 @@ Board::getSquare(int id)
 		if(i->getID() == id) {
 			return i;
 		}
-		else {
-			return nullptr;
+	}
+	return nullptr;
+}
+
+// returns a boardsquare based on the node
+BoardSquare* 
+Board::getSquare(Ogre::SceneNode * node)
+{
+	// use the name of the node to get the boardsquare
+	for (auto& i : m_Board) {
+		if (i->getName() == node->getName()) {
+			return i;
 		}
 	}
 	return nullptr;
+}
+
+int 
+Board::getSquareID(Ogre::SceneNode * node)
+{
+	// use the name of the node to get the boardsquare
+	for (auto& i : m_Board) {
+		if (i->getName() == node->getName()) {
+			return i->getID();
+		}
+	}
+
+	return 0;
 }
 
 // returns the scenenode of the board square based on the passed square ID
@@ -53,7 +80,7 @@ Ogre::SceneNode*
 Board::getSceneNode(int id, Ogre::SceneManager& sManager)
 {
 	Ogre::String number = Ogre::StringConverter::toString(id);
-	return sManager.getSceneNode("squareNode" + number);
+	return sManager.getSceneNode("boardSquareNode" + number);
 }
 
 // find the piece and return the scenenode based on the piece number 
@@ -63,8 +90,10 @@ Board::getSceneNodeFromPiece(int id, Ogre::SceneManager& sManager)
 	Ogre::String number = Ogre::StringConverter::toString(id);
 	for(auto& i : m_Board) {
 		if(i->getPieceID() == id) {
-			return sManager.getSceneNode("squareNode" + i->getID());
+			return sManager.getSceneNode("boardSquareNode" + i->getID());
 		}
 	}
 	return nullptr;
 }
+
+

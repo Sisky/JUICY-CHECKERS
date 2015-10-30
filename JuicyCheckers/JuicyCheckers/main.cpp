@@ -256,6 +256,16 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 			{
 				
 				// ensure that there is a source before being able to select a target
+				// debug requests here
+
+				// this is already the boardsquare node
+				Ogre::LogManager::getSingletonPtr()->logMessage("Selected Node Name		  : " + mCurObject->getName());
+				if (pBoard->getSquare(mCurObject) != nullptr) {
+					Ogre::LogManager::getSingletonPtr()->logMessage("BoardSquare Name	      : " + pBoard->getSquare(mCurObject)->getName());
+					Ogre::LogManager::getSingletonPtr()->logMessage("BoardSquare ID		      : " + Ogre::StringConverter::toString(pBoard->getSquare(mCurObject)->getID()));
+					Ogre::LogManager::getSingletonPtr()->logMessage("BoardSquare Occupied?    : " + Ogre::StringConverter::toString(pBoard->getSquare(mCurObject)->isOccupied()));
+
+				}
 				
 
 				// determine if the boardsqaure has an attached piece
@@ -266,15 +276,16 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 					// number of children will be 0 if there is nothing attached to the square
 					Ogre::SceneNode* c = static_cast<Ogre::SceneNode*>(mCurObject->getChild(0));
 					Piece* e = static_cast<Piece*>(c->getAttachedObject(0));
-					Ogre::LogManager::getSingletonPtr()->logMessage("Child Object Piece ID   : " + Ogre::StringConverter::toString(e->getPieceID()));
+					// Ogre::LogManager::getSingletonPtr()->logMessage("Child Object Piece ID   : " + Ogre::StringConverter::toString(e->getPieceID()));
 
 
 					// can access all the functions of the attached class now which makes like easier
 					
-					Ogre::LogManager::getSingletonPtr()->logMessage("Child Object Entity Name   : " + e->getName());
+					// Ogre::LogManager::getSingletonPtr()->logMessage("Child Object Entity Name   : " + e->getName());
 					
 
 					// set the selected child object as the source... this can only happen if there is a child object .. aka a piece on a square
+
 					
 					if (playerOne->getPlayerTurn() == true && e->getOwner() == playerOne)
 					{
@@ -292,6 +303,7 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 						mPieceID = e->getBoardSquareID();
 						
 					}
+
 					
 					// move and start the particle system
 					mSceneMgr->getSceneNode("selectionNode")->setPosition(mCurObject->getPosition());
@@ -304,6 +316,7 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 					// make sure that a target has been selected already
 					if(pController->getSource() != nullptr) {
 						// any square without a piece attached to it is a valid destination
+
 						//check if it is a valid dest before saving
 						if (isLegalMove(mPieceID, mCurObject->getName()))
 						{
@@ -316,6 +329,7 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 
 							Ogre::LogManager::getSingletonPtr()->logMessage("Target Object Selected : " + mCurObject->getName());
 						}
+
 
 						// if the left mouse button was pressed.. set the position of the 'selection particle effect' to be the position of the selected object
 						mSceneMgr->getSceneNode("selectionNode")->setPosition(mCurObject->getPosition());
@@ -350,6 +364,7 @@ JuicyCheckers::mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id)
 		}
 
 		
+
 	}
 
 	
@@ -367,7 +382,7 @@ JuicyCheckers::canJump(Player* player)
 		{
 			int sqID = pPieces[i]->getBoardSquareID(); //selected pieces square
 
-			if (sqID % 8 < 7) //cant be on edges
+			if (sqID % 8 < 7 && sqID < 41) //cant be on edges
 			{
 				for (int j = 0; j < pPieces.size(); j++) //check every piece
 				{
@@ -388,7 +403,7 @@ JuicyCheckers::canJump(Player* player)
 					}
 				}
 			}
-			if (sqID % 8 > 2) //cant be on edges
+			if (sqID % 8 > 2 && sqID < 41) //cant be on edges
 			{
 				for (int j = 0; j < pPieces.size(); j++) //check every piece
 				{
@@ -410,13 +425,14 @@ JuicyCheckers::canJump(Player* player)
 				}
 			}
 		}
+
 	}
 	else //player two turn
 		for (int i = 12; i < pPieces.size(); i++) //only check player ones pieces
 		{
 			int sqID = pPieces[i]->getBoardSquareID(); //selected pieces square
 
-			if (sqID % 8 > 2) //cant be on edges
+			if (sqID % 8 > 2 && sqID > 16) //cant be on edges
 			{
 				for (int j = 0; j < pPieces.size(); j++) //check every piece
 				{
@@ -437,7 +453,7 @@ JuicyCheckers::canJump(Player* player)
 					}
 				}
 			}
-			if (sqID % 8 < 7) //cant be on edges
+			if (sqID % 8 < 7 && sqID > 16) //cant be on edges
 			{
 				for (int j = 0; j < pPieces.size(); j++) //check every piece
 				{
@@ -463,7 +479,172 @@ JuicyCheckers::canJump(Player* player)
 	return jumpPossible;
 }
 
+int 
+JuicyCheckers::checkForWin()
+{
+	//return 0 no winner continue game, 1 player 1 wins, 2 player 2 wins
+	bool sqFilled = false;
+	bool pieceLeftpOne = false;
+	bool pieceLeftpTwo = false;
+	//check if player has pieces left
+	//check player 1 for pieces
+	for (int i = 0; i < 12; i++)
+	{
+		//check if there is a piece, if already found one don't bother
+		if (pPieces[i]->getVisible() == true && pieceLeftpOne == false)
+		{
+			//player has a piece left
+			pieceLeftpOne = true;
+		}
+	}
+	//check player 2 for pieces
+	for (int i = 12; i < pPieces.size(); i++)
+	{
+		//check if there is a piece, if already found one don't bother
+		if (pPieces[i]->getVisible() == true && pieceLeftpTwo == false)
+		{
+			//player has a piece left
+			pieceLeftpTwo = true;
+		}
+	}
+	//only player one has a piece left
+	if (pieceLeftpOne == true && pieceLeftpTwo != true)
+	{
+		//player one wins
+		return 1;
+	}
+	//only player two has a piece left
+	if (pieceLeftpOne != true && pieceLeftpTwo == true)
+	{
+		//player two wins
+		return 2;
+	}
 
+
+	if (canJump(playerOne) && playerOne->getPlayerTurn() == true)
+	{
+		//theres a possible jump for player 1
+		return 0;
+	}
+	if (canJump(playerTwo) && playerTwo->getPlayerTurn() == true)
+	{
+		//there is a possible jump for player 2 
+		return 0;
+	}
+	//no jumps avaliable so haveto check if there is single moves avaliable
+	if (playerOne->getPlayerTurn() == true)
+	{
+		for (int i = 0; i < 12; i++)
+		{
+			int curPiece = pPieces[i]->getBoardSquareID();
+			//not captured so check it
+			if (pPieces[i]->getVisible() == true)
+			{
+				//can move left
+				if (curPiece % 8 < 8)
+				{
+					for (int k = 0; k < pPieces.size(); k++)
+					{
+						if (curPiece + 9 == pPieces[k]->getBoardSquareID())
+						{
+							//cant move there
+							sqFilled = true;
+						}
+					}
+					//there is atleast one move
+					if (sqFilled = false)
+					{
+						return 0;
+					}
+					else
+					{
+						//reset for next check
+						sqFilled = false;
+					}
+						
+				}
+				if (curPiece % 8 > 1)
+				{
+					for (int k = 0; k < pPieces.size(); k++)
+					{
+						if (curPiece + 7 == pPieces[k]->getBoardSquareID())
+						{
+							//cant move there
+							sqFilled = true;
+						}
+					}
+					//there is atleast one move
+					if (sqFilled = false)
+					{
+						return 0;
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		//hasn't returned so no possible moves player 2 wins
+		return 2;
+	}
+	if (playerTwo->getPlayerTurn() == true)
+	{
+		for (int i = 12; i < pPieces.size(); i++)
+		{
+			int curPiece = pPieces[i]->getBoardSquareID();
+			//not captured so check it
+			if (pPieces[i]->getVisible() == true)
+			{
+				//can move left
+				if (curPiece % 8 < 8)
+				{
+					for (int k = 0; k < pPieces.size(); k++)
+					{
+						if (curPiece -7 == pPieces[k]->getBoardSquareID())
+						{
+							//cant move there
+							sqFilled = true;
+						}
+					}
+					//there is atleast one move
+					if (sqFilled = false)
+					{
+						return 0;
+					}
+					else
+					{
+						//reset for next check
+						sqFilled = false;
+					}
+
+				}
+				if (curPiece % 8 > 1)
+				{
+					for (int k = 0; k < pPieces.size(); k++)
+					{
+						if (curPiece - 9 == pPieces[k]->getBoardSquareID())
+						{
+							//cant move there
+							sqFilled = true;
+						}
+					}
+					//there is atleast one move
+					if (sqFilled = false)
+					{
+						return 0;
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		//hasn't returned so no possible moves player 1 wins
+		return 1;
+	}
+	
+	
+}
 
 
 bool 
@@ -646,25 +827,36 @@ JuicyCheckers::addPieces()
 		// set the entity query flag
 		p->setQueryFlags(PIECE_MASK);
 
-		// powerups
-		Powerup* pu = new Powerup();
-	
-		p->setPowerUps(pu);
-		//// set powerup state to a blank mask
-		mPowerUpManager->setPowerUpMask(p, mPowerUpManager->BLANK, true);
-
-
+		
 		// use that board ID to get the scenenode of the boardsquare
 		Ogre::SceneNode* s = pBoard->getSceneNode(count, *mSceneMgr);
-		
 
 		// create child node of the board square
 		Ogre::SceneNode* pieceNode = s->createChildSceneNode("pieceNode" + number);
 
 
+		// powerups
+		Powerup* pu = new Powerup();
+		p->setPowerUps(pu);
+		//// set powerup state to a blank mask
+		mPowerUpManager->setPowerUpMask(p, mPowerUpManager->BLANK, true);
+
+
+		
+		
+
+		
+
+		// create the powerup Node as a child of the pieceNode
+		p->m_PowerUpNode = pieceNode->createChildSceneNode("powerUpNode" + number);
+
+
+
 
 		// set the piece ID  1 - 24
 		p->setPieceID(i);
+		// initialize the powerups ready to be used by the piece
+		p->initPowerups(mSceneMgr, mParticleManager);
 		// set visibility
 		p->setVisible(true);
 		// set the board square ID
@@ -711,15 +903,14 @@ JuicyCheckers::addPieces()
 		if(count == 56) { count--; }
 	}
 
-	// testStuff(*mSceneMgr);
+	testStuff(*mSceneMgr);
 }
 
  
 void
 JuicyCheckers::addParticleSystems() 
 {
-	// get the particle manager singleton pointer
-	mParticleManager = ParticleUniverse::ParticleSystemManager::getSingletonPtr();
+	
 
 	// circle particle that is triggered when an object is clicked
 	ParticleUniverse::ParticleSystem* psSelection = mParticleManager->createParticleSystem("psSelection", "example_010", mSceneMgr);
@@ -786,17 +977,6 @@ JuicyCheckers::addParticleSystems()
 
 }
 
-void
-JuicyCheckers::drawPieces()
-{
-	// loop through the piece array
-	for(auto& i : pPieces) { 
-		// the piece is visible
-		//if(i->isVisible()) {
-		//	
-		//}
-	}
-}
 
 void
 JuicyCheckers::createScene()
@@ -817,9 +997,10 @@ JuicyCheckers::createScene()
 			 // array iteration
 			 int it = (i + (j * 8)) + 1;
 
-			 Ogre::String number= Ogre::StringConverter::toString(it);
-			 // obtain the plane from the boardsquare class
-			 Ogre::Entity* squareEntity = mSceneMgr->createEntity("boardSquare" + number); 
+			 Ogre::String number = Ogre::StringConverter::toString(it);
+			 // create an entity using the plane object created 
+			 
+			 Ogre::Entity* squareEntity = mSceneMgr->createEntity("boardSquarePlane" + number);
 			 
 			 squareEntity->setCastShadows(false);			 
 			 // set the material
@@ -858,12 +1039,12 @@ JuicyCheckers::createScene()
 			 //boardSceneNode->createChildSceneNode("squareNode" + number);
 			 // boardSceneNode->getChild("squareNode" + number)->setPosition(pos);
 			 // boardSceneNode->getChild("squareNode" + number)->attachObject(squareEntity);
-			 mSceneMgr->getSceneNode("BOARD_NODE")->createChildSceneNode("squareNode" + number);
+			 mSceneMgr->getSceneNode("BOARD_NODE")->createChildSceneNode("boardSquareNode" + number);
 			 //mSceneMgr->getRootSceneNode()->createChildSceneNode("squareNode" + number);
 			 // positon the node ... board is -800 to 800, each square is 200, 200
-			 mSceneMgr->getSceneNode("squareNode" + number)->setPosition(pos);
+			 mSceneMgr->getSceneNode("boardSquareNode" + number)->setPosition(pos);
 			 // attach the entity to the node
-			 mSceneMgr->getSceneNode("squareNode" + number)->attachObject(squareEntity);
+			 mSceneMgr->getSceneNode("boardSquareNode" + number)->attachObject(squareEntity);
 			 
 
 		} 
@@ -914,6 +1095,9 @@ JuicyCheckers::initScene()
 
 	// initialize the powerup manager
 	mPowerUpManager = new PowerUpManager();
+
+	// get the particle manager singleton pointer
+	mParticleManager = ParticleUniverse::ParticleSystemManager::getSingletonPtr();
 
 	// We want to create a scene node that we can rotate the camera around at the origin
 	Ogre::SceneNode* cameraParent = mSceneMgr->getRootSceneNode()->createChildSceneNode("CAMERA_ROTATION");;

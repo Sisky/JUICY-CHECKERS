@@ -26,8 +26,9 @@ void
 Powerup::setPowerUpMask(PowerUpManager::PowerUpMask pu)
 {
 	// set the mask to be blank
-	// mPowerUpState = static_cast<PowerUpManager::PowerUpMask>(PowerUpManager::BLANK);
-	mPowerUpState = PowerUpManager::BLANK;
+	mPowerUpState = static_cast<PowerUpManager::PowerUpMask>(PowerUpManager::BLANK);
+	// mPowerUpState = PowerUpManager::BLANK;
+
 
 	// set the boolean toggles and update the mask using bitwise OR 
 
